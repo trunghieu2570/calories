@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:calories/components/donut_chart.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: '27, Tháng 10'),
+      home: MyHomePage(title: 'Hôm nay'),
     );
   }
 }
@@ -25,8 +26,51 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   int _counter = 0;
+  SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarDividerColor: Colors.black54,
+  );
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    reset();
+  }
+
+  void reset() {
+    setState(() {
+      SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        reset();
+        break;
+      case AppLifecycleState.inactive:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.paused:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.suspending:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -45,10 +89,18 @@ class _MyHomePageState extends State<MyHomePage> {
             snap: false,
             expandedHeight: 120,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.all(18.0),
-              title: Text(
-                widget.title,
-                style: TextStyle(color: Colors.black),
+              titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
+              title: FlatButton(
+                padding: EdgeInsets.all(0),
+                onPressed: () => {},
+                child: Text(
+                  widget.title,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      fontFamily: "OpenSans",
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             ),
             backgroundColor: Colors.white,
@@ -68,33 +120,47 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           SliverToBoxAdapter(
-            child: Container(
-                height: 300, padding: EdgeInsets.all(20), child: DonutChart()),
-          ),
+              child: Container(
+            height: 300,
+            padding: EdgeInsets.all(20),
+            child: DonutChart(),
+          )),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: Icon(Icons.add),
+        icon: Icon(Icons.add),
+        label: Text("THÊM"),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black54,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle:
+            TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: "Roboto",
+          fontSize: 14,
+        ),
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.subject, color: Colors.black),
+            icon: Icon(Icons.data_usage),
+            title: Text("Diary"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_dining),
+            title: Text("Foods"),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.subject),
             title: Text("Menu"),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.subject, color: Colors.black),
-            title: Text("Menu"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.subject, color: Colors.black),
-            title: Text("Menu"),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.subject, color: Colors.black),
-            title: Text("Menu"),
+            icon: Icon(Icons.perm_identity),
+            title: Text("Profile"),
           ),
         ],
       ),
