@@ -11,6 +11,19 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        appBarTheme: AppBarTheme(
+          brightness: Brightness.light,
+          color: Colors.white,
+          iconTheme: IconThemeData(
+            color: Colors.black,
+          ),
+        ),
+        textTheme: TextTheme(
+          title: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: "OpenSans",
+          )
+        )
       ),
       home: MyHomePage(title: 'Hôm nay'),
     );
@@ -96,33 +109,70 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: Text(
                   widget.title,
                   style: TextStyle(
-                      color: Colors.black,
                       fontSize: 20,
                       fontFamily: "OpenSans",
                       fontWeight: FontWeight.bold),
                 ),
               ),
             ),
-            backgroundColor: Colors.white,
-            brightness: Brightness.light,
             actions: <Widget>[
               IconButton(
-                color: Colors.black,
                 icon: Icon(Icons.keyboard_arrow_left),
                 onPressed: () => _incrementCounter(),
               ),
               IconButton(
-                color: Colors.black,
                 icon: Icon(Icons.keyboard_arrow_right),
                 onPressed: () => _incrementCounter(),
               )
             ],
           ),
           SliverToBoxAdapter(
-              child: Container(
-            height: 300,
-            padding: EdgeInsets.all(20),
-            child: DonutChart(),
+              child: Column(
+            children: <Widget>[
+              Container(
+                height: 300,
+                padding: EdgeInsets.all(20),
+                child: DonutChart(),
+              ),
+              Card(
+                elevation: 0,
+                borderOnForeground: true,
+                shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(10),
+                  side: BorderSide(color: Colors.grey[400]),
+                ),
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      contentPadding: EdgeInsets.only(left: 20, top: 20, right: 20),
+                      title: Text('A calorie is a unit of energy'),
+                      subtitle: Text(
+                          '\nIn nutrition, calories refer to the energy people get from the food and drink they consume, and the energy they use in physical activity. Calories are listed in the nutritional information on all food packaging. Many weight loss programs center around reducing the intake of calories..'),
+                    ),
+                    ButtonTheme.bar(
+                      // make buttons use the appropriate styles for cards
+                      child: ButtonBar(
+                        children: <Widget>[
+                          FlatButton(
+                            child: const Text('Bỏ qua'),
+                            onPressed: () {/* ... */},
+                          ),
+                          FlatButton(
+                            child: const Text('Tìm hiểu thêm'),
+                            onPressed: () {/* ... */},
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 80,
+              ),
+            ],
           )),
         ],
       ),
@@ -133,15 +183,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         label: Text("THÊM"),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.black54,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle:
-            TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
         unselectedLabelStyle: TextStyle(
           fontWeight: FontWeight.bold,
-          fontFamily: "Roboto",
           fontSize: 14,
         ),
         items: const <BottomNavigationBarItem>[
