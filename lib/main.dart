@@ -31,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarColor: Colors.grey[50],
     systemNavigationBarIconBrightness: Brightness.dark,
     systemNavigationBarDividerColor: Colors.black54,
   );
@@ -104,7 +104,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ),
             ),
             backgroundColor: Colors.white,
-            elevation: 0,
             brightness: Brightness.light,
             actions: <Widget>[
               IconButton(
