@@ -50,11 +50,14 @@ class DonutChartPainter extends CustomPainter {
 }
 
 class DonutChart extends StatefulWidget {
+  DonutChart({Key key}) : super(key: key);
   @override
-  _DonutChartState createState() => _DonutChartState();
+  DonutChartState createState() => DonutChartState();
 }
 
-class _DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
+class DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
+
+
   double value;
   AnimationController valueAnimationController;
 
@@ -74,9 +77,13 @@ class _DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
       });
   }
 
+  void playAnimation(){
+    valueAnimationController.forward(from: 0.0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    valueAnimationController.forward(from: 0.4);
+
     return Container(
       child: CustomPaint(
           painter: DonutChartPainter(value: value),
