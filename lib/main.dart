@@ -1,4 +1,3 @@
-import 'package:calories/components/small_donut_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:calories/components/donut_chart.dart';
 import 'package:flutter/services.dart';
@@ -133,7 +132,9 @@ class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               Container(
                 height: 300,
                 padding: EdgeInsets.all(20),
-                child: DonutChart(key: globalKey,),
+                child: DonutChart(
+                  key: globalKey,
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -281,17 +282,69 @@ class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    ListTile(
-                      contentPadding:
-                          EdgeInsets.only(left: 20, top: 20, right: 20),
-                      title: Text('Mục tiêu mỗi ngày'),
-                      subtitle: Text("""
-                          \nThu được 2500 lượng calo cần thiết.
-                          \nUống 2.0 lít nước.
-                          \nĂn 300g tinh bột.
-                          \nĂn 60g chất béo.
-                          \nĂn 250 chất đạm.
-                          """),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "Mục tiêu hằng ngày",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            fontFamily: "OpenSans"),
+                      ),
+                    ),
+                    InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.panorama_fish_eye,
+                              color: Colors.green,
+                              size: 12,
+                            ),
+                            Text("\tUống đủ 2 lít nước."),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 12,
+                            ),
+                            Text("\tĂn đủ 2600 calo."),
+                            Text(
+                              "\t(Đã hoàn thành)",
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.panorama_fish_eye,
+                              color: Colors.green,
+                              size: 12,
+                            ),
+                            Text("\tĂn dưới 60 gram chất béo"),
+                            Text(
+                              "\t(25g còn lại)",
+                              style: TextStyle(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     ButtonTheme.bar(
                       // make buttons use the appropriate styles for cards
