@@ -14,7 +14,7 @@ class SmallDonutChartPainter extends CustomPainter {
       ..color = Colors.red
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.butt
-      ..strokeWidth = 30;
+      ..strokeWidth = 5;
 
     Offset center = new Offset(size.width / 2, size.height / 2);
     double radius = min(size.width / 2, size.height / 2);

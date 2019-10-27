@@ -2,45 +2,90 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:calories/util.dart' as Util;
 
 class DonutChartPainter extends CustomPainter {
   double value;
   DonutChartPainter({this.value});
+
+  final circlePaint = new Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 5;
+  //arc
+  final arcPaint = new Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeWidth = 15;
+
+  final redGradient = new SweepGradient(
+    colors: [
+      Colors.red[200],
+      Colors.red,
+    ],
+  );
+  final blueGradient = new SweepGradient(
+    colors: [
+      Colors.lightBlue,
+      Colors.blue,
+    ],
+  );
+  //paint2
+  final paint2 = new Paint()
+    ..color = Colors.red
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round
+    ..strokeWidth = 12;
+  //shadow
+  final shadowPaint = new Paint()
+    ..color = Colors.green.withAlpha(80)
+    ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.5);
+
   @override
   void paint(Canvas canvas, Size size) {
-    var rect = Offset.zero & size;
-    canvas.clipRect(rect);
-    Paint paint1 = new Paint()
-      ..color = Colors.red.withAlpha(50)
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5;
-    Paint paint2 = new Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 15;
-    Paint shadowPaint = new Paint()
-      ..color = Colors.blue.withAlpha(60)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4.5);
-
+    canvas.save();
+    //Xoay canvas
+    Offset rotated = Util.rotateOffset(angle: -pi / 2, size: size);
+    canvas.translate(rotated.dx, rotated.dy);
+    canvas.rotate(-pi / 2);
+    //Draw
     Offset center = new Offset(size.width / 2, size.height / 2);
     double radius = min(size.width / 2, size.height / 2);
     double sweep1 = 2 * pi * (value / 100);
-    double sweep2 = 2 * pi * (0 / 100);
-    canvas.drawOval(
-        Rect.fromCircle(center: center, radius: radius - 20), paint1);
+    double sweep2 = 2 * pi * (40 / 100);
+    //Draw circle
+    canvas.drawOval(Rect.fromCircle(center: center, radius: radius - 20),
+        circlePaint..color = Colors.red.withAlpha(50));
     canvas.drawOval(Rect.fromCircle(center: center, radius: radius - 50),
-        paint1..color = Colors.blue.withAlpha(50));
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 20),
-        -pi / 2, sweep1, false, paint2..color = Colors.red);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius - 50),
-        -pi / 2, sweep2, false, paint2..color = Colors.blue);
+        circlePaint..color = Colors.blue.withAlpha(50));
+    //DrawArc
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - 20),
+        0,
+        sweep1,
+        false,
+        arcPaint
+          ..color = Colors.red
+          ..shader = redGradient
+              .createShader(Rect.fromCircle(center: center, radius: radius)));
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - 50),
+        0,
+        sweep2,
+        false,
+        arcPaint
+          ..color = Colors.blue
+          ..shader = blueGradient
+              .createShader(Rect.fromCircle(center: center, radius: radius)));
     canvas.drawOval(
-        Rect.fromCircle(center: center.translate(0, 8), radius: radius - 65),
+        Rect.fromCircle(center: center.translate(0, 5), radius: radius - 70),
         shadowPaint);
-    canvas.drawOval(Rect.fromCircle(center: center, radius: radius - 70),
-        paint2..style = PaintingStyle.fill);
+    canvas.drawOval(
+        Rect.fromCircle(center: center, radius: radius - 75),
+        paint2
+          ..style = PaintingStyle.fill
+          ..color = Colors.green);
+    canvas.restore();
   }
 
   @override
@@ -56,8 +101,6 @@ class DonutChart extends StatefulWidget {
 }
 
 class DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
-
-
   double value;
   AnimationController valueAnimationController;
 
@@ -77,13 +120,12 @@ class DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
       });
   }
 
-  void playAnimation(){
+  void playAnimation() {
     valueAnimationController.forward(from: 0.0);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       child: CustomPaint(
           painter: DonutChartPainter(value: value),
