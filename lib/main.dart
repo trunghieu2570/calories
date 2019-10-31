@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:calories/components/donut_chart.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'views/diary_view.dart' as DiaryView;
 
 void main() => runApp(MyApp());
-
-GlobalKey<DonutChartState> globalKey = GlobalKey();
 
 class MyApp extends StatelessWidget {
   @override
@@ -32,15 +31,33 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
   final String title;
-
   @override
   MyHomePageState createState() => MyHomePageState();
 }
 
-class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
+String getDate(int index) {
+  var firstDate = DateTime(1900);
+  var date = firstDate.add(new Duration(days: index));
+  return "${date.day} Thg ${date.month} ${date.year}";
+}
+
+int getIndexFromDate(DateTime date) {
+  var firstDate = DateTime(1900);
+  var result = date.difference(firstDate);
+  return result.inDays;
+}
+
+class MyHomePageState extends State<MyHomePage>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   int _counter = 0;
+  String _pageTitle = "Hôm nay";
+  PageController _pageController;
+  TabController _foodTabController;
+  int _selectedView = 0;
+
+  List<Widget> _views;
+
   SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -48,24 +65,88 @@ class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     systemNavigationBarIconBrightness: Brightness.dark,
     systemNavigationBarDividerColor: Colors.black54,
   );
+
+  Future<Null> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(1900),
+      initialDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      _changePageByDate(picked);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    reset();
+    _pageController = new PageController(
+      initialPage: getIndexFromDate(DateTime.now()),
+    );
+    _foodTabController = new TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: 0,
+    );
+    _reset();
+    _selectedView = 0;
   }
 
-  void reset() {
+  void _onPageChanged(int index) {
+    setState(() {
+      var todayIndex = getIndexFromDate(DateTime.now());
+      print("page $todayIndex changed to $index");
+      if (index == todayIndex) {
+        _pageTitle = "Hôm nay";
+      } else if (index == todayIndex - 1) {
+        _pageTitle = "Hôm qua";
+      } else if (index == todayIndex + 1) {
+        _pageTitle = "Ngày mai";
+      } else {
+        _pageTitle = getDate(index);
+      }
+      print(" Page title: $_pageTitle");
+    });
+  }
+
+  void _reset() {
     setState(() {
       SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
     });
+  }
+
+  void _changeView(int index) {
+    setState(() {
+      _selectedView = index;
+    });
+  }
+
+  void _changePageByDate(DateTime date) {
+    var index = getIndexFromDate(date);
+    _pageController.jumpToPage(index);
+  }
+
+  Future<Null> _nextPage() async {
+    _pageController.nextPage(
+      curve: Curves.linear,
+      duration: kTabScrollDuration,
+    );
+  }
+
+  Future<Null> _prevPage() async {
+    _pageController.previousPage(
+      curve: Curves.linear,
+      duration: kTabScrollDuration,
+    );
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        reset();
+        _reset();
         break;
       case AppLifecycleState.inactive:
         // TODO: Handle this case.
@@ -86,290 +167,109 @@ class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void _incrementCounter() {
-    setState(() {
-      globalKey.currentState.playAnimation();
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            pinned: true,
-            floating: true,
-            snap: false,
-            expandedHeight: 120,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
-              title: FlatButton(
-                padding: EdgeInsets.all(0),
-                onPressed: () => {},
-                child: Text(
-                  widget.title,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: "OpenSans",
-                      fontWeight: FontWeight.bold),
+    _views = [
+      NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
+          return <Widget>[
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              snap: false,
+              expandedHeight: 120,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
+                title: FlatButton(
+                  padding: EdgeInsets.all(0),
+                  onPressed: () => _selectDate(context),
+                  child: Text(
+                    _pageTitle,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "OpenSans",
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
+              ),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.keyboard_arrow_left),
+                  onPressed: () => _prevPage(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.keyboard_arrow_right),
+                  onPressed: () => _nextPage(),
+                )
+              ],
+            ),
+          ];
+        },
+        body: PageView.custom(
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          childrenDelegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return DiaryView.pageViewItem(index);
+            },
+          ),
+        ),
+      ),
+      NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
+          return <Widget>[
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              snap: false,
+              forceElevated: true,
+              title: Text(
+                "Đồ ăn thức uống",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontFamily: "OpenSans",
+                    fontWeight: FontWeight.bold),
+              ),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.search),
+                  tooltip: "Tìm kiếm",
+                  onPressed: () => {},
+                )
+              ],
+              bottom: TabBar(
+                controller: _foodTabController,
+                labelColor: Colors.black,
+                tabs: <Widget>[
+                  Tab(text: "Dành cho bạn"),
+                  Tab(text: "Nổi bật"),
+                  Tab(text: "Danh mục"),
+                ],
               ),
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.keyboard_arrow_left),
-                onPressed: () => _incrementCounter(),
-              ),
-              IconButton(
-                icon: Icon(Icons.keyboard_arrow_right),
-                onPressed: () => _incrementCounter(),
-              )
-            ],
-          ),
-          SliverToBoxAdapter(
-              child: Column(
-            children: <Widget>[
-              Container(
-                height: 300,
-                padding: EdgeInsets.all(20),
-                child: DonutChart(
-                  key: globalKey,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "2630",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: "OpenSans",
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "Calo đã nạp",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: "OpenSans",
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => _incrementCounter(),
-                  ),
-                  FlatButton(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "2.5L",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: "OpenSans",
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "Nước đã uống",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: "OpenSans",
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => _incrementCounter(),
-                  ),
-                ],
-              ),
-              Divider(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "CHẤT BÉO",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "60g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => _incrementCounter(),
-                  ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "TINH BỘT",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "210g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => _incrementCounter(),
-                  ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "CHẤT ĐẠM",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "60g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => _incrementCounter(),
-                  ),
-                ],
-              ),
-              Card(
-                elevation: 0,
-                borderOnForeground: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey[400]),
-                ),
-                margin: EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Mục tiêu hằng ngày",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "OpenSans"),
-                      ),
-                    ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.panorama_fish_eye,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tUống đủ 2 lít nước."),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tĂn đủ 2600 calo."),
-                            Text(
-                              "\t(Đã hoàn thành)",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.panorama_fish_eye,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tĂn dưới 60 gram chất béo"),
-                            Text(
-                              "\t(25g còn lại)",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    ButtonTheme.bar(
-                      // make buttons use the appropriate styles for cards
-                      child: ButtonBar(
-                        children: <Widget>[
-                          FlatButton(
-                            child: const Text('Bỏ qua'),
-                            onPressed: () {/* ... */},
-                          ),
-                          FlatButton(
-                            child: const Text('Chỉnh sửa mục tiêu'),
-                            onPressed: () {/* ... */},
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                height: 80,
-              ),
-            ],
-          )),
-        ],
+          ];
+        },
+        body: TabBarView(
+          controller: _foodTabController,
+          children: [
+            Icon(Icons.directions_car),
+            Icon(Icons.directions_transit),
+            Icon(Icons.directions_transit),
+          ],
+        ),
+      ),
+      Text("Hello World 3"),
+      Text("Hello World 4"),
+    ];
+    return Scaffold(
+      body: Builder(
+        builder: (BuildContext context) {
+          return _views.elementAt(_selectedView);
+        },
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _incrementCounter,
@@ -398,14 +298,16 @@ class MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             title: Text("Đồ ăn"),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.subject),
-            title: Text("Menu"),
+            icon: Icon(Icons.timeline),
+            title: Text("Mục tiêu"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
             title: Text("Hồ sơ"),
           ),
         ],
+        onTap: _changeView,
+        currentIndex: _selectedView,
       ),
     );
   }
