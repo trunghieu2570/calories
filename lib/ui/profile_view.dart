@@ -1,3 +1,5 @@
+import 'dart:ui' as prefix0;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -201,115 +203,121 @@ class ProfileState extends State<Profile> {
         ),
         SliverList(
           delegate: SliverChildListDelegate([
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+              child: Text(
+                "Cá nhân hóa",
+                style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
+              ),
+            ),
             Card(
               elevation: 0,
               borderOnForeground: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey[400]),
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: InkWell(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              child: ListTile(
                 onTap: () => {},
-                child: ListTile(
-                  leading: Icon(
+                contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                leading: CircleAvatar(
+                  backgroundColor: Colors.green,
+                  radius: 18,
+                  child: Icon(
                     Icons.offline_pin,
-                    color: Colors.green,
+                    color: Colors.white,
                   ),
-                  title: Text(
-                    "Mục tiêu",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                ),
+                title: Text(
+                  "Thiết lập mục tiêu",
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
             Card(
               elevation: 0,
               borderOnForeground: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey[400]),
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: InkWell(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              child: ListTile(
                 onTap: () => {},
-                child: ListTile(
-                  leading: Icon(
+                contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                leading: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.orange,
+                  child: Icon(
                     Icons.notifications_active,
-                    color: Colors.orange,
+                    color: Colors.white,
                   ),
-                  title: Text(
-                    "Nhắc nhở",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                ),
+                title: Text(
+                  "Nhắc nhở",
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
             Card(
               elevation: 0,
               borderOnForeground: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey[400]),
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: InkWell(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              child: ListTile(
                 onTap: () => {},
-                child: ListTile(
-                  leading: Icon(
+                contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                leading: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.red,
+                  child: Icon(
                     Icons.favorite,
-                    color: Colors.red,
-                  ),
-                  title: Text(
-                    "Yêu thích",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+                    color: Colors.white,
                   ),
                 ),
+                title: Text(
+                  "Món ăn yêu thích",
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+              child: Text(
+                "Ứng dụng",
+                style: TextStyle(color: Colors.grey[600], fontWeight: FontWeight.w500),
               ),
             ),
             Card(
               elevation: 0,
               borderOnForeground: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey[400]),
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: InkWell(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              child: ListTile(
                 onTap: () => {},
-                child: ListTile(
-                  leading: Icon(
+                contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                leading: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.purple,
+                  child: Icon(
                     Icons.settings,
-                    color: Colors.purple,
+                    color: Colors.white,
                   ),
-                  title: Text(
-                    "Cài đặt",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                ),
+                title: Text(
+                  "Cài đặt",
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
             Card(
               elevation: 0,
               borderOnForeground: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10),
-                side: BorderSide(color: Colors.grey[400]),
-              ),
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: InkWell(
+              margin: EdgeInsets.symmetric(vertical: 2),
+              child: ListTile(
                 onTap: () => {},
-                child: ListTile(
-                  leading: Icon(Icons.error, color: Colors.blue),
-                  title: Text(
-                    "Thông tin",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                leading: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.blue,
+                    child: Icon(
+                      Icons.error,
+                      color: Colors.white,
+                    )),
+                title: Text(
+                  "Thông tin ứng dụng",
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
                 ),
               ),
             ),
