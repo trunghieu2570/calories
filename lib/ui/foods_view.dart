@@ -54,7 +54,170 @@ class FoodsState extends State<Foods> {
         },
         body: TabBarView(
           children: [
-            Icon(Icons.directions_car),
+            SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  ListTile(
+                    onTap: () => {},
+                    title: Text(
+                      'Có thể bạn sẽ thích',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontFamily: 'OpenSans'),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 160,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 15,
+                      itemBuilder: (BuildContext context, int index) =>
+                          new Card(
+                        semanticContainer: true,
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Container(
+                            width: 200,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(
+                                        'https://placeimg.com/640/480/any'),
+                                    fit: BoxFit.fill)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Container(
+                                  child: ListTile(
+                                    title: Text(
+                                      'Title',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    subtitle: Text(
+                                      'Subtitle',
+                                      style: TextStyle(color: Colors.white38),
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withAlpha(100),
+                                  ),
+                                )
+                              ],
+                            )),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        elevation: 5,
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Được bạn dùng thường xuyên',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontFamily: 'OpenSans'),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 80,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 15,
+                      itemBuilder: (BuildContext context, int index) => Card(
+                        child:
+                            Center(child: Text('Dummy Card Texthhhhhhhhhhhh')),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Món ăn bạn nên thử hôm nay',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontFamily: 'OpenSans'),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 160,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 15,
+                      itemBuilder: (BuildContext context, int index) => Card(
+                        child:
+                            Center(child: Text('Dummy Card Texthhhhhhhhhhhh')),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Món ăn yêu thích',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontFamily: 'OpenSans'),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 80,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 15,
+                      itemBuilder: (BuildContext context, int index) => Card(
+                        child:
+                            Center(child: Text('Dummy Card Texthhhhhhhhhhhh')),
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text(
+                      'Đồ uống yêu thích',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontFamily: 'OpenSans'),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward,
+                      color: Colors.black,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 80,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 15,
+                      itemBuilder: (BuildContext context, int index) => Card(
+                        child:
+                            Center(child: Text('Dummy Card Texthhhhhhhhhhhh')),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Icon(Icons.directions_transit),
             CustomScrollView(
               //physics: NeverScrollableScrollPhysics(),
