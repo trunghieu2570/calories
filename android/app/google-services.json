@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "212804044727",
+    "firebase_url": "https://tezz-c8e12.firebaseio.com",
+    "project_id": "tezz-c8e12",
+    "storage_bucket": "tezz-c8e12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:212804044727:android:46c25c8bb812bfb1648a32",
+        "android_client_info": {
+          "package_name": "com.tezz.calories"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "212804044727-rdl41oiopp3vdl9fgavs7vo0abdjjuhk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1mUV5LG9uRKZSk1Wjjnb_gFgI3yFSBHc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "212804044727-rdl41oiopp3vdl9fgavs7vo0abdjjuhk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

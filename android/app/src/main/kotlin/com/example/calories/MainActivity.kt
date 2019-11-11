@@ -1,4 +1,4 @@
-package com.example.calories
+package com.tezz.calories
 
 import android.os.Bundle
 

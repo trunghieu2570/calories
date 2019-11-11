@@ -1,5 +1,122 @@
-import 'package:calories/components/donut_chart.dart';
+import 'package:calories/ui/widgets/donut_chart.dart';
 import 'package:flutter/material.dart';
+
+import '../util.dart';
+
+class Diary extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new DiaryState();
+}
+
+class DiaryState extends State<Diary> {
+  String _pageTitle = "Hôm nay";
+  PageController _pageController;
+
+  void _onPageChanged(int index) {
+    setState(() {
+      var todayIndex = getIndexFromDate(DateTime.now());
+      print("page $todayIndex changed to $index");
+      if (index == todayIndex) {
+        _pageTitle = "Hôm nay";
+      } else if (index == todayIndex - 1) {
+        _pageTitle = "Hôm qua";
+      } else if (index == todayIndex + 1) {
+        _pageTitle = "Ngày mai";
+      } else {
+        _pageTitle = getDate(index);
+      }
+      print(" Page title: $_pageTitle");
+    });
+  }
+
+  Future<Null> _selectDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(1900),
+      initialDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      _changePageByDate(picked);
+    }
+  }
+
+  Future<Null> _nextPage() async {
+    _pageController.nextPage(
+      curve: Curves.linear,
+      duration: kTabScrollDuration,
+    );
+  }
+
+  Future<Null> _prevPage() async {
+    _pageController.previousPage(
+      curve: Curves.linear,
+      duration: kTabScrollDuration,
+    );
+  }
+
+  void _changePageByDate(DateTime date) {
+    var index = getIndexFromDate(date);
+    _pageController.jumpToPage(index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = new PageController(
+      initialPage: getIndexFromDate(DateTime.now()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NestedScrollView(
+      headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
+        return <Widget>[
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            snap: false,
+            //expandedHeight: 120,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
+              title: FlatButton(
+                padding: EdgeInsets.all(0),
+                onPressed: () => _selectDate(context),
+                child: Text(
+                  _pageTitle,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: "OpenSans",
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_left),
+                onPressed: () => _prevPage(),
+              ),
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_right),
+                onPressed: () => _nextPage(),
+              )
+            ],
+          ),
+        ];
+      },
+      body: PageView.custom(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        childrenDelegate: SliverChildBuilderDelegate(
+          (BuildContext context, int index) {
+            return pageViewItem(index);
+          },
+        ),
+      ),
+    );
+  }
+}
 
 final sessions = ['Buổi sáng', 'Buổi trưa', 'Buổi chiều', 'Ăn vặt'];
 final items = ['Món ăn A', 'Món ăn B', 'Món ăn C', 'Đồ uống A'];
