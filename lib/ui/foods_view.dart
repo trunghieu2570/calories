@@ -1,4 +1,5 @@
 import 'package:calories/ui/food_search_page.dart';
+import 'package:calories/ui/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -8,6 +9,22 @@ class Foods extends StatefulWidget {
 }
 
 class FoodsState extends State<Foods> {
+  int _selectedTab = 0;
+
+  void onTabBarTapped(int index) {
+    return setState(() {
+      _selectedTab = index;
+    });
+  }
+
+  Future onSearchIconPressed(BuildContext context) {
+    if (_selectedTab == 2)
+      return Navigator.push(
+          context, MaterialPageRoute(builder: (context) => FoodSearch()));
+    return Navigator.push(
+        context, MaterialPageRoute(builder: (context) => RecipeSearch()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -22,7 +39,7 @@ class FoodsState extends State<Foods> {
                 snap: true,
                 forceElevated: true,
                 title: Text(
-                  "Đồ ăn thức uống",
+                  "Món ăn yêu thích",
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 20,
@@ -33,18 +50,16 @@ class FoodsState extends State<Foods> {
                   IconButton(
                       icon: Icon(Icons.search),
                       tooltip: "Tìm kiếm",
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FoodSearch()))),
+                      onPressed: () => onSearchIconPressed(context)),
                   IconButton(
                     icon: Icon(Icons.mic_none),
                     tooltip: "Tìm kiếm bằng giọng nói",
                     onPressed: () => {},
-                  )
+                  ),
                 ],
                 bottom: TabBar(
                   isScrollable: true,
+                  onTap: (index) => onTabBarTapped(index),
                   labelColor: Colors.grey[800],
                   tabs: <Widget>[
                     Tab(
@@ -76,48 +91,20 @@ class FoodsState extends State<Foods> {
   Widget buildFoodsView() => CustomScrollView(
         slivers: <Widget>[
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (_, int index) {
-                return Card(
-                  margin: EdgeInsets.symmetric(vertical: 0.5),
-                  semanticContainer: true,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  shape: RoundedRectangleBorder(),
-                  elevation: 0,
-                  child: Container(
-                    child: ListTile(
-                      title: Text('Title'),
-                    ),
-                  ),
-                );
-              },
-              childCount: 15,
-            ),
-          )
-        ],
-      );
-
-  Widget buildMealsView() => CustomScrollView(
-        slivers: <Widget>[
-          SliverList(
             delegate: SliverChildListDelegate([
               ListTile(
                 onTap: () => {},
                 title: Text(
-                  'Được dùng thường xuyên',
+                  'Danh mục các loại thực phẩm',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     fontFamily: 'OpenSans',
                   ),
                 ),
-                trailing: Icon(
-                  Icons.arrow_forward,
-                  color: Colors.black,
-                ),
               ),
               SizedBox(
-                height: 160,
+                height: 120,
                 child: ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
@@ -126,11 +113,11 @@ class FoodsState extends State<Foods> {
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     child: Container(
-                        width: 200,
+                        width: 150,
                         decoration: BoxDecoration(
                             image: DecorationImage(
                                 image: NetworkImage(
-                                    'https://placeimg.com/640/480/any'),
+                                    'https://placeimg.com/640/480/any?dummy=$index`'),
                                 fit: BoxFit.fill)),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -141,13 +128,9 @@ class FoodsState extends State<Foods> {
                                   'Title',
                                   style: TextStyle(color: Colors.white),
                                 ),
-                                subtitle: Text(
-                                  'Subtitle',
-                                  style: TextStyle(color: Colors.white38),
-                                ),
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(100),
+                                color: Colors.black.withAlpha(0),
                               ),
                             )
                           ],
@@ -160,9 +143,46 @@ class FoodsState extends State<Foods> {
                 ),
               ),
               ListTile(
+                title: Text(
+                  'Thực phẩm yêu thích của bạn',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontFamily: 'OpenSans'),
+                ),
+                trailing: Icon(
+                  Icons.filter_list,
+                  color: Colors.black,
+                ),
+              ),
+            ]),
+          ),
+          SliverList(delegate: SliverChildBuilderDelegate(
+            (_, int index) {
+              return Card(
+                semanticContainer: true,
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                child: Container(
+                  height: 70,
+                  child: ListTile(
+                    title: Text('Title'),
+                    subtitle: Text('Subtitle'),
+                  ),
+                ),
+              );
+            },
+          )),
+        ],
+      );
+
+  Widget buildMealsView() => CustomScrollView(
+        slivers: <Widget>[
+          SliverList(
+            delegate: SliverChildListDelegate([
+              ListTile(
                 onTap: () => {},
                 title: Text(
-                  'Lựa chọn bữa ăn từ cộng đồng',
+                  'Được lựa chọn dành cho bạn',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -224,7 +244,7 @@ class FoodsState extends State<Foods> {
                       fontFamily: 'OpenSans'),
                 ),
                 trailing: Icon(
-                  Icons.arrow_forward,
+                  Icons.filter_list,
                   color: Colors.black,
                 ),
               ),
@@ -236,7 +256,7 @@ class FoodsState extends State<Foods> {
                 semanticContainer: true,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 child: Container(
-                  height: 60,
+                  height: 75,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -253,7 +273,6 @@ class FoodsState extends State<Foods> {
                     ],
                   ),
                 ),
-                elevation: 1,
               );
             },
           )),
@@ -267,7 +286,7 @@ class FoodsState extends State<Foods> {
               ListTile(
                 onTap: () => {},
                 title: Text(
-                  'Được dùng thường xuyên',
+                  'Công thức nấu ăn từ cộng đồng',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -310,67 +329,11 @@ class FoodsState extends State<Foods> {
                                 ),
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.black.withAlpha(100),
+                                color: Colors.black.withAlpha(0),
                               ),
                             )
                           ],
                         )),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    elevation: 5,
-                  ),
-                ),
-              ),
-              ListTile(
-                onTap: () => {},
-                title: Text(
-                  'Công thức nấu ăn từ cộng đồng',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.arrow_forward,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 15,
-                  itemBuilder: (BuildContext context, int index) => Card(
-                    semanticContainer: true,
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: Container(
-                      width: 150,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                      'https://placeimg.com/640/480/any?dummy=$index'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            child: ListTile(
-                              title: Text('Title'),
-                              subtitle: Text('Subtitle'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -387,7 +350,7 @@ class FoodsState extends State<Foods> {
                       fontFamily: 'OpenSans'),
                 ),
                 trailing: Icon(
-                  Icons.arrow_forward,
+                  Icons.filter_list,
                   color: Colors.black,
                 ),
               ),
@@ -399,7 +362,7 @@ class FoodsState extends State<Foods> {
                 semanticContainer: true,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
                 child: Container(
-                  height: 60,
+                  height: 70,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
