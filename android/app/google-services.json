@@ -1,34 +1,79 @@
 {
   "project_info": {
-    "project_number": "212804044727",
-    "firebase_url": "https://tezz-c8e12.firebaseio.com",
-    "project_id": "tezz-c8e12",
-    "storage_bucket": "tezz-c8e12.appspot.com"
+    "project_number": "628488734947",
+    "firebase_url": "https://friendlychat-d4cb6.firebaseio.com",
+    "project_id": "friendlychat-d4cb6",
+    "storage_bucket": "friendlychat-d4cb6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:212804044727:android:46c25c8bb812bfb1648a32",
+        "mobilesdk_app_id": "1:628488734947:android:f626541795a2c29d675dd6",
         "android_client_info": {
           "package_name": "com.tezz.calories"
         }
       },
       "oauth_client": [
         {
-          "client_id": "212804044727-rdl41oiopp3vdl9fgavs7vo0abdjjuhk.apps.googleusercontent.com",
+          "client_id": "628488734947-355a5ctc6t8fff9feo1ns5vsc8c4evsv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tezz.calories",
+            "certificate_hash": "66a199a2654c4782d4c79354e138c45ba3c6c251"
+          }
+        },
+        {
+          "client_id": "628488734947-o9l1dfo6l03lcugfaoqlknmtoponqdr8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB1mUV5LG9uRKZSk1Wjjnb_gFgI3yFSBHc"
+          "current_key": "AIzaSyBUB56PnsCz49OslZjnceMuRisvfKepk6c"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "212804044727-rdl41oiopp3vdl9fgavs7vo0abdjjuhk.apps.googleusercontent.com",
+              "client_id": "628488734947-o9l1dfo6l03lcugfaoqlknmtoponqdr8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:628488734947:android:53c2ac9ff55f8945675dd6",
+        "android_client_info": {
+          "package_name": "com.tezz.friendlychat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "628488734947-42c0bs0uikgnmuklum4vsfmjsh6kf7ee.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tezz.friendlychat",
+            "certificate_hash": "66a199a2654c4782d4c79354e138c45ba3c6c251"
+          }
+        },
+        {
+          "client_id": "628488734947-o9l1dfo6l03lcugfaoqlknmtoponqdr8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUB56PnsCz49OslZjnceMuRisvfKepk6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "628488734947-o9l1dfo6l03lcugfaoqlknmtoponqdr8.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

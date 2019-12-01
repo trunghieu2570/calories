@@ -1,29 +1,51 @@
-import 'package:calories/ui/foods_view.dart';
-import 'package:calories/ui/profile_view.dart';
+import 'package:calories/blocs/auth/bloc.dart';
+import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/repositories/auth_repository.dart';
+import 'package:calories/ui/foods_screen.dart';
+import 'package:calories/ui/splash_screen.dart';
+import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'diary_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'diary_screen.dart';
 
 class MyApp extends StatelessWidget {
+  final AuthRepository _userRepository;
+
+  MyApp({Key key, @required AuthRepository userRepository})
+      : assert(userRepository != null),
+        _userRepository = userRepository,
+        super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
           primarySwatch: Colors.blue,
-          appBarTheme: AppBarTheme(
-            brightness: Brightness.light,
-            color: Colors.white,
-            iconTheme: IconThemeData(
-              color: Colors.black,
-            ),
-          ),
           textTheme: TextTheme(
               title: TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: "OpenSans",
           ))),
-      home: MyHomePage(title: 'Hôm nay'),
+      initialRoute: "/",
+      routes: {
+        '/': (context) => BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is Uninitialized) {
+                  return SplashScreen();
+                }
+                if (state is Authenticated) {
+                  BlocProvider.of<FavoriteFoodsBloc>(context)
+                      .add(LoadFavoriteFoods(state.user.uid));
+                  return MyHomePage(title: "Hom nay");
+                }
+                ;
+                return Text("Unantheticated");
+              },
+            ),
+      },
     );
   }
 }
@@ -31,6 +53,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
+
   @override
   MyHomePageState createState() => MyHomePageState();
 }
@@ -39,7 +62,6 @@ class MyHomePageState extends State<MyHomePage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   int _counter = 0;
   int _selectedView = 0;
-
   List<Widget> _views;
   List<Widget> _floatingButtons;
 
@@ -57,6 +79,11 @@ class MyHomePageState extends State<MyHomePage>
     WidgetsBinding.instance.addObserver(this);
     _reset();
     _selectedView = 0;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   void _reset() {
@@ -102,45 +129,17 @@ class MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     _views = [
-      new Diary(),
-      new Foods(),
+      new DiaryScreen(),
+      new FoodsScreen(),
       Text("Hello World 3"),
-      new Profile(),
+      new ProfileScreen(),
     ];
-    _floatingButtons = [
-      FloatingActionButton.extended(
-        onPressed: _incrementCounter,
-        tooltip: 'Thêm vào nhật ký',
-        icon: Icon(Icons.add),
-        label: Text("THÊM"),
-      ),
-      FloatingActionButton.extended(
-        onPressed: _incrementCounter,
-        tooltip: 'Tạo đồ ăn thức uống mới',
-        icon: Icon(Icons.add),
-        label: Text("TẠO MỚI"),
-      ),
-      FloatingActionButton.extended(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        icon: Icon(Icons.add),
-        label: Text("THÊM"),
-      ),
-      FloatingActionButton.extended(
-        onPressed: _incrementCounter,
-        tooltip: 'Chỉnh sửa hồ sơ',
-        icon: Icon(Icons.edit),
-        label: Text("SỬA HỒ SƠ"),
-      ),
-    ];
-
     return Scaffold(
       body: Builder(
         builder: (BuildContext context) {
           return _views.elementAt(_selectedView);
         },
       ),
-      floatingActionButton: _floatingButtons.elementAt(_selectedView),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,

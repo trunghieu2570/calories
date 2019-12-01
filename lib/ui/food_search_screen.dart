@@ -1,5 +1,10 @@
+import 'package:calories/blocs/food/food_bloc.dart';
+import 'package:calories/blocs/food/food_state.dart';
+import 'package:calories/models/models.dart';
+import 'package:calories/ui/food_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FoodSearch extends StatefulWidget {
   @override
@@ -75,7 +80,8 @@ class FoodSearchState extends State<FoodSearch> {
   Widget _filterDialog() {
     return AlertDialog(
       contentPadding: EdgeInsets.all(15),
-      titleTextStyle: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+      titleTextStyle: TextStyle(
+          fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
       content: SingleChildScrollView(
         child: Wrap(
           spacing: 4,
@@ -126,26 +132,40 @@ class FoodSearchState extends State<FoodSearch> {
             leading: _buildLeading(_isEditting),
             actions: _buildActions(_isEditting),
           ),
-          SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  return Card(
-                    elevation: 0,
-                    child: Container(
-                          child: ListTile(
-                            title: Text(
-                              'Title 1',
-                            ),
-                            subtitle: Text(
-                              'Subtitle',
-                            ),
+          BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
+            if (state is FoodLoading) {
+              return SliverToBoxAdapter(
+                child: Text("Loading"),
+              );
+            } else if (state is FoodLoaded) {
+              final foods = state.foods;
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    final food = foods[index];
+                    return Card(
+                      elevation: 0,
+                      child: Container(
+                        child: ListTile(
+                          onTap: () => _onListTileTapped(foods[index]),
+                          title: Text(
+                            food.name,
+                          ),
+                          subtitle: Text(
+                            food.brand,
                           ),
                         ),
-                  );
-                },
-                childCount: 200,
-              ),
-            ),
+                      ),
+                    );
+                  },
+                  childCount: foods.length,
+                ),
+              );
+            }
+            return SliverToBoxAdapter(
+              child: Text("Can't load foods list"),
+            );
+          }),
         ],
       );
 
@@ -154,5 +174,13 @@ class FoodSearchState extends State<FoodSearch> {
     return Scaffold(
       body: _layoutStack(),
     );
+  }
+
+  void _onListTileTapped(Food food) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (_) {
+        return FoodDetail(food: food);
+      },
+    ));
   }
 }

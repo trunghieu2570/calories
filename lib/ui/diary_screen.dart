@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import '../util.dart';
 
-class Diary extends StatefulWidget {
+class DiaryScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => new DiaryState();
+  State<StatefulWidget> createState() => new DiaryScreenState();
 }
 
-class DiaryState extends State<Diary> {
+class DiaryScreenState extends State<DiaryScreen> {
   String _pageTitle = "Hôm nay";
   PageController _pageController;
 
@@ -70,49 +70,57 @@ class DiaryState extends State<Diary> {
 
   @override
   Widget build(BuildContext context) {
-    return NestedScrollView(
-      headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
-        return <Widget>[
-          SliverAppBar(
-            pinned: true,
-            floating: true,
-            snap: false,
-            //expandedHeight: 120,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
-              title: FlatButton(
-                padding: EdgeInsets.all(0),
-                onPressed: () => _selectDate(context),
-                child: Text(
-                  _pageTitle,
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: "OpenSans",
-                      fontWeight: FontWeight.bold),
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
+          return <Widget>[
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              snap: false,
+              //expandedHeight: 120,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
+                title: FlatButton(
+                  padding: EdgeInsets.all(0),
+                  onPressed: () => _selectDate(context),
+                  child: Text(
+                    _pageTitle,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "OpenSans",
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.keyboard_arrow_left),
+                  onPressed: () => _prevPage(),
+                ),
+                IconButton(
+                  icon: Icon(Icons.keyboard_arrow_right),
+                  onPressed: () => _nextPage(),
+                )
+              ],
             ),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.keyboard_arrow_left),
-                onPressed: () => _prevPage(),
-              ),
-              IconButton(
-                icon: Icon(Icons.keyboard_arrow_right),
-                onPressed: () => _nextPage(),
-              )
-            ],
+          ];
+        },
+        body: PageView.custom(
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          childrenDelegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return pageViewItem(index);
+            },
           ),
-        ];
-      },
-      body: PageView.custom(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        childrenDelegate: SliverChildBuilderDelegate(
-          (BuildContext context, int index) {
-            return pageViewItem(index);
-          },
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        tooltip: 'Thêm vào nhật ký',
+        icon: Icon(Icons.add),
+        label: Text("THÊM"),
       ),
     );
   }
@@ -386,11 +394,15 @@ Widget pageViewItem(int index) => CustomScrollView(
                         children: <Widget>[
                           FlatButton(
                             child: const Text('Bỏ qua'),
-                            onPressed: () {/* ... */},
+                            onPressed: () {
+                              /* ... */
+                            },
                           ),
                           FlatButton(
                             child: const Text('Chỉnh sửa mục tiêu'),
-                            onPressed: () {/* ... */},
+                            onPressed: () {
+                              /* ... */
+                            },
                           ),
                         ],
                       ),
