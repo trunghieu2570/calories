@@ -7,7 +7,7 @@ class Recipe extends Equatable {
   final int numberOfServings;
   final String photoUrl;
   final List<Ingredient> ingredients;
-  final List<Direction> directions;
+  final List<String> directions;
   final List<String> tags;
 
   Recipe(this.title, this.numberOfServings,
@@ -20,15 +20,13 @@ class Recipe extends Equatable {
   RecipeEntity toEntity() {
     List<IngredientEntity> ingredientEntityList =
         ingredients.map((e) => e.toEntity()).toList();
-    List<DirectionEntity> directionEntityList =
-        directions.map((e) => e.toEntity()).toList();
     return RecipeEntity(
       id,
       title,
       numberOfServings,
       photoUrl,
       ingredientEntityList,
-      directionEntityList,
+      directions,
       tags,
     );
   }
@@ -36,59 +34,61 @@ class Recipe extends Equatable {
   factory Recipe.fromEntity(RecipeEntity entity) {
     List<Ingredient> ingredientList =
         entity.ingredients.map((e) => Ingredient.fromEntity(e)).toList();
-    List<Direction> directionList =
-        entity.directions.map((e) => Direction.fromEntity(e)).toList();
-
     return Recipe(
       entity.title,
       entity.numberOfServings,
       id: entity.id,
       photoUrl: entity.photoUrl,
       ingredients: ingredientList,
-      directions: directionList,
+      directions: entity.directions,
       tags: entity.tags,
     );
+  }
+
+  Recipe copyWith(
+      {String title,
+      int numberOfServings,
+      String id,
+      String photoUrl,
+      List<Ingredient> ingredients,
+      List<String> directions,
+      List<String> tags}) {
+    return Recipe(
+      title ?? this.title,
+      numberOfServings ?? this.numberOfServings,
+      photoUrl: photoUrl ?? this.photoUrl,
+      ingredients: ingredients ?? this.ingredients,
+      id: id ?? this.id,
+      tags: tags ?? this.tags,
+      directions: directions ?? this.directions,
+    );
+  }
+
+  @override
+  String toString() {
+    return "Recipe ${toEntity().toJson()}";
   }
 }
 
 class Ingredient extends Equatable {
   final String foodId;
   final String quantity;
-  final String servingId;
 
-  Ingredient(this.foodId, this.quantity, this.servingId);
+  Ingredient(this.foodId, this.quantity);
 
   @override
-  List<Object> get props => [foodId, quantity, servingId];
+  List<Object> get props => [foodId, quantity];
 
   IngredientEntity toEntity() {
-    return IngredientEntity(foodId, quantity, servingId);
+    return IngredientEntity(foodId, quantity);
   }
 
   factory Ingredient.fromEntity(IngredientEntity entity) {
-    return Ingredient(entity.foodId, entity.quantity, entity.servingId);
+    return Ingredient(entity.foodId, entity.quantity);
   }
 
   @override
   String toString() {
     return "Ingredient ${toEntity().toJson()}";
-  }
-}
-
-class Direction extends Equatable {
-  final int id;
-  final String content;
-
-  Direction(this.id, this.content);
-
-  @override
-  List<Object> get props => [id, content];
-
-  DirectionEntity toEntity() {
-    return DirectionEntity(id, content);
-  }
-
-  factory Direction.fromEntity(DirectionEntity entity) {
-    return Direction(entity.id, entity.content);
   }
 }

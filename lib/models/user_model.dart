@@ -12,6 +12,8 @@ class User extends Equatable {
   final int weight;
   final int gender;
   final List<String> favoriteFoods;
+  final List<String> favoriteRecipes;
+  final List<String> favoriteMeals;
 
   User(
       {@required this.uid,
@@ -22,7 +24,9 @@ class User extends Equatable {
       this.weight,
       this.height,
       this.gender,
-      this.favoriteFoods})
+      this.favoriteFoods,
+      this.favoriteRecipes,
+      this.favoriteMeals})
       : assert(uid != null),
         assert(fullName != null),
         assert(email != null);
@@ -37,7 +41,9 @@ class User extends Equatable {
         height,
         weight,
         gender,
-        favoriteFoods
+        favoriteFoods,
+        favoriteRecipes,
+        favoriteMeals,
       ];
 
   factory User.fromEntity(UserEntity entity) {
@@ -51,6 +57,8 @@ class User extends Equatable {
       weight: entity.height,
       gender: entity.gender,
       favoriteFoods: entity.favoriteFoods,
+      favoriteRecipes: entity.favoriteRecipes,
+      favoriteMeals: entity.favoriteMeals,
     );
   }
 
@@ -65,6 +73,8 @@ class User extends Equatable {
       weight,
       gender,
       favoriteFoods,
+      favoriteRecipes,
+      favoriteMeals,
     );
   }
 
@@ -77,7 +87,9 @@ class User extends Equatable {
       int weight,
       int height,
       int gender,
-      List<String> favoriteFoods}) {
+      List<String> favoriteFoods,
+      List<String> favoriteRecipes,
+      List<String> favoriteMeals}) {
     return User(
         uid: uid ?? this.uid,
         fullName: fullName ?? this.fullName,
@@ -87,7 +99,9 @@ class User extends Equatable {
         height: height ?? this.height,
         weight: weight ?? this.weight,
         gender: gender ?? this.gender,
-        favoriteFoods: favoriteFoods ?? this.favoriteFoods);
+        favoriteFoods: favoriteFoods ?? this.favoriteFoods,
+        favoriteRecipes: favoriteRecipes ?? this.favoriteRecipes,
+        favoriteMeals: favoriteMeals ?? this.favoriteMeals);
   }
 
   @override
@@ -105,7 +119,9 @@ class User extends Equatable {
       height.hashCode ^
       weight.hashCode ^
       gender.hashCode ^
-      favoriteFoods.hashCode;
+      favoriteFoods.hashCode ^
+      favoriteRecipes.hashCode ^
+      favoriteMeals.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -120,5 +136,7 @@ class User extends Equatable {
           height == other.height &&
           weight == other.height &&
           gender == other.gender &&
-          favoriteFoods == other.favoriteFoods;
+          favoriteFoods == other.favoriteFoods &&
+          favoriteRecipes == other.favoriteRecipes &&
+          favoriteMeals == other.favoriteMeals;
 }

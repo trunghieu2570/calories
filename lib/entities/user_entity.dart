@@ -13,9 +13,21 @@ class UserEntity extends Equatable {
   final int weight;
   final int gender;
   final List<String> favoriteFoods;
+  final List<String> favoriteRecipes;
+  final List<String> favoriteMeals;
 
-  UserEntity(this.uid, this.fullName, this.photoUrl, this.email, this.birthday,
-      this.height, this.weight, this.gender, this.favoriteFoods);
+  UserEntity(
+      this.uid,
+      this.fullName,
+      this.photoUrl,
+      this.email,
+      this.birthday,
+      this.height,
+      this.weight,
+      this.gender,
+      this.favoriteFoods,
+      this.favoriteRecipes,
+      this.favoriteMeals);
 
   @override
   List<Object> get props => [
@@ -27,7 +39,9 @@ class UserEntity extends Equatable {
         height,
         weight,
         gender,
-        favoriteFoods
+        favoriteFoods,
+        favoriteRecipes,
+        favoriteMeals
       ];
 
   factory UserEntity.fromJson(Map<String, Object> map) {
@@ -40,7 +54,9 @@ class UserEntity extends Equatable {
         map["height"] as int,
         map["weight"] as int,
         map["gender"] as int,
-        map["favoriteFoods"] as List<String>);
+        map["favoriteFoods"] as List<String>,
+        map["favoriteRecipes"] as List<String>,
+        map["favoriteMeals"] as List<String>);
   }
 
   Map<String, Object> toJson() {
@@ -54,6 +70,8 @@ class UserEntity extends Equatable {
       'weight': weight,
       'gender': gender,
       'favoriteFoods': json.encode(favoriteFoods),
+      'favoriteRecipes': json.encode(favoriteRecipes),
+      'favoriteMeals': json.encode(favoriteMeals),
     };
   }
 
@@ -67,7 +85,16 @@ class UserEntity extends Equatable {
         snapshot.data["height"],
         snapshot.data["weight"],
         snapshot.data["gender"],
-        snapshot.data["favoriteFoods"].cast<String>());
+        snapshot.data["favoriteFoods"] == null
+            ? null
+            : List<String>.from(snapshot.data["favoriteFoods"]),
+      snapshot.data["favoriteRecipes"] == null
+          ? null
+          : List<String>.from(snapshot.data["favoriteRecipes"]),
+      snapshot.data["favoriteMeals"] == null
+          ? null
+          : List<String>.from(snapshot.data["favoriteMeals"]),
+    );
   }
 
   Map<String, Object> toDocument() {
@@ -80,6 +107,8 @@ class UserEntity extends Equatable {
       'weight': weight,
       'gender': gender,
       'favoriteFoods': favoriteFoods,
+      'favoriteRecipes': favoriteRecipes,
+      'favoriteMeals': favoriteMeals,
     };
   }
 

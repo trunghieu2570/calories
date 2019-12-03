@@ -1,18 +1,34 @@
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/food_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FoodSearch extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new FoodSearchState();
+enum FoodSearchAction {
+  SEARCH_FOR_INGREDIENT,
+  SEARCH_FOR_DIARY,
 }
 
-class FoodSearchState extends State<FoodSearch> {
-  bool _isEditting = false;
+class FoodSearchArgument {
+  final FoodSearchAction action;
+
+  FoodSearchArgument({this.action});
+}
+
+class FoodSearchScreen extends StatefulWidget {
+  static final String routeName = '/foodSearch';
+
+  @override
+  State<StatefulWidget> createState() => new FoodSearchScreenState();
+}
+
+class FoodSearchScreenState extends State<FoodSearchScreen> {
+  static final String routeName = '/foodSearch';
+  bool _isEditing = false;
+  FoodSearchAction _action;
 
   List<Widget> _buildActions(bool isEditting) {
     if (isEditting)
@@ -45,7 +61,7 @@ class FoodSearchState extends State<FoodSearch> {
         color: Colors.grey[100],
         child: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: _cancelEditting,
+          onPressed: _cancelEditing,
         ),
       );
     return Container(
@@ -59,13 +75,13 @@ class FoodSearchState extends State<FoodSearch> {
 
   void _onSearchBarTapped() {
     setState(() {
-      _isEditting = true;
+      _isEditing = true;
     });
   }
 
-  void _cancelEditting() {
+  void _cancelEditing() {
     setState(() {
-      _isEditting = false;
+      _isEditing = false;
     });
   }
 
@@ -129,8 +145,8 @@ class FoodSearchState extends State<FoodSearch> {
                 ),
               ),
             ),
-            leading: _buildLeading(_isEditting),
-            actions: _buildActions(_isEditting),
+            leading: _buildLeading(_isEditing),
+            actions: _buildActions(_isEditing),
           ),
           BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
             if (state is FoodLoading) {
@@ -171,16 +187,35 @@ class FoodSearchState extends State<FoodSearch> {
 
   @override
   Widget build(BuildContext context) {
+    final FoodSearchArgument args = ModalRoute.of(context).settings.arguments;
+    if (args != null) {
+      _action = args.action;
+    }
     return Scaffold(
       body: _layoutStack(),
     );
   }
 
   void _onListTileTapped(Food food) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (_) {
-        return FoodDetail(food: food);
-      },
-    ));
+    if (_action == FoodSearchAction.SEARCH_FOR_INGREDIENT)
+      Navigator.pushNamed(
+        context,
+        FoodDetailScreen.routeName,
+        arguments: FoodDetailArgument(
+          food: food,
+          action: FoodAction.ADD_TO_RECIPE,
+        ),
+      ).then((r) {
+        if (r is PopWithResults) {
+          if (r.toPage == routeName) {
+            return;
+          } else {
+            Navigator.pop(context, r);
+          }
+        }
+      });
+    else
+      Navigator.pushNamed(context, FoodDetailScreen.routeName,
+          arguments: FoodDetailArgument(food: food));
   }
 }

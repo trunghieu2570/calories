@@ -1,7 +1,14 @@
 import 'package:calories/blocs/auth/bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/blocs/favorite_recipes/bloc.dart';
 import 'package:calories/repositories/auth_repository.dart';
+import 'package:calories/ui/create_food_screen.dart';
+import 'package:calories/ui/create_recipe_screen.dart';
+import 'package:calories/ui/food_detail_screen.dart';
+import 'package:calories/ui/food_search_screen.dart';
 import 'package:calories/ui/foods_screen.dart';
+import 'package:calories/ui/recipe_detail_screen.dart';
+import 'package:calories/ui/recipe_search_screen.dart';
 import 'package:calories/ui/splash_screen.dart';
 import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -38,13 +45,19 @@ class MyApp extends StatelessWidget {
                 }
                 if (state is Authenticated) {
                   BlocProvider.of<FavoriteFoodsBloc>(context)
-                      .add(LoadFavoriteFoods(state.user.uid));
+                      .add(LoadFavoriteFoods());
+                  BlocProvider.of<FavoriteRecipesBloc>(context).add(LoadFavoriteRecipes());
                   return MyHomePage(title: "Hom nay");
                 }
-                ;
-                return Text("Unantheticated");
+                return Container();
               },
             ),
+        FoodSearchScreen.routeName: (context) => FoodSearchScreen(),
+        RecipeSearchScreen.routeName: (context) => RecipeSearchScreen(),
+        CreateRecipeScreen.routeName: (context) => CreateRecipeScreen(),
+        FoodDetailScreen.routeName: (context) => FoodDetailScreen(),
+        RecipeDetailScreen.routeName : (context) => RecipeDetailScreen(),
+        CreateFoodScreen.routeName: (context) => CreateFoodScreen(),
       },
     );
   }

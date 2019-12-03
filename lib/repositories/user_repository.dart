@@ -1,7 +1,7 @@
 import 'package:calories/models/models.dart';
 
 abstract class UserInfoRepository {
-  Future<void> deleteUser(User user) ;
+  Future<void> deleteUser(User user);
 
   Future<void> addUser(User user);
 
@@ -11,6 +11,7 @@ abstract class UserInfoRepository {
 
   Stream<List<String>> getUserFavoriteFoods(String uid);
 
-  Future<User> getUserById(String uid);
+  Stream<List<String>> getUserFavoriteRecipes(String uid);
 
+  Future<User> getUserById(String uid);
 }

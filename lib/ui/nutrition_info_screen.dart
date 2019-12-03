@@ -1,7 +1,6 @@
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_event.dart';
 import 'package:calories/models/models.dart';
-import 'package:calories/ui/food_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,15 +12,15 @@ class NutritionInfoScreen extends StatefulWidget {
         super(key: key);
 
   @override
-  State<StatefulWidget> createState() => NutritionInfoScreenState(food: food);
+  State<StatefulWidget> createState() => _NutritionInfoScreenState(food);
 }
 
-class NutritionInfoScreenState extends State<NutritionInfoScreen> {
+class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
   final Food food;
   FoodBloc _foodBloc;
   final _formKey = GlobalKey<FormState>();
 
-  NutritionInfoScreenState({@required this.food}) : assert(food != null);
+  _NutritionInfoScreenState(this.food);
   String _calories;
   String _fats;
   String _carbohydrates;

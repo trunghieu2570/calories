@@ -1,13 +1,31 @@
+import 'package:calories/blocs/recipe/recipe_bloc.dart';
+import 'package:calories/blocs/recipe/recipe_state.dart';
+import 'package:calories/models/models.dart';
+import 'package:calories/ui/recipe_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecipeSearch extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => new RecipeSearchState();
+enum RecipeSearchAction {
+  SEARCH_FOR_DIARY,
 }
 
-class RecipeSearchState extends State<RecipeSearch> {
-  bool _isEditting = false;
+class RecipeSearchArgument {
+  final RecipeSearchAction action;
+
+  RecipeSearchArgument({this.action});
+}
+
+class RecipeSearchScreen extends StatefulWidget {
+  static final String routeName = "/recipeSearch";
+
+  @override
+  State<StatefulWidget> createState() => new RecipeSearchScreenState();
+}
+
+class RecipeSearchScreenState extends State<RecipeSearchScreen> {
+  static final String routeName = "/recipeSearch";
+  bool _isEditing = false;
+  RecipeSearchAction _action;
 
   List<Widget> _buildActions(bool isEditting) {
     if (isEditting)
@@ -40,7 +58,7 @@ class RecipeSearchState extends State<RecipeSearch> {
         color: Colors.grey[100],
         child: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: _cancelEditting,
+          onPressed: _cancelEditing,
         ),
       );
     return Container(
@@ -54,13 +72,13 @@ class RecipeSearchState extends State<RecipeSearch> {
 
   void _onSearchBarTapped() {
     setState(() {
-      _isEditting = true;
+      _isEditing = true;
     });
   }
 
-  void _cancelEditting() {
+  void _cancelEditing() {
     setState(() {
-      _isEditting = false;
+      _isEditing = false;
     });
   }
 
@@ -124,39 +142,53 @@ class RecipeSearchState extends State<RecipeSearch> {
                 ),
               ),
             ),
-            leading: _buildLeading(_isEditting),
-            actions: _buildActions(_isEditting),
+            leading: _buildLeading(_isEditing),
+            actions: _buildActions(_isEditing),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return Card(
-                  semanticContainer: true,
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  child: Container(
-                    height: 75,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Image(
-                          image:
-                              NetworkImage('https://placeimg.com/640/480/any'),
-                          fit: BoxFit.fill,
+          BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
+            if (state is RecipesLoading) {
+              return SliverToBoxAdapter(
+                child: Text("Loading"),
+              );
+            } else if (state is RecipesLoaded) {
+              final recipes = state.recipes;
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    final recipe = recipes[index];
+                    return Card(
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      child: Container(
+                        height: 75,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            /*Image(
+                              image: NetworkImage(
+                                  'https://placeimg.com/640/480/any'),
+                              fit: BoxFit.fill,
+                            ),*/
+                            Expanded(
+                              child: ListTile(
+                                title: Text(recipe.title),
+                                subtitle: Text(recipe.numberOfServings.toString() + " serving(s)"),
+                                onTap: () => _onRecipeTapped(recipe),
+                              ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: ListTile(
-                            title: Text('Title'),
-                            subtitle: Text('Subtitle'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              childCount: 200,
-            ),
-          ),
+                      ),
+                    );
+                  },
+                  childCount: recipes.length,
+                ),
+              );
+            }
+            return SliverToBoxAdapter(
+              child: Text("Cannot load recipes"),
+            );
+          }),
         ],
       );
 
@@ -165,5 +197,9 @@ class RecipeSearchState extends State<RecipeSearch> {
     return Scaffold(
       body: _layoutStack(),
     );
+  }
+
+  Future<void> _onRecipeTapped(Recipe recipe)  async{
+    Navigator.pushNamed(context, RecipeDetailScreen.routeName, arguments: RecipeDetailArgument(recipe: recipe));
   }
 }

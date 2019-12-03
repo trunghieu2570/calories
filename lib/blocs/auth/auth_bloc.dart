@@ -46,6 +46,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             uid: firebaseUser.uid,
             fullName: firebaseUser.displayName,
             email: firebaseUser.email,
+            favoriteFoods: [],
+            favoriteMeals: [],
+            favoriteRecipes: [],
             photoUrl: firebaseUser.photoUrl);
         _userInfoRepository.addUser(user);
       }
@@ -63,6 +66,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           uid: firebaseUser.uid,
           fullName: firebaseUser.displayName,
           email: firebaseUser.email,
+          favoriteFoods: [],
+          favoriteMeals: [],
+          favoriteRecipes: [],
           photoUrl: firebaseUser.photoUrl);
       _userInfoRepository.addUser(user);
     }

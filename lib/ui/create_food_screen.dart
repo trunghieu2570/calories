@@ -3,11 +3,13 @@ import 'package:calories/ui/nutrition_info_screen.dart';
 import 'package:flutter/material.dart';
 
 class CreateFoodScreen extends StatefulWidget {
+  static final String routeName = '/createFood';
   @override
-  State<StatefulWidget> createState() => CreateFoodScreenState();
+  State<StatefulWidget> createState() => _CreateFoodScreenState();
 }
 
-class CreateFoodScreenState extends State<CreateFoodScreen> {
+class _CreateFoodScreenState extends State<CreateFoodScreen> {
+  static final String routeName = '/createFood';
   String _name;
   String _brand;
   String _photoUrl;
@@ -23,7 +25,7 @@ class CreateFoodScreenState extends State<CreateFoodScreen> {
   void _onSave() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      Food food = Food(_name, brand: _brand, servings: Serving(_unit, _quantity));
+      Food food = Food(_name, brand: _brand, servings: Serving(_unit, _quantity), tags: []);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) {

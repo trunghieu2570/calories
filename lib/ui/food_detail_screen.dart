@@ -1,27 +1,45 @@
+import 'package:calories/blocs/favorite_foods/bloc.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
+import 'package:calories/ui/create_recipe_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class FoodDetail extends StatefulWidget {
-  final Food food;
-
-  const FoodDetail({Key key, @required this.food}) : assert(food != null);
-
-  @override
-  State<StatefulWidget> createState() => new FoodDetailState(food: food);
+enum FoodAction {
+  ADD_TO_MEAL,
+  ADD_TO_RECIPE,
+  ADD_TO_DIARY,
 }
 
-class FoodDetailState extends State<FoodDetail> {
+class FoodDetailArgument {
   final Food food;
+  final FoodAction action;
 
-  FoodDetailState({this.food});
+  FoodDetailArgument({@required this.food, this.action}) : assert(food != null);
+}
+
+class FoodDetailScreen extends StatefulWidget {
+  static final String routeName = '/foodDetail';
+
+  @override
+  State<StatefulWidget> createState() => new FoodDetailScreenState();
+}
+
+class FoodDetailScreenState extends State<FoodDetailScreen> {
+  Food _food;
+  FavoriteFoodsBloc _favoriteFoodsBloc;
+  FoodAction _foodAction;
+  TextEditingController _quantityController;
 
   @override
   void initState() {
+    super.initState();
+    _quantityController = TextEditingController(text: '1');
     _dropDownMenuItems = getDropDownMenuItems();
     _currentCity = _dropDownMenuItems[0].value;
-    super.initState();
+    _favoriteFoodsBloc = BlocProvider.of<FavoriteFoodsBloc>(context);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
   }
 
@@ -45,10 +63,42 @@ class FoodDetailState extends State<FoodDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final FoodDetailArgument args = ModalRoute.of(context).settings.arguments;
+    _food = args.food;
+    _foodAction = args.action;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
         actions: <Widget>[
+          BlocBuilder<FavoriteFoodsBloc, FavoriteFoodsState>(
+              builder: (context, state) {
+            if (state is FavoriteFoodsLoaded) {
+              final _isFavorite = state.foodIds.contains(_food.id);
+              return IconButton(
+                icon: _isFavorite
+                    ? Icon(Icons.favorite)
+                    : Icon(Icons.favorite_border),
+                onPressed: () {
+                  if (_isFavorite) {
+                    Scaffold.of(context).removeCurrentSnackBar();
+                    _favoriteFoodsBloc.add(DeleteFavoriteFood(_food.id));
+                    final snackBar = SnackBar(
+                      content: Text('Đã thêm vào yêu thích'),
+                    );
+                    Scaffold.of(context).showSnackBar(snackBar);
+                  } else {
+                    Scaffold.of(context).removeCurrentSnackBar();
+                    _favoriteFoodsBloc.add(AddFavoriteFood(_food.id));
+                    final snackBar =
+                        SnackBar(content: Text('Đã loại bỏ yêu thích'));
+                    Scaffold.of(context).showSnackBar(snackBar);
+                  }
+                },
+              );
+            }
+
+            return Container();
+          }),
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () => {},
@@ -90,7 +140,7 @@ class FoodDetailState extends State<FoodDetail> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                food.name,
+                                _food.name,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 25,
@@ -98,7 +148,7 @@ class FoodDetailState extends State<FoodDetail> {
                                     fontFamily: "OpenSans"),
                               ),
                               Text(
-                                food.brand,
+                                _food.brand,
                                 style: TextStyle(
                                     fontSize: 20,
                                     //color: Colors.white,
@@ -159,8 +209,8 @@ class FoodDetailState extends State<FoodDetail> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => {},
-        label: Text('Thêm vào Bữa trưa'),
+        onPressed: _onAddButtonPressed,
+        label: Text('Thêm vào'),
         icon: Icon(Icons.add),
       ),
       bottomNavigationBar: Container(
@@ -188,6 +238,7 @@ class FoodDetailState extends State<FoodDetail> {
                   //padding: EdgeInsets.symmetric(horizontal: 8.0),
                   width: 60,
                   child: new TextField(
+                    controller: _quantityController,
                     maxLines: 1,
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
@@ -228,5 +279,16 @@ class FoodDetailState extends State<FoodDetail> {
       ),
       //floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
+  }
+
+  Future<void> _onAddButtonPressed() async {
+    if (_foodAction == FoodAction.ADD_TO_RECIPE) {
+      Navigator.pop(
+          context,
+          PopWithResults(
+              fromPage: FoodDetailScreen.routeName,
+              toPage: CreateRecipeScreen.routeName,
+              results: {'foodId': '${_food.id}', 'quantity': '${_quantityController.text}'}));
+    }
   }
 }

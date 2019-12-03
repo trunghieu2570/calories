@@ -9,7 +9,7 @@ class RecipeEntity extends Equatable {
   final int numberOfServings;
   final String photoUrl;
   final List<IngredientEntity> ingredients;
-  final List<DirectionEntity> directions;
+  final List<String> directions;
   final List<String> tags;
 
   RecipeEntity(this.id, this.title, this.numberOfServings, this.photoUrl,
@@ -33,62 +33,48 @@ class RecipeEntity extends Equatable {
 
   factory RecipeEntity.fromJson(Map<String, Object> map) {
     var ingredientsJson = map["ingredients"] as List;
-    var directionsJson = map["directions"] as List;
-    var tagsJson = map["tags"] as List;
     List<IngredientEntity> ingredientsList = ingredientsJson
         .map((ingredient) =>
             IngredientEntity.fromJson(Map<String, Object>.from(ingredient)))
         .toList();
-    List<DirectionEntity> directionsList = directionsJson
-        .map((direction) =>
-            DirectionEntity.fromJson(Map<String, Object>.from(direction)))
-        .toList();
-    List<String> tagsList = List<String>.from(tagsJson);
-
     return RecipeEntity(
       map["id"] as String,
       map["title"] as String,
       map["numberOfServings"] as int,
       map["photoUrl"] as String,
       ingredientsList,
-      directionsList,
-      tagsList,
+      map["directions"] as List<String>,
+      map["tags"] as List<String>,
     );
   }
 
   factory RecipeEntity.fromSnapshot(DocumentSnapshot snapshot) {
-    var ingredientsJson = snapshot.data["ingredients"] as List;
-    var directionsJson = snapshot.data["directions"] as List;
-    var tagsJson = snapshot.data["tags"] as List;
-    List<IngredientEntity> ingredientsList = ingredientsJson
+    var ingredients =
+        List<Map<dynamic, dynamic>>.from(snapshot.data["ingredients"]);
+    List<IngredientEntity> ingredientsList = ingredients
         .map((ingredient) =>
             IngredientEntity.fromJson(Map<String, Object>.from(ingredient)))
         .toList();
-    List<DirectionEntity> directionsList = directionsJson
-        .map((direction) =>
-            DirectionEntity.fromJson(Map<String, Object>.from(direction)))
-        .toList();
-    List<String> tagsList = List<String>.from(tagsJson);
-
     return RecipeEntity(
-      snapshot.data["id"],
+      snapshot.documentID,
       snapshot.data["title"],
       snapshot.data["numberOfServings"],
       snapshot.data["photoUrl"],
       ingredientsList,
-      directionsList,
-      tagsList,
+      snapshot.data["directions"].cast<String>(),
+      snapshot.data["tags"].cast<String>(),
     );
   }
 
   Map<String, Object> toDocument() {
+    var list = ingredients.map((e) => e.toDocument()).toList();
     return {
       'title': title,
       'numberOfServings': numberOfServings,
       'urlPhoto': photoUrl,
-      'ingredients': json.encode(ingredients),
-      'directions': json.encode(directions),
-      'tags': json.encode(tags),
+      'ingredients': list,
+      'directions': directions,
+      'tags': tags,
     };
   }
 
@@ -101,18 +87,16 @@ class RecipeEntity extends Equatable {
 class IngredientEntity extends Equatable {
   final String foodId;
   final String quantity;
-  final String servingId;
 
-  IngredientEntity(this.foodId, this.quantity, this.servingId);
+  IngredientEntity(this.foodId, this.quantity);
 
   @override
-  List<Object> get props => [foodId, quantity, servingId];
+  List<Object> get props => [foodId, quantity];
 
   Map<String, Object> toJson() {
     return {
       'foodId': foodId,
       'quantity': quantity,
-      'servingId': servingId,
     };
   }
 
@@ -120,7 +104,6 @@ class IngredientEntity extends Equatable {
     return IngredientEntity(
       json["foodId"] as String,
       json["quantity"] as String,
-      json["servingId"] as String,
     );
   }
 
@@ -128,7 +111,6 @@ class IngredientEntity extends Equatable {
     return IngredientEntity(
       snapshot.data["foodId"],
       snapshot.data["quantity"],
-      snapshot.data["servingId"],
     );
   }
 
@@ -136,55 +118,11 @@ class IngredientEntity extends Equatable {
     return {
       'foodId': foodId,
       'quantity': quantity,
-      'servingId': servingId,
     };
   }
 
   @override
   String toString() {
     return "IngredientEntity ${toJson()}";
-  }
-}
-
-class DirectionEntity extends Equatable {
-  final int id;
-  final String content;
-
-  DirectionEntity(this.id, this.content);
-
-  @override
-  List<Object> get props => [id, content];
-
-  Map<String, Object> toJson() {
-    return {
-      'id': id,
-      'content': content,
-    };
-  }
-
-  factory DirectionEntity.fromJson(Map<String, Object> json) {
-    return DirectionEntity(
-      json["id"] as int,
-      json["content"] as String,
-    );
-  }
-
-  factory DirectionEntity.fromSnapshot(DocumentSnapshot snapshot) {
-    return DirectionEntity(
-      snapshot.data["id"],
-      snapshot.data["content"],
-    );
-  }
-
-  Map<String, Object> toDocument() {
-    return {
-      'id': id,
-      'content': content,
-    };
-  }
-
-  @override
-  String toString() {
-    return "DirectionEntity ${toJson()}";
   }
 }

@@ -1,10 +1,15 @@
-import 'package:calories/blocs/auth/auth_bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
+import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
+import 'package:calories/blocs/recipe/recipe_bloc.dart';
+import 'package:calories/blocs/recipe/recipe_state.dart';
 import 'package:calories/ui/create_food_screen.dart';
+import 'package:calories/ui/create_recipe_screen.dart';
 import 'package:calories/ui/food_detail_screen.dart';
 import 'package:calories/ui/food_search_screen.dart';
+import 'package:calories/ui/recipe_detail_screen.dart';
 import 'package:calories/ui/recipe_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -19,14 +24,15 @@ class FoodsScreenState extends State<FoodsScreen>
     with TickerProviderStateMixin {
   int _selectedTab = 0;
   TabController _tabController;
-  AuthBloc _authBloc;
   FoodBloc _foodBloc;
+  RecipeBloc _recipeBloc;
 
   Future<void> _onPressedCreateFoodButton() async {
-    return Navigator.push(
-      context,
-      MaterialPageRoute(builder: (BuildContext context) => CreateFoodScreen()),
-    );
+    return Navigator.pushNamed(context, CreateFoodScreen.routeName);
+  }
+
+  Future<void> _onPressedCreateRecipeButton() async {
+    return Navigator.pushNamed(context, CreateRecipeScreen.routeName);
   }
 
   void _onTabIndexChanged() {
@@ -39,17 +45,15 @@ class FoodsScreenState extends State<FoodsScreen>
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabIndexChanged);
-    _authBloc = BlocProvider.of<AuthBloc>(context);
     _foodBloc = BlocProvider.of<FoodBloc>(context);
+    _recipeBloc = BlocProvider.of<RecipeBloc>(context);
     super.initState();
   }
 
   Future onSearchIconPressed(BuildContext context) {
     if (_selectedTab == 2)
-      return Navigator.push(
-          context, MaterialPageRoute(builder: (context) => FoodSearch()));
-    return Navigator.push(
-        context, MaterialPageRoute(builder: (context) => RecipeSearch()));
+      return Navigator.pushNamed(context, FoodSearchScreen.routeName);
+    return Navigator.pushNamed(context, RecipeSearchScreen.routeName);
   }
 
   @override
@@ -64,7 +68,7 @@ class FoodsScreenState extends State<FoodsScreen>
       ),
       FloatingActionButton.extended(
         backgroundColor: Colors.green,
-        onPressed: _incrementCounter,
+        onPressed: _onPressedCreateRecipeButton,
         tooltip: 'Tạo công thức nấu ăn mới',
         icon: Icon(Icons.add),
         label: Text("TẠO CÔNG THỨC"),
@@ -137,8 +141,7 @@ class FoodsScreenState extends State<FoodsScreen>
     );
   }
 
-  Widget buildFoodsView() =>
-      CustomScrollView(
+  Widget buildFoodsView() => CustomScrollView(
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
@@ -159,8 +162,7 @@ class FoodsScreenState extends State<FoodsScreen>
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemCount: 15,
-                  itemBuilder: (BuildContext context, int index) =>
-                  new Card(
+                  itemBuilder: (BuildContext context, int index) => new Card(
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     child: Container(
@@ -210,46 +212,43 @@ class FoodsScreenState extends State<FoodsScreen>
           ),
           BlocBuilder<FavoriteFoodsBloc, FavoriteFoodsState>(
               builder: (context, state) {
-                final FoodState foodState = _foodBloc.state;
-                if (state is FavoriteFoodsLoaded && foodState is FoodLoaded) {
-                  final favoriteFoods = state.foodIds;
-                  final foods = foodState.foods;
-                  return SliverList(delegate: SliverChildBuilderDelegate(
-                          (_, int index) {
-                        final currentFavoriteFood = favoriteFoods[index];
-                        final food = foods
-                            .where((food) => food.id == currentFavoriteFood)
-                            .first;
-                        return Card(
-                          semanticContainer: true,
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: Container(
-                            height: 70,
-                            child: ListTile(
-                              title: Text(food.name),
-                              onTap: () =>
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) =>
-                                              FoodDetail(
-                                                food: food,
-                                              ))),
-                              subtitle: Text(food.brand),
-                            ),
-                          ),
-                        );
-                      },
-                      childCount: favoriteFoods.length,
-                  ));
-                }
-                return SliverToBoxAdapter(child: Text("You have no favorite food"),);
-              }),
+            final FoodState foodState = _foodBloc.state;
+            if (state is FavoriteFoodsLoaded && foodState is FoodLoaded) {
+              final favoriteFoods = state.foodIds;
+              final foods = foodState.foods;
+              return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                (_, int index) {
+                  final currentFavoriteFood = favoriteFoods[index];
+                  final favoriteFood = foods
+                      .where((food) => food.id == currentFavoriteFood)
+                      .first;
+                  return Card(
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Container(
+                      height: 70,
+                      child: ListTile(
+                        title: Text(favoriteFood.name),
+                        onTap: () => Navigator.pushNamed(
+                            context, FoodDetailScreen.routeName,
+                            arguments: FoodDetailArgument(food: favoriteFood)),
+                        subtitle: Text(favoriteFood.brand),
+                      ),
+                    ),
+                  );
+                },
+                childCount: favoriteFoods.length,
+              ));
+            }
+            return SliverToBoxAdapter(
+              child: Text("You have no favorite food"),
+            );
+          }),
         ],
       );
 
-  Widget buildMealsView() =>
-      CustomScrollView(
+  Widget buildMealsView() => CustomScrollView(
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
@@ -274,40 +273,39 @@ class FoodsScreenState extends State<FoodsScreen>
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemCount: 15,
-                  itemBuilder: (BuildContext context, int index) =>
-                      Card(
-                        semanticContainer: true,
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Container(
-                          width: 150,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          'https://placeimg.com/640/480/any?dummy=$index'),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                  itemBuilder: (BuildContext context, int index) => Card(
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Container(
+                      width: 150,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                      'https://placeimg.com/640/480/any?dummy=$index'),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              Container(
-                                child: ListTile(
-                                  title: Text('Title'),
-                                  subtitle: Text('Subtitle'),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        elevation: 5,
+                          Container(
+                            child: ListTile(
+                              title: Text('Title'),
+                              subtitle: Text('Subtitle'),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 5,
+                  ),
                 ),
               ),
               ListTile(
@@ -326,7 +324,7 @@ class FoodsScreenState extends State<FoodsScreen>
             ]),
           ),
           SliverList(delegate: SliverChildBuilderDelegate(
-                (_, int index) {
+            (_, int index) {
               return Card(
                 semanticContainer: true,
                 clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -354,8 +352,7 @@ class FoodsScreenState extends State<FoodsScreen>
         ],
       );
 
-  Widget buildRecipesView() =>
-      CustomScrollView(
+  Widget buildRecipesView() => CustomScrollView(
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
@@ -380,8 +377,7 @@ class FoodsScreenState extends State<FoodsScreen>
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
                   itemCount: 15,
-                  itemBuilder: (BuildContext context, int index) =>
-                  new Card(
+                  itemBuilder: (BuildContext context, int index) => new Card(
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     child: Container(
@@ -433,48 +429,60 @@ class FoodsScreenState extends State<FoodsScreen>
               ),
             ]),
           ),
-          BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
-            if (state is FoodLoading) {
-              return SliverToBoxAdapter(
-                child: Text("Food loading"),
-              );
-            } else if (state is FoodLoaded) {
-              final foods = state.foods;
+          BlocBuilder<FavoriteRecipesBloc, FavoriteRecipesState>(
+              builder: (context, state) {
+            final RecipeState recipeState = _recipeBloc.state;
+            if (state is FavoriteRecipesLoaded &&
+                recipeState is RecipesLoaded) {
+              final favoriteRecipes = state.recipeIds;
+              final recipes = recipeState.recipes;
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
-                      (_, int index) {
-                    final food = foods[index];
-                    return Card(
-                      semanticContainer: true,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: Container(
-                        height: 70,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Image(
-                              image: NetworkImage(
-                                  'https://placeimg.com/640/480/any'),
-                              fit: BoxFit.fill,
-                            ),
-                            Expanded(
-                              child: ListTile(
-                                title: Text(food.name),
-                                subtitle: Text(food.brand),
+                  (_, int index) {
+                    try {
+                      final favoriteRecipe = recipes
+                          .where((r) => r.id == favoriteRecipes[index])
+                          .first;
+                      return Card(
+                        semanticContainer: true,
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Container(
+                          height: 70,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Image(
+                                image: NetworkImage(
+                                    'https://placeimg.com/640/480/any'),
+                                fit: BoxFit.fill,
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: ListTile(
+                                  onTap: () => Navigator.pushNamed(
+                                      context, RecipeDetailScreen.routeName,
+                                      arguments: RecipeDetailArgument(
+                                          recipe: favoriteRecipe)),
+                                  title: Text(favoriteRecipe.title),
+                                  subtitle: Text(favoriteRecipe.numberOfServings
+                                          .toString() +
+                                      " serving(s)"),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      elevation: 1,
-                    );
+                        elevation: 1,
+                      );
+                    } catch (StateError) {
+                      return Container();
+                    }
                   },
-                  childCount: foods.length,
+                  childCount: favoriteRecipes.length,
                 ),
               );
             }
             return SliverToBoxAdapter(
-              child: Text("No food"),
+              child: Text("No favorite"),
             );
           }),
         ],

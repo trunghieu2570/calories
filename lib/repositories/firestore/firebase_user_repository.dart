@@ -27,7 +27,17 @@ class FirebaseUserRepository extends UserInfoRepository {
 
   @override
   Stream<List<String>> getUserFavoriteFoods(String uid) {
-    return userCollection.document(uid).snapshots().map((snap) => snap.data["favoriteFoods"].cast<String>());
+    return userCollection.document(uid).snapshots().map((snap) => List<String>.from(snap.data["favoriteFoods"]));
+  }
+
+  @override
+  Stream<List<String>> getUserFavoriteRecipes(String uid) {
+    return userCollection.document(uid).snapshots().map((snap) => List<String>.from(snap.data["favoriteRecipes"]));
+  }
+
+  @override
+  Stream<List<String>> getUserFavoriteMeals(String uid) {
+    return userCollection.document(uid).snapshots().map((snap) => List<String>.from(snap.data["favoriteMeals"]));
   }
 
   @override

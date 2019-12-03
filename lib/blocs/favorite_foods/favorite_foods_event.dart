@@ -9,31 +9,29 @@ abstract class FavoriteFoodsEvent extends Equatable {
 
 class AddFavoriteFood extends FavoriteFoodsEvent {
   final String foodId;
-  final String userId;
 
-  const AddFavoriteFood(this.userId, this.foodId);
+  const AddFavoriteFood(this.foodId);
 
   @override
-  List<Object> get props => [userId, foodId];
+  List<Object> get props => [foodId];
 
   @override
   String toString() {
-    return "Add favorite food $foodId to $userId";
+    return "Add favorite food $foodId";
   }
 }
 
 class DeleteFavoriteFood extends FavoriteFoodsEvent {
   final String foodId;
-  final String userId;
 
-  const DeleteFavoriteFood(this.userId, this.foodId);
+  const DeleteFavoriteFood(this.foodId);
 
   @override
-  List<Object> get props => [userId, foodId];
+  List<Object> get props => [foodId];
 
   @override
   String toString() {
-    return "Delete favorite food $foodId from $userId";
+    return "Delete favorite food $foodId";
   }
 }
 
@@ -46,9 +44,4 @@ class FavoriteFoodsUpdated extends FavoriteFoodsEvent {
   List<Object> get props => [favoriteFoods];
 }
 
-class LoadFavoriteFoods extends FavoriteFoodsEvent {
-  final String userId;
-  const LoadFavoriteFoods(this.userId);
-  @override
-  List<Object> get props => [userId];
-}
+class LoadFavoriteFoods extends FavoriteFoodsEvent {}
