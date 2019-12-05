@@ -2,8 +2,9 @@ import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/pop_with_result.dart';
-import 'package:calories/ui/edit_recipe_directions_screen.dart';
-import 'package:calories/ui/food_search_screen.dart';
+import 'package:calories/ui/screens/recipe/edit_recipe_directions_screen.dart';
+import 'package:calories/ui/screens/food/food_detail_screen.dart';
+import 'package:calories/ui/screens/food/food_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +48,7 @@ class CreateRecipeScreenState extends State<CreateRecipeScreen> {
   Future<void> _onAddButtonPressed() async {
     Navigator.pushNamed(context, FoodSearchScreen.routeName,
             arguments: FoodSearchArgument(
-                action: FoodSearchAction.SEARCH_FOR_INGREDIENT))
+                action: FoodAction.ADD_TO_RECIPE))
         .then((result) {
       if (result is PopWithResults) {
         if (result.toPage == routeName) {

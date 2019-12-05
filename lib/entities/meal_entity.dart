@@ -3,18 +3,17 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
-
-
 class MealEntity extends Equatable {
   final String id;
   final String name;
   final String photoUrl;
   final List<MealItemEntity> items;
+  final List<String> tags;
 
-  MealEntity(this.id, this.name, this.photoUrl, this.items);
+  MealEntity(this.id, this.name, this.photoUrl, this.items, this.tags);
 
   @override
-  List<Object> get props => [id, name, photoUrl, items];
+  List<Object> get props => [id, name, photoUrl, items, tags];
 
   Map<String, Object> toJson() {
     return {
@@ -22,6 +21,7 @@ class MealEntity extends Equatable {
       'name': name,
       'photoUrl': photoUrl,
       'items': json.encode(items),
+      'tags': json.encode(tags),
     };
   }
 
@@ -35,6 +35,7 @@ class MealEntity extends Equatable {
       map['name'] as String,
       map['photoUrl'] as String,
       items,
+      map['tags'],
     );
   }
 
@@ -48,18 +49,21 @@ class MealEntity extends Equatable {
       snapshot.data['name'],
       snapshot.data['photoUrl'],
       items,
+      snapshot.data["tags"].cast<String>(),
     );
   }
 
   Map<String, Object> toDocument() {
+    var listItems = items.map((e) => e.toDocument()).toList();
     return {
       'name': name,
       'photoUrl': photoUrl,
-      'items': json.encode(items),
+      'items': listItems,
+      'tags':tags,
     };
   }
 
-   @override
+  @override
   String toString() {
     return "MealEntity ${toJson()}";
   }

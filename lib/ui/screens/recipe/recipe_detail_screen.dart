@@ -3,6 +3,8 @@ import 'package:calories/blocs/favorite_recipes/favorite_recipes_event.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/bloc.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
+import 'package:calories/ui/screens/meal/create_meal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 enum RecipeAction {
   ADD_TO_MEAL,
   ADD_TO_DIARY,
+  NO_ACTION,
 }
 
 class RecipeDetailArgument {
@@ -365,16 +368,25 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 
   Future<void> _onAddButtonPressed() async {
-    /*if (_foodAction == FoodAction.ADD_TO_RECIPE) {
-      Navigator.pop(
-          context,
-          PopWithResults(
-              fromPage: FoodDetailScreen.routeName,
-              toPage: CreateRecipeScreen.routeName,
-              results: {
-                'foodId': '${_food.id}',
-                'quantity': '${_quantityController.text}'
-              }));
-    }*/
+
+    switch(_recipeAction) {
+      case RecipeAction.ADD_TO_MEAL:
+        Navigator.pop(
+            context,
+            PopWithResults(
+                fromPage: RecipeDetailScreen.routeName,
+                toPage: CreateMealScreen.routeName,
+                results: {
+                  'recipeId': '${_recipe.id}',
+                  'quantity': '${_quantityController.text}'
+                }));
+        break;
+      case RecipeAction.ADD_TO_DIARY:
+      // TODO: Handle this case.
+        break;
+      case RecipeAction.NO_ACTION:
+      // TODO: Handle this case.
+        break;
+    }
   }
 }

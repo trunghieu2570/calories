@@ -1,20 +1,25 @@
 import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/blocs/favorite_meals/bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
+import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/blocs/recipe/recipe_bloc.dart';
 import 'package:calories/blocs/recipe/recipe_state.dart';
-import 'package:calories/ui/create_food_screen.dart';
-import 'package:calories/ui/create_recipe_screen.dart';
-import 'package:calories/ui/food_detail_screen.dart';
-import 'package:calories/ui/food_search_screen.dart';
-import 'package:calories/ui/meal_search_screen.dart';
-import 'package:calories/ui/recipe_detail_screen.dart';
-import 'package:calories/ui/recipe_search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'screens/food/create_food_screen.dart';
+import 'screens/food/food_detail_screen.dart';
+import 'screens/food/food_search_screen.dart';
+import 'screens/meal/create_meal_screen.dart';
+import 'screens/meal/meal_detail_screen.dart';
+import 'screens/meal/meal_search_screen.dart';
+import 'screens/recipe/create_recipe_screen.dart';
+import 'screens/recipe/recipe_detail_screen.dart';
+import 'screens/recipe/recipe_search_screen.dart';
 
 class FoodsScreen extends StatefulWidget {
   @override
@@ -27,6 +32,8 @@ class FoodsScreenState extends State<FoodsScreen>
   TabController _tabController;
   FoodBloc _foodBloc;
   RecipeBloc _recipeBloc;
+  MealBloc _mealBloc;
+  MaterialColor _color = Colors.red;
 
   Future<void> _onPressedCreateFoodButton() async {
     return Navigator.pushNamed(context, CreateFoodScreen.routeName);
@@ -36,9 +43,24 @@ class FoodsScreenState extends State<FoodsScreen>
     return Navigator.pushNamed(context, CreateRecipeScreen.routeName);
   }
 
+  Future<void> _onPressedCreateMealButton() async {
+    return Navigator.pushNamed(context, CreateMealScreen.routeName);
+  }
+
   void _onTabIndexChanged() {
     setState(() {
       _selectedTab = _tabController.index;
+      switch (_selectedTab) {
+        case 0:
+          _color = Colors.red;
+          break;
+        case 1:
+          _color = Colors.green;
+          break;
+        case 2:
+          _color = Colors.blue;
+          break;
+      }
     });
   }
 
@@ -48,15 +70,19 @@ class FoodsScreenState extends State<FoodsScreen>
     _tabController.addListener(_onTabIndexChanged);
     _foodBloc = BlocProvider.of<FoodBloc>(context);
     _recipeBloc = BlocProvider.of<RecipeBloc>(context);
+    _mealBloc = BlocProvider.of<MealBloc>(context);
     super.initState();
   }
 
-  Future onSearchIconPressed(BuildContext context) {
-    if (_selectedTab == 2)
-      return Navigator.pushNamed(context, FoodSearchScreen.routeName);
-    if (_selectedTab == 1)
-      return Navigator.pushNamed(context, MealSearchScreen.routeName);
-    return Navigator.pushNamed(context, RecipeSearchScreen.routeName);
+  Future<void> onSearchIconPressed(BuildContext context) async {
+    switch (_selectedTab) {
+      case 0:
+        return Navigator.pushNamed(context, MealSearchScreen.routeName);
+      case 1:
+        return Navigator.pushNamed(context, RecipeSearchScreen.routeName);
+      case 2:
+        return Navigator.pushNamed(context, FoodSearchScreen.routeName);
+    }
   }
 
   @override
@@ -64,7 +90,7 @@ class FoodsScreenState extends State<FoodsScreen>
     final _floatingButtons = [
       FloatingActionButton.extended(
         backgroundColor: Colors.red,
-        onPressed: _incrementCounter,
+        onPressed: _onPressedCreateMealButton,
         tooltip: 'Tạo đồ bữa ăn mới',
         icon: Icon(Icons.add),
         label: Text("TẠO BỮA ĂN"),
@@ -93,10 +119,10 @@ class FoodsScreenState extends State<FoodsScreen>
               floating: true,
               snap: true,
               forceElevated: true,
+              backgroundColor: _color,
               title: Text(
-                "Món ăn yêu thích",
+                "Favorites",
                 style: TextStyle(
-                    color: Colors.black,
                     fontSize: 20,
                     fontFamily: "OpenSans",
                     fontWeight: FontWeight.bold),
@@ -113,18 +139,17 @@ class FoodsScreenState extends State<FoodsScreen>
                 ),
               ],
               bottom: TabBar(
-                isScrollable: true,
+                //isScrollable: true,
                 controller: _tabController,
-                labelColor: Colors.grey[800],
                 tabs: <Widget>[
                   Tab(
-                    text: 'Bữa ăn',
+                    text: 'Meals',
                   ),
                   Tab(
-                    text: 'Công thức nấu ăn',
+                    text: 'Recipes',
                   ),
                   Tab(
-                    text: 'Thực phẩm',
+                    text: 'Foods',
                   )
                 ],
               ),
@@ -148,7 +173,7 @@ class FoodsScreenState extends State<FoodsScreen>
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
-              ListTile(
+              /*ListTile(
                 onTap: () => {},
                 title: Text(
                   'Danh mục các loại thực phẩm',
@@ -197,10 +222,10 @@ class FoodsScreenState extends State<FoodsScreen>
                     elevation: 5,
                   ),
                 ),
-              ),
+              ),*/
               ListTile(
                 title: Text(
-                  'Thực phẩm yêu thích của bạn',
+                  'Your favorite foods',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -255,7 +280,7 @@ class FoodsScreenState extends State<FoodsScreen>
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
-              ListTile(
+              /*ListTile(
                 onTap: () => {},
                 title: Text(
                   'Được lựa chọn dành cho bạn',
@@ -310,10 +335,10 @@ class FoodsScreenState extends State<FoodsScreen>
                     elevation: 5,
                   ),
                 ),
-              ),
+              ),*/
               ListTile(
                 title: Text(
-                  'Bữa ăn yêu thích của bạn',
+                  'Your favorite meals',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -326,32 +351,58 @@ class FoodsScreenState extends State<FoodsScreen>
               ),
             ]),
           ),
-          SliverList(delegate: SliverChildBuilderDelegate(
-            (_, int index) {
-              return Card(
-                semanticContainer: true,
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                child: Container(
-                  height: 75,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Image(
-                        image: NetworkImage('https://placeimg.com/640/480/any'),
-                        fit: BoxFit.fill,
-                      ),
-                      Expanded(
-                        child: ListTile(
-                          title: Text('Title'),
-                          subtitle: Text('Subtitle'),
+          BlocBuilder<FavoriteMealsBloc, FavoriteMealsState>(
+              builder: (context, state) {
+            final MealState mealState = _mealBloc.state;
+            if (state is FavoriteMealsLoaded && mealState is MealsLoaded) {
+              final favoriteMeals = state.mealIds;
+              final meals = mealState.meals;
+              return SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (_, int index) {
+                    try {
+                      final favoriteMeal = meals
+                          .where((r) => r.id == favoriteMeals[index])
+                          .first;
+                      return Card(
+                        semanticContainer: true,
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Container(
+                          height: 70,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Image(
+                                image: NetworkImage(
+                                    'https://placeimg.com/640/480/any'),
+                                fit: BoxFit.fill,
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  onTap: () => Navigator.pushNamed(
+                                      context, RecipeDetailScreen.routeName,
+                                      arguments: MealDetailArgument(
+                                          meal: favoriteMeal)),
+                                  title: Text(favoriteMeal.name),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                        elevation: 1,
+                      );
+                    } catch (StateError) {
+                      return Container();
+                    }
+                  },
+                  childCount: favoriteMeals.length,
                 ),
               );
-            },
-          )),
+            }
+            return SliverToBoxAdapter(
+              child: Text("No favorite"),
+            );
+          }),
         ],
       );
 
@@ -359,7 +410,7 @@ class FoodsScreenState extends State<FoodsScreen>
         slivers: <Widget>[
           SliverList(
             delegate: SliverChildListDelegate([
-              ListTile(
+              /*ListTile(
                 onTap: () => {},
                 title: Text(
                   'Công thức nấu ăn từ cộng đồng',
@@ -416,10 +467,10 @@ class FoodsScreenState extends State<FoodsScreen>
                     elevation: 5,
                   ),
                 ),
-              ),
+              ),*/
               ListTile(
                 title: Text(
-                  'Công thức yêu thích của bạn',
+                  'Your favorite recipes',
                   style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -490,6 +541,4 @@ class FoodsScreenState extends State<FoodsScreen>
           }),
         ],
       );
-
-  static void _incrementCounter() {}
 }

@@ -1,5 +1,5 @@
 import 'package:calories/models/models.dart';
-import 'package:calories/ui/nutrition_info_screen.dart';
+import 'package:calories/ui/screens/food/nutrition_info_screen.dart';
 import 'package:flutter/material.dart';
 
 class CreateFoodScreen extends StatefulWidget {

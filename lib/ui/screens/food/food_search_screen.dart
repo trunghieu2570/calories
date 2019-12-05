@@ -1,34 +1,32 @@
-import 'package:calories/blocs/recipe/recipe_bloc.dart';
-import 'package:calories/blocs/recipe/recipe_state.dart';
+import 'package:calories/blocs/food/food_bloc.dart';
+import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/models/models.dart';
-import 'package:calories/ui/recipe_detail_screen.dart';
+import 'package:calories/pop_with_result.dart';
+import 'package:calories/ui/screens/food/food_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum RecipeSearchAction {
-  SEARCH_FOR_DIARY,
+class FoodSearchArgument {
+  final FoodAction action;
+
+  FoodSearchArgument({this.action});
 }
 
-class RecipeSearchArgument {
-  final RecipeSearchAction action;
-
-  RecipeSearchArgument({this.action});
-}
-
-class RecipeSearchScreen extends StatefulWidget {
-  static final String routeName = "/recipeSearch";
+class FoodSearchScreen extends StatefulWidget {
+  static final String routeName = '/foodSearch';
 
   @override
-  State<StatefulWidget> createState() => new RecipeSearchScreenState();
+  State<StatefulWidget> createState() => new FoodSearchScreenState();
 }
 
-class RecipeSearchScreenState extends State<RecipeSearchScreen> {
-  static final String routeName = "/recipeSearch";
+class FoodSearchScreenState extends State<FoodSearchScreen> {
+  static final String routeName = '/foodSearch';
   bool _isEditing = false;
-  RecipeSearchAction _action;
+  FoodAction _action;
 
-  List<Widget> _buildActions(bool isEditting) {
-    if (isEditting)
+  List<Widget> _buildActions(bool isEditing) {
+    if (isEditing)
       return [
         Container(
           margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
@@ -51,8 +49,8 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
     ];
   }
 
-  Widget _buildLeading(bool isEditting) {
-    if (isEditting)
+  Widget _buildLeading(bool isEditing) {
+    if (isEditing)
       return Container(
         margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
         color: Colors.grey[100],
@@ -138,55 +136,45 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
                   border: InputBorder.none,
                   filled: true,
                   fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên công thức bạn cần tìm',
+                  hintText: 'Nhập tên thực phẩm bạn cần tìm',
                 ),
               ),
             ),
             leading: _buildLeading(_isEditing),
             actions: _buildActions(_isEditing),
           ),
-          BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
-            if (state is RecipesLoading) {
+          BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
+            if (state is FoodLoading) {
               return SliverToBoxAdapter(
                 child: Text("Loading"),
               );
-            } else if (state is RecipesLoaded) {
-              final recipes = state.recipes;
+            } else if (state is FoodLoaded) {
+              final foods = state.foods;
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final recipe = recipes[index];
+                    final food = foods[index];
                     return Card(
-                      semanticContainer: true,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      elevation: 0,
                       child: Container(
-                        height: 75,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            /*Image(
-                              image: NetworkImage(
-                                  'https://placeimg.com/640/480/any'),
-                              fit: BoxFit.fill,
-                            ),*/
-                            Expanded(
-                              child: ListTile(
-                                title: Text(recipe.title),
-                                subtitle: Text(recipe.numberOfServings.toString() + " serving(s)"),
-                                onTap: () => _onRecipeTapped(recipe),
-                              ),
-                            ),
-                          ],
+                        child: ListTile(
+                          onTap: () => _onListTileTapped(foods[index]),
+                          title: Text(
+                            food.name,
+                          ),
+                          subtitle: Text(
+                            food.brand,
+                          ),
                         ),
                       ),
                     );
                   },
-                  childCount: recipes.length,
+                  childCount: foods.length,
                 ),
               );
             }
             return SliverToBoxAdapter(
-              child: Text("Cannot load recipes"),
+              child: Text("Can't load foods list"),
             );
           }),
         ],
@@ -194,12 +182,36 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final FoodSearchArgument args = ModalRoute.of(context).settings.arguments;
+    if (args != null) {
+      _action = args.action;
+    }
     return Scaffold(
       body: _layoutStack(),
     );
   }
 
-  Future<void> _onRecipeTapped(Recipe recipe)  async{
-    Navigator.pushNamed(context, RecipeDetailScreen.routeName, arguments: RecipeDetailArgument(recipe: recipe));
+  void _onListTileTapped(Food food) {
+    if (_action == null || _action == FoodAction.NO_ACTION) {
+      Navigator.pushNamed(context, FoodDetailScreen.routeName,
+          arguments: FoodDetailArgument(food: food));
+    } else {
+      Navigator.pushNamed(
+        context,
+        FoodDetailScreen.routeName,
+        arguments: FoodDetailArgument(
+          food: food,
+          action: _action,
+        ),
+      ).then((r) {
+        if (r is PopWithResults) {
+          if (r.toPage == routeName) {
+            return;
+          } else {
+            Navigator.pop(context, r);
+          }
+        }
+      });
+    }
   }
 }

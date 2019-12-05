@@ -1,34 +1,28 @@
-import 'package:calories/blocs/food/food_bloc.dart';
-import 'package:calories/blocs/food/food_state.dart';
+import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/models/models.dart';
-import 'package:calories/pop_with_result.dart';
-import 'package:calories/ui/food_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum FoodSearchAction {
-  SEARCH_FOR_INGREDIENT,
-  SEARCH_FOR_DIARY,
+import 'meal_detail_screen.dart';
+
+enum MealSearchAction { SEARCH_FOR_DIARY }
+
+class MealSearchArgument {
+  final MealSearchAction mealSearchAction;
+
+  MealSearchArgument({this.mealSearchAction});
 }
 
-class FoodSearchArgument {
-  final FoodSearchAction action;
-
-  FoodSearchArgument({this.action});
-}
-
-class FoodSearchScreen extends StatefulWidget {
-  static final String routeName = '/foodSearch';
-
+class MealSearchScreen extends StatefulWidget {
+  static final String routeName = "/mealSearch";
   @override
-  State<StatefulWidget> createState() => new FoodSearchScreenState();
+  _MealSearchScreenState createState() => _MealSearchScreenState();
 }
 
-class FoodSearchScreenState extends State<FoodSearchScreen> {
-  static final String routeName = '/foodSearch';
+class _MealSearchScreenState extends State<MealSearchScreen> {
+  static final String routeName = "/mealSearch";
   bool _isEditing = false;
-  FoodSearchAction _action;
+  MealSearchAction _action;
 
   List<Widget> _buildActions(bool isEditting) {
     if (isEditting)
@@ -54,8 +48,8 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
     ];
   }
 
-  Widget _buildLeading(bool isEditting) {
-    if (isEditting)
+  Widget _buildLeading(bool isEditing) {
+    if (isEditing)
       return Container(
         margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
         color: Colors.grey[100],
@@ -141,45 +135,54 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
                   border: InputBorder.none,
                   filled: true,
                   fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên thực phẩm bạn cần tìm',
+                  hintText: 'Nhập tên bữa ăn bạn cần tìm',
                 ),
               ),
             ),
             leading: _buildLeading(_isEditing),
             actions: _buildActions(_isEditing),
           ),
-          BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
-            if (state is FoodLoading) {
+          BlocBuilder<MealBloc, MealState>(builder: (context, state) {
+            if (state is MealsLoading) {
               return SliverToBoxAdapter(
                 child: Text("Loading"),
               );
-            } else if (state is FoodLoaded) {
-              final foods = state.foods;
+            } else if (state is MealsLoaded) {
+              final meals = state.meals;
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final food = foods[index];
+                    final meal = meals[index];
                     return Card(
-                      elevation: 0,
+                      semanticContainer: true,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
                       child: Container(
-                        child: ListTile(
-                          onTap: () => _onListTileTapped(foods[index]),
-                          title: Text(
-                            food.name,
-                          ),
-                          subtitle: Text(
-                            food.brand,
-                          ),
+                        height: 75,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            /*Image(
+                              image: NetworkImage(
+                                  'https://placeimg.com/640/480/any'),
+                              fit: BoxFit.fill,
+                            ),*/
+                            Expanded(
+                              child: ListTile(
+                                title: Text(meal.name),
+                                onTap: () => _onMealTapped(meal),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
                   },
-                  childCount: foods.length,
+                  childCount: meals.length,
                 ),
               );
             }
             return SliverToBoxAdapter(
-              child: Text("Can't load foods list"),
+              child: Text("Cannot load meals"),
             );
           }),
         ],
@@ -187,35 +190,12 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final FoodSearchArgument args = ModalRoute.of(context).settings.arguments;
-    if (args != null) {
-      _action = args.action;
-    }
     return Scaffold(
       body: _layoutStack(),
     );
   }
 
-  void _onListTileTapped(Food food) {
-    if (_action == FoodSearchAction.SEARCH_FOR_INGREDIENT)
-      Navigator.pushNamed(
-        context,
-        FoodDetailScreen.routeName,
-        arguments: FoodDetailArgument(
-          food: food,
-          action: FoodAction.ADD_TO_RECIPE,
-        ),
-      ).then((r) {
-        if (r is PopWithResults) {
-          if (r.toPage == routeName) {
-            return;
-          } else {
-            Navigator.pop(context, r);
-          }
-        }
-      });
-    else
-      Navigator.pushNamed(context, FoodDetailScreen.routeName,
-          arguments: FoodDetailArgument(food: food));
+  Future<void> _onMealTapped(Meal meal)  async{
+    Navigator.pushNamed(context, MealDetailScreen.routeName, arguments: MealDetailArgument(meal: meal));
   }
 }

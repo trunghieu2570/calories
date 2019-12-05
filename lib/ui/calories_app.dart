@@ -1,15 +1,15 @@
 import 'package:calories/blocs/auth/bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/blocs/favorite_meals/bloc.dart';
 import 'package:calories/blocs/favorite_recipes/bloc.dart';
 import 'package:calories/repositories/auth_repository.dart';
-import 'package:calories/ui/create_food_screen.dart';
-import 'package:calories/ui/create_recipe_screen.dart';
-import 'package:calories/ui/food_detail_screen.dart';
-import 'package:calories/ui/food_search_screen.dart';
 import 'package:calories/ui/foods_screen.dart';
-import 'package:calories/ui/meal_search_screen.dart';
-import 'package:calories/ui/recipe_detail_screen.dart';
-import 'package:calories/ui/recipe_search_screen.dart';
+import 'package:calories/ui/screens/food/create_food_screen.dart';
+import 'package:calories/ui/screens/food/food_detail_screen.dart';
+import 'package:calories/ui/screens/food/food_search_screen.dart';
+import 'package:calories/ui/screens/meal/meal_search_screen.dart';
+import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
+import 'package:calories/ui/screens/recipe/recipe_search_screen.dart';
 import 'package:calories/ui/splash_screen.dart';
 import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +17,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'diary_screen.dart';
+import 'screens/meal/create_meal_screen.dart';
+import 'screens/meal/meal_detail_screen.dart';
+import 'screens/recipe/create_recipe_screen.dart';
 
 class MyApp extends StatelessWidget {
   final AuthRepository _userRepository;
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.green,
           textTheme: TextTheme(
               title: TextStyle(
             fontWeight: FontWeight.bold,
@@ -47,7 +50,10 @@ class MyApp extends StatelessWidget {
                 if (state is Authenticated) {
                   BlocProvider.of<FavoriteFoodsBloc>(context)
                       .add(LoadFavoriteFoods());
-                  BlocProvider.of<FavoriteRecipesBloc>(context).add(LoadFavoriteRecipes());
+                  BlocProvider.of<FavoriteRecipesBloc>(context)
+                      .add(LoadFavoriteRecipes());
+                  BlocProvider.of<FavoriteMealsBloc>(context)
+                      .add(LoadFavoriteMeals());
                   return MyHomePage(title: "Hom nay");
                 }
                 return Container();
@@ -57,9 +63,11 @@ class MyApp extends StatelessWidget {
         RecipeSearchScreen.routeName: (context) => RecipeSearchScreen(),
         CreateRecipeScreen.routeName: (context) => CreateRecipeScreen(),
         FoodDetailScreen.routeName: (context) => FoodDetailScreen(),
-        RecipeDetailScreen.routeName : (context) => RecipeDetailScreen(),
+        RecipeDetailScreen.routeName: (context) => RecipeDetailScreen(),
         CreateFoodScreen.routeName: (context) => CreateFoodScreen(),
         MealSearchScreen.routeName: (context) => MealSearchScreen(),
+        MealDetailScreen.routeName: (context) => MealDetailScreen(),
+        CreateMealScreen.routeName: (context) => CreateMealScreen(),
       },
     );
   }

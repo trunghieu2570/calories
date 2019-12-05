@@ -1,25 +1,28 @@
-import 'package:calories/blocs/meal/bloc.dart';
+import 'package:calories/blocs/recipe/recipe_bloc.dart';
+import 'package:calories/blocs/recipe/recipe_state.dart';
+import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
+import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-enum MealSearchAction { SEARCH_FOR_DIARY }
+class RecipeSearchArgument {
+  final RecipeAction action;
 
-class MealSearchArgument {
-  final MealSearchAction mealSearchAction;
-
-  MealSearchArgument({this.mealSearchAction});
+  RecipeSearchArgument({this.action});
 }
 
-class MealSearchScreen extends StatefulWidget {
-  static final String routeName = "/mealSearch";
+class RecipeSearchScreen extends StatefulWidget {
+  static final String routeName = "/recipeSearch";
+
   @override
-  _MealSearchScreenState createState() => _MealSearchScreenState();
+  State<StatefulWidget> createState() => new RecipeSearchScreenState();
 }
 
-class _MealSearchScreenState extends State<MealSearchScreen> {
-  static final String routeName = "/mealSearch";
+class RecipeSearchScreenState extends State<RecipeSearchScreen> {
+  static final String routeName = "/recipeSearch";
   bool _isEditing = false;
-  MealSearchAction _action;
+  RecipeAction _action;
 
   List<Widget> _buildActions(bool isEditting) {
     if (isEditting)
@@ -45,8 +48,8 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
     ];
   }
 
-  Widget _buildLeading(bool isEditing) {
-    if (isEditing)
+  Widget _buildLeading(bool isEditting) {
+    if (isEditting)
       return Container(
         margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
         color: Colors.grey[100],
@@ -132,24 +135,24 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                   border: InputBorder.none,
                   filled: true,
                   fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên bữa ăn bạn cần tìm',
+                  hintText: 'Nhập tên công thức bạn cần tìm',
                 ),
               ),
             ),
             leading: _buildLeading(_isEditing),
             actions: _buildActions(_isEditing),
           ),
-          BlocBuilder<MealBloc, MealState>(builder: (context, state) {
-            if (state is MealsLoading) {
+          BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
+            if (state is RecipesLoading) {
               return SliverToBoxAdapter(
                 child: Text("Loading"),
               );
-            } else if (state is MealsLoaded) {
-              final meals = state.meals;
+            } else if (state is RecipesLoaded) {
+              final recipes = state.recipes;
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
-                    final meal = meals[index];
+                    final recipe = recipes[index];
                     return Card(
                       semanticContainer: true,
                       clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -165,8 +168,11 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                             ),*/
                             Expanded(
                               child: ListTile(
-                                title: Text(meal.name),
-                                onTap: () => {},
+                                title: Text(recipe.title),
+                                subtitle: Text(
+                                    recipe.numberOfServings.toString() +
+                                        " serving(s)"),
+                                onTap: () => _onRecipeTapped(recipe),
                               ),
                             ),
                           ],
@@ -174,12 +180,12 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                       ),
                     );
                   },
-                  childCount: meals.length,
+                  childCount: recipes.length,
                 ),
               );
             }
             return SliverToBoxAdapter(
-              child: Text("Cannot load meals"),
+              child: Text("Cannot load recipes"),
             );
           }),
         ],
@@ -187,12 +193,36 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final RecipeSearchArgument args = ModalRoute.of(context).settings.arguments;
+    if (args != null) {
+      _action = args.action;
+    }
     return Scaffold(
       body: _layoutStack(),
     );
   }
 
-/*  Future<void> _onRecipeTapped(Recipe recipe)  async{
-    Navigator.pushNamed(context, RecipeDetailScreen.routeName, arguments: RecipeDetailArgument(recipe: recipe));
-  }*/
+  Future<void> _onRecipeTapped(Recipe recipe) async {
+    if (_action == null || _action == RecipeAction.NO_ACTION) {
+      Navigator.pushNamed(context, RecipeDetailScreen.routeName,
+          arguments: RecipeDetailArgument(recipe: recipe));
+    } else {
+      Navigator.pushNamed(
+        context,
+        RecipeDetailScreen.routeName,
+        arguments: RecipeDetailArgument(
+          recipe: recipe,
+          action: _action,
+        ),
+      ).then((r) {
+        if (r is PopWithResults) {
+          if (r.toPage == routeName) {
+            return;
+          } else {
+            Navigator.pop(context, r);
+          }
+        }
+      });
+    }
+  }
 }

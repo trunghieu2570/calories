@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
+import 'package:calories/blocs/favorite_meals/bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
-import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_event.dart';
 import 'package:calories/blocs/meal/bloc.dart';
@@ -63,7 +63,13 @@ void main() {
             userInfoRepository: _userRepository,
             mealRepository: _mealRepository)..add(LoadMeals()),
       ),
+      BlocProvider<FavoriteMealsBloc>(
+        builder: (context) => FavoriteMealsBloc(
+            userInfoRepository: _userRepository,
+            authRepository: _authRepository),
+      ),
     ],
+
     child: MyApp(
       userRepository: _authRepository,
     ),
