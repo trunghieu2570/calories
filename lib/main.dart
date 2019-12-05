@@ -4,11 +4,13 @@ import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_event.dart';
+import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/blocs/recipe/recipe_bloc.dart';
 import 'package:calories/blocs/recipe/recipe_event.dart';
 import 'package:calories/blocs/simple_bloc_delegate.dart';
 import 'package:calories/repositories/auth_repository.dart';
 import 'package:calories/repositories/firestore/firebase_food_repository.dart';
+import 'package:calories/repositories/firestore/firebase_meal_repository.dart';
 import 'package:calories/repositories/firestore/firebase_recipe_repository.dart';
 import 'package:calories/repositories/firestore/firebase_user_repository.dart';
 import 'package:calories/repositories/repositories.dart';
@@ -26,6 +28,7 @@ void main() {
   final _foodRepositiory = FirebaseFoodRepository();
   final _userRepository = FirebaseUserRepository();
   final _recipeRepository = FirebaseRecipeRepository();
+  final _mealRepository = FirebaseMealRepository();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<AuthBloc>(
@@ -54,6 +57,11 @@ void main() {
         builder: (context) => FavoriteRecipesBloc(
             userInfoRepository: _userRepository,
             authRepository: _authRepository),
+      ),
+      BlocProvider<MealBloc>(
+        builder: (context) => MealBloc(
+            userInfoRepository: _userRepository,
+            mealRepository: _mealRepository)..add(LoadMeals()),
       ),
     ],
     child: MyApp(

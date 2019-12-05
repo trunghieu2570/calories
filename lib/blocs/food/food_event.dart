@@ -45,6 +45,10 @@ class FoodsUpdated extends FoodEvent {
   const FoodsUpdated(this.foods);
   @override
   List<Object> get props => [foods];
+  @override
+  String toString() {
+    return "FoodsUpdated $foods";
+  }
 }
 
 class LoadFoods extends FoodEvent {}

@@ -20,7 +20,7 @@ class RecipesLoaded extends RecipeState {
 
   @override
   String toString() {
-    return "$recipes";
+    return "RecipesLoaded $recipes";
   }
 }
 

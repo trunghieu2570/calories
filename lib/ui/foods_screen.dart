@@ -9,6 +9,7 @@ import 'package:calories/ui/create_food_screen.dart';
 import 'package:calories/ui/create_recipe_screen.dart';
 import 'package:calories/ui/food_detail_screen.dart';
 import 'package:calories/ui/food_search_screen.dart';
+import 'package:calories/ui/meal_search_screen.dart';
 import 'package:calories/ui/recipe_detail_screen.dart';
 import 'package:calories/ui/recipe_search_screen.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,8 @@ class FoodsScreenState extends State<FoodsScreen>
   Future onSearchIconPressed(BuildContext context) {
     if (_selectedTab == 2)
       return Navigator.pushNamed(context, FoodSearchScreen.routeName);
+    if (_selectedTab == 1)
+      return Navigator.pushNamed(context, MealSearchScreen.routeName);
     return Navigator.pushNamed(context, RecipeSearchScreen.routeName);
   }
 

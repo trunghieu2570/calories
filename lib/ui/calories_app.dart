@@ -7,6 +7,7 @@ import 'package:calories/ui/create_recipe_screen.dart';
 import 'package:calories/ui/food_detail_screen.dart';
 import 'package:calories/ui/food_search_screen.dart';
 import 'package:calories/ui/foods_screen.dart';
+import 'package:calories/ui/meal_search_screen.dart';
 import 'package:calories/ui/recipe_detail_screen.dart';
 import 'package:calories/ui/recipe_search_screen.dart';
 import 'package:calories/ui/splash_screen.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         FoodDetailScreen.routeName: (context) => FoodDetailScreen(),
         RecipeDetailScreen.routeName : (context) => RecipeDetailScreen(),
         CreateFoodScreen.routeName: (context) => CreateFoodScreen(),
+        MealSearchScreen.routeName: (context) => MealSearchScreen(),
       },
     );
   }
