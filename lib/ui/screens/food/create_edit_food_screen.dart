@@ -116,121 +116,122 @@ class _CreateFoodScreenState extends State<CreateFoodScreen> {
         ],
       ),
       body: Form(
-          key: _formKey,
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverList(
-                delegate: SliverChildListDelegate([
-                  Container(
-                    height: 300,
-                    child: Scaffold(
-                      backgroundColor: Colors.grey,
-                      floatingActionButton: FloatingActionButton(
-                        onPressed: _pickImage,
-                        child: Icon(Icons.camera_alt),
-                      ),
-                      body: Container(
-                        decoration: _photo != null
-                            ? BoxDecoration(
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: FileImage(_photo),
-                                ),
-                              )
-                            : (_photoUrl != null
-                                ? BoxDecoration(
-                                    image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(_photoUrl)),
-                                  )
-                                : null),
-                      ),
+        key: _formKey,
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                  height: 300,
+                  child: Scaffold(
+                    backgroundColor: Colors.grey,
+                    floatingActionButton: FloatingActionButton(
+                      onPressed: _pickImage,
+                      child: Icon(Icons.camera_alt),
+                    ),
+                    body: Container(
+                      decoration: _photo != null
+                          ? BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: FileImage(_photo),
+                              ),
+                            )
+                          : (_photoUrl != null
+                              ? BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(_photoUrl)),
+                                )
+                              : null),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: TextFormField(
-                      initialValue: _name,
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: EdgeInsets.all(15),
-                        labelText: "Name",
-                      ),
-                      onSaved: (value) => _name = value,
-                      validator: (value) {
-                        if (value.isEmpty) return "Not be empty";
-                        return null;
-                      },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextFormField(
+                    initialValue: _name,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: EdgeInsets.all(15),
+                      labelText: "Name",
                     ),
+                    onSaved: (value) => _name = value,
+                    validator: (value) {
+                      if (value.isEmpty) return "Not be empty";
+                      return null;
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: TextFormField(
-                      initialValue: _brand,
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: EdgeInsets.all(15),
-                        labelText: "Brand",
-                      ),
-                      onSaved: (value) => _brand = value,
-                      validator: (value) {
-                        if (value.isEmpty) return "Not be empty";
-                        return null;
-                      },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextFormField(
+                    initialValue: _brand,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: EdgeInsets.all(15),
+                      labelText: "Brand",
                     ),
+                    onSaved: (value) => _brand = value,
+                    validator: (value) {
+                      if (value.isEmpty) return "Not be empty";
+                      return null;
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: TextFormField(
-                      initialValue: _quantity,
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: EdgeInsets.all(15),
-                        labelText: "Quantity",
-                      ),
-                      keyboardType: TextInputType.number,
-                      onSaved: (value) => _quantity = value,
-                      validator: (value) {
-                        if (value.isEmpty) return "Not be empty";
-                        return null;
-                      },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextFormField(
+                    initialValue: _quantity,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: EdgeInsets.all(15),
+                      labelText: "Quantity",
                     ),
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => _quantity = value,
+                    validator: (value) {
+                      if (value.isEmpty) return "Not be empty";
+                      return null;
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: TextFormField(
-                      initialValue: _unit,
-                      decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: EdgeInsets.all(15),
-                        labelText: "Unit",
-                      ),
-                      onSaved: (value) => _unit = value,
-                      validator: (value) {
-                        if (value.isEmpty) return "Not be empty";
-                        return null;
-                      },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: TextFormField(
+                    initialValue: _unit,
+                    decoration: InputDecoration(
+                      fillColor: Colors.white,
+                      filled: true,
+                      contentPadding: EdgeInsets.all(15),
+                      labelText: "Unit",
                     ),
+                    onSaved: (value) => _unit = value,
+                    validator: (value) {
+                      if (value.isEmpty) return "Not be empty";
+                      return null;
+                    },
                   ),
-                  ListTile(
-                    title: Text('Share to community'),
-                    trailing: Switch(
-                      onChanged: (v) {
-                        setState(() {
-                          _share = v;
-                        });
-                      },
-                      value: _share,
-                    ),
-                  )
-                ]),
-              )
-            ],
-          )),
+                ),
+                ListTile(
+                  title: Text('Share to community'),
+                  trailing: Switch(
+                    onChanged: (v) {
+                      setState(() {
+                        _share = v;
+                      });
+                    },
+                    value: _share,
+                  ),
+                )
+              ]),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/blocs/meal/bloc.dart';
@@ -8,9 +10,9 @@ import 'package:calories/ui/screens/food/food_detail_screen.dart';
 import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
 import 'package:calories/ui/screens/recipe/recipe_search_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../pop_with_result.dart';
 import '../food/food_search_screen.dart';
@@ -27,6 +29,7 @@ class CreateMealScreen extends StatefulWidget {
 class CreateMealScreenState extends State<CreateMealScreen> {
   static final String routeName = '/createMeal';
   String _name;
+  File _photo;
   String _photoUrl;
   List<MealItem> _items;
   final _formKey = GlobalKey<FormState>();
@@ -52,90 +55,156 @@ class CreateMealScreenState extends State<CreateMealScreen> {
     }
   }
 
+  Future _pickImage() async {
+    var img = await ImagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      _photo = img;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: Text("Create new meal"),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: _onSave,
-            child: Text("SAVE"),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      decoration: InputDecoration(labelText: "Name"),
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          title: Text("Create new meal"),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: _onSave,
+              child: Text("SAVE"),
+            )
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildListDelegate([
+                  Container(
+                    height: 300,
+                    child: Scaffold(
+                      backgroundColor: Colors.grey,
+                      floatingActionButton: FloatingActionButton(
+                        onPressed: _pickImage,
+                        child: Icon(Icons.camera_alt),
+                      ),
+                      body: Container(
+                        decoration: _photo != null
+                            ? BoxDecoration(
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(_photo),
+                          ),
+                        )
+                            : (_photoUrl != null
+                            ? BoxDecoration(
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(_photoUrl)),
+                        )
+                            : null),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        filled: true,
+                        contentPadding: EdgeInsets.all(15),
+                        labelText: "Meal name",
+                      ),
                       onSaved: (value) => _name = value,
                       validator: (value) {
-                        if (value.isEmpty) return "This field is required";
+                        if (value.isEmpty) return "Not be empty";
                         return null;
                       },
                     ),
-                  ],
-                ),
+                  ),
+
+                  Builder(
+                    builder: (context) {
+                      final foodState = _foodBloc.state;
+                      final recipeState = _recipeBloc.state;
+                      if (foodState is FoodLoaded && recipeState is RecipesLoaded) {
+                        return Card(
+                          elevation: 0,
+                          borderOnForeground: true,
+                          margin: EdgeInsets.all(10),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  "Items",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      fontFamily: "OpenSans"),
+                                ),
+                              ),
+                              Divider(),
+                              ListView.builder(
+                                padding: EdgeInsets.all(0),
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (_, int index) {
+                                  final item = _items[index];
+                                  if (item.type == MealItemType.FOOD) {
+                                    try {
+                                      final food =
+                                      foodState.foods.firstWhere((food) => food.id == item.itemId);
+                                      return ListTile(
+                                        title: Text(
+                                          food.name,
+                                        ),
+                                        subtitle: Text(
+                                          food.brand,
+                                        ),
+                                      );
+                                    } catch (StateError) {
+                                      return Container();
+                                    }
+                                  } else if (item.type == MealItemType.RECIPE) {
+                                    try {
+                                      final recipe = recipeState.recipes.firstWhere((e) => e.id == item.itemId);
+                                      return ListTile(
+                                        title: Text(
+                                          recipe.title,
+                                        ),
+                                        subtitle: Text(
+                                          recipe.numberOfServings.toString() + " serving(s)",
+                                        ),
+                                      );
+                                    } catch (StateError) {
+                                      return Container();
+                                    }
+                                  }
+                                  return Container();
+                                },
+                                itemCount: _items.length,
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                      return Container();
+                    },
+                  ),
+                  RaisedButton(
+                    onPressed: _onAddButtonPressed,
+                    child: Text("Add item"),
+                  )
+                ]),
               ),
-              Builder(
-                builder: (context) {
-                  final foodState = _foodBloc.state;
-                  final recipeState = _recipeBloc.state;
-                  if (foodState is FoodLoaded && recipeState is RecipesLoaded) {
-                    return ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (_, int index) {
-                        final item = _items[index];
-                        if (item.type == MealItemType.FOOD) {
-                          try {
-                            final food = foodState.foods
-                                .where((e) => e.id == item.itemId)
-                                .first;
-                            return ListTile(
-                              title: Text(food.name),
-                              subtitle: Text(item.quantity.toString()),
-                            );
-                          } catch (StateError) {
-                            return Container();
-                          }
-                        } else if (item.type == MealItemType.RECIPE) {
-                          try {
-                            final recipe = recipeState.recipes
-                                .where((e) => e.id == item.itemId)
-                                .first;
-                            return ListTile(
-                              title: Text(recipe.title),
-                              subtitle: Text(item.quantity.toString()),
-                            );
-                          } catch (StateError) {
-                            return Container();
-                          }
-                        } else
-                          return Container();
-                      },
-                      itemCount: _items.length,
-                    );
-                  }
-                  return Container();
-                },
-              ),
-              RaisedButton(
-                onPressed: _onAddButtonPressed,
-                child: Text("Add item"),
-              )
+
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Future<void> _onAddButtonPressed() async {
@@ -146,21 +215,20 @@ class CreateMealScreenState extends State<CreateMealScreen> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          contentPadding: EdgeInsets.all(0),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    title: Text("Add food"),
-                    onTap: _onAddFoodTapped,
-                  ),
-                  ListTile(
-                    title: Text("Add recipe"),
-                    onTap: _onAddRecipeTapped,
-                  ),
-                ],
-              )
-            ));
+            contentPadding: EdgeInsets.all(0),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  title: Text("Add food"),
+                  onTap: _onAddFoodTapped,
+                ),
+                ListTile(
+                  title: Text("Add recipe"),
+                  onTap: _onAddRecipeTapped,
+                ),
+              ],
+            )));
   }
 
   Future<void> _onAddFoodTapped() async {
@@ -176,7 +244,6 @@ class CreateMealScreenState extends State<CreateMealScreen> {
             result.results['quantity'] as String,
           );
           _items.add(item);
-
         }
       }
     });
