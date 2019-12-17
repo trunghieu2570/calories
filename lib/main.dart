@@ -1,77 +1,88 @@
 import 'package:bloc/bloc.dart';
+import 'package:calories/blocs/daily_meals/daily_meals_bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
 import 'package:calories/blocs/favorite_meals/bloc.dart';
-import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
-import 'package:calories/blocs/food/food_bloc.dart';
-import 'package:calories/blocs/food/food_event.dart';
+import 'package:calories/blocs/favorite_recipes/bloc.dart';
+import 'package:calories/blocs/food/bloc.dart';
+import 'package:calories/blocs/goals/goals_bloc.dart';
 import 'package:calories/blocs/meal/bloc.dart';
-import 'package:calories/blocs/recipe/recipe_bloc.dart';
-import 'package:calories/blocs/recipe/recipe_event.dart';
+import 'package:calories/blocs/recipe/bloc.dart';
 import 'package:calories/blocs/simple_bloc_delegate.dart';
 import 'package:calories/repositories/auth_repository.dart';
+import 'package:calories/repositories/firestore/firebase_daily_meal_repository.dart';
 import 'package:calories/repositories/firestore/firebase_food_repository.dart';
+import 'package:calories/repositories/firestore/firebase_goal_repository.dart';
 import 'package:calories/repositories/firestore/firebase_meal_repository.dart';
 import 'package:calories/repositories/firestore/firebase_recipe_repository.dart';
 import 'package:calories/repositories/firestore/firebase_user_repository.dart';
-import 'package:calories/repositories/repositories.dart';
 import 'package:calories/ui/calories_app.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'blocs/auth/bloc.dart';
+import 'blocs/home_load/bloc.dart';
 import 'blocs/login/bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   BlocSupervisor.delegate = SimpleBlocDelegate();
   final _authRepository = AuthRepository();
-  final _foodRepositiory = FirebaseFoodRepository();
+  final _foodRepository = FirebaseFoodRepository();
   final _userRepository = FirebaseUserRepository();
   final _recipeRepository = FirebaseRecipeRepository();
   final _mealRepository = FirebaseMealRepository();
+  final _dailyMealRepository = FirebaseDailyMealRepository();
+  final _goalRepository = FirebaseGoalRepository();
   runApp(MultiBlocProvider(
     providers: [
       BlocProvider<AuthBloc>(
-        builder: (context) => AuthBloc(
+        create: (context) => AuthBloc(
             userRepository: _authRepository,
             userInfoRepository: _userRepository)
           ..add(AppStarted()),
       ),
       BlocProvider<LoginBloc>(
-        builder: (context) => LoginBloc(userRepository: _authRepository),
+        create: (context) => LoginBloc(userRepository: _authRepository),
       ),
       BlocProvider<FoodBloc>(
-        builder: (context) =>
-            FoodBloc(foodRepository: _foodRepositiory)..add(LoadFoods()),
+        create: (context) => FoodBloc(foodRepository: _foodRepository),
       ),
       BlocProvider<RecipeBloc>(
-        builder: (context) =>
-            RecipeBloc(recipeRepository: _recipeRepository)..add(LoadRecipes()),
+        create: (context) => RecipeBloc(recipeRepository: _recipeRepository),
       ),
       BlocProvider<FavoriteFoodsBloc>(
-        builder: (context) => FavoriteFoodsBloc(
+        create: (context) => FavoriteFoodsBloc(
             userInfoRepository: _userRepository,
             authRepository: _authRepository),
       ),
       BlocProvider<FavoriteRecipesBloc>(
-        builder: (context) => FavoriteRecipesBloc(
+        create: (context) => FavoriteRecipesBloc(
             userInfoRepository: _userRepository,
             authRepository: _authRepository),
       ),
       BlocProvider<MealBloc>(
-        builder: (context) => MealBloc(
+        create: (context) => MealBloc(
             userInfoRepository: _userRepository,
-            mealRepository: _mealRepository)..add(LoadMeals()),
+            mealRepository: _mealRepository),
       ),
       BlocProvider<FavoriteMealsBloc>(
-        builder: (context) => FavoriteMealsBloc(
+        create: (context) => FavoriteMealsBloc(
             userInfoRepository: _userRepository,
             authRepository: _authRepository),
       ),
-    ],
+      BlocProvider<DailyMealBloc>(
+        create: (context) => DailyMealBloc(
+            dailyMealsRepository: _dailyMealRepository,
+            authRepository: _authRepository),
+      ),
+      BlocProvider<GoalBloc>(
+        create: (context) => GoalBloc(
+          authRepository: _authRepository,
+          goalsRepository: _goalRepository,
+        ),
+      ),
 
-    child: MyApp(
-      userRepository: _authRepository,
-    ),
+    ],
+    child: MyApp(),
   ));
 }

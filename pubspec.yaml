@@ -30,6 +30,10 @@ dependencies:
   rxdart: ^0.22.6
   flutter_bloc: ^2.0.1
   equatable: ^1.0.1
+  intl: ^0.16.0
+  image_picker: ^0.6.2+1
+  permission_handler: ^4.0.0
+  firebase_storage: ^3.0.8
 
 dev_dependencies:
   flutter_test:

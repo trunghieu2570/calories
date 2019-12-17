@@ -21,63 +21,8 @@ class RecipeSearchScreen extends StatefulWidget {
 
 class RecipeSearchScreenState extends State<RecipeSearchScreen> {
   static final String routeName = "/recipeSearch";
-  bool _isEditing = false;
   RecipeAction _action;
-
-  List<Widget> _buildActions(bool isEditting) {
-    if (isEditting)
-      return [
-        Container(
-          margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
-          color: Colors.grey[100],
-          child: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => {},
-          ),
-        ),
-      ];
-    return [
-      IconButton(
-        icon: Icon(Icons.filter_list),
-        onPressed: () => _onFilterPress(context),
-      ),
-      IconButton(
-        icon: Icon(Icons.mic_none),
-        onPressed: () => {},
-      ),
-    ];
-  }
-
-  Widget _buildLeading(bool isEditting) {
-    if (isEditting)
-      return Container(
-        margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-        color: Colors.grey[100],
-        child: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: _cancelEditing,
-        ),
-      );
-    return Container(
-      margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-      child: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  void _onSearchBarTapped() {
-    setState(() {
-      _isEditing = true;
-    });
-  }
-
-  void _cancelEditing() {
-    setState(() {
-      _isEditing = false;
-    });
-  }
+  String _searchQuery;
 
   void _onFilterPress(BuildContext pcontext) {
     showDialog(
@@ -119,86 +64,108 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
     );
   }
 
-  Widget _layoutStack() => CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            floating: true,
-            forceElevated: true,
-            centerTitle: true,
-            titleSpacing: 0.0,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                onTap: _onSearchBarTapped,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên công thức bạn cần tìm',
-                ),
-              ),
-            ),
-            leading: _buildLeading(_isEditing),
-            actions: _buildActions(_isEditing),
-          ),
-          BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
-            if (state is RecipesLoading) {
-              return SliverToBoxAdapter(
-                child: Text("Loading"),
-              );
-            } else if (state is RecipesLoaded) {
-              final recipes = state.recipes;
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    final recipe = recipes[index];
-                    return Card(
-                      semanticContainer: true,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: Container(
-                        height: 75,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            /*Image(
-                              image: NetworkImage(
-                                  'https://placeimg.com/640/480/any'),
-                              fit: BoxFit.fill,
-                            ),*/
-                            Expanded(
-                              child: ListTile(
-                                title: Text(recipe.title),
-                                subtitle: Text(
-                                    recipe.numberOfServings.toString() +
-                                        " serving(s)"),
-                                onTap: () => _onRecipeTapped(recipe),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  childCount: recipes.length,
-                ),
-              );
-            }
-            return SliverToBoxAdapter(
-              child: Text("Cannot load recipes"),
-            );
-          }),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
     final RecipeSearchArgument args = ModalRoute.of(context).settings.arguments;
     if (args != null) {
       _action = args.action;
     }
-    return Scaffold(
-      body: _layoutStack(),
+    return Container(
+      color: Theme.of(context).primaryColor,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            titleSpacing: 0.0,
+            iconTheme: IconThemeData(color: Colors.black),
+            backgroundColor: Colors.grey[100],
+            title: TextField(
+              autofocus: true,
+              style: TextStyle(fontSize: 18),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration.collapsed(
+                hintStyle: TextStyle(fontSize: 18),
+                hintText: 'Enter recipe name',
+              ),
+            ),
+            actions: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.close,
+                  ),
+                  onPressed: () => {},
+                ),
+              ),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: <Widget>[
+              BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
+                if (state is RecipesLoading) {
+                  return SliverToBoxAdapter(
+                    child: Text("Loading"),
+                  );
+                } else if (state is RecipesLoaded) {
+                  final allRecipes = state.recipes;
+                  var recipes;
+                  if (_searchQuery == null || _searchQuery == '')
+                    recipes = allRecipes;
+                  else {
+                    recipes = allRecipes
+                        .where((e) => e.title
+                            .toLowerCase()
+                            .contains(_searchQuery.toLowerCase()))
+                        .toList();
+                  }
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        final recipe = recipes[index];
+                        return Card(
+                          semanticContainer: true,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: Container(
+                            height: 75,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                /*Image(
+                                  image: NetworkImage(
+                                      'https://placeimg.com/640/480/any'),
+                                  fit: BoxFit.fill,
+                                ),*/
+                                Expanded(
+                                  child: ListTile(
+                                    title: Text(recipe.title),
+                                    subtitle: Text(
+                                        recipe.numberOfServings.toString() +
+                                            " serving(s)"),
+                                    onTap: () => _onRecipeTapped(recipe),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: recipes.length,
+                    ),
+                  );
+                }
+                return SliverToBoxAdapter(
+                  child: Text("Cannot load recipes"),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

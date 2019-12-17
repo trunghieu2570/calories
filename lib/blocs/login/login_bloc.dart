@@ -5,11 +5,11 @@ import 'package:flutter/foundation.dart';
 import './bloc.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final AuthRepository _userRepository;
+  final AuthRepository _authRepository;
 
   LoginBloc({@required AuthRepository userRepository})
       : assert(userRepository != null),
-        _userRepository = userRepository;
+        _authRepository = userRepository;
 
   @override
   LoginState get initialState => LoginState.empty();
@@ -22,7 +22,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Stream<LoginState> _mapLoginWithGGPressToState() async* {
     try {
-      final _googleSignIn = _userRepository.signIn();
+      final _googleSignIn = await _authRepository.signIn();
       yield LoginState.success();
     } catch (_) {
       yield LoginState.failure();

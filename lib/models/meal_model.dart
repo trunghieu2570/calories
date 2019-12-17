@@ -1,6 +1,9 @@
 import 'package:calories/entities/entities.dart';
 import 'package:equatable/equatable.dart';
 
+import 'food_model.dart';
+import 'recipe_model.dart';
+
 class MealItemType {
   static const String FOOD = 'food';
   static const String RECIPE = 'recipe';
@@ -51,6 +54,28 @@ class Meal extends Equatable {
   @override
   String toString() {
     return "Meal ${toEntity().toJson()}";
+  }
+
+  NutritionInfo getSummaryNutrition(
+    final List<Food> foods,
+    final List<Recipe> recipes,
+  ) {
+    if (items == null) return NutritionInfo.empty();
+    var sum = NutritionInfo.empty();
+    for (final item in items) {
+      try {
+        if (item.type == MealItemType.FOOD) {
+          final food = foods.firstWhere((e) => e.id == item.itemId);
+          sum += food.nutritionInfo;
+        } else if (item.type == MealItemType.RECIPE) {
+          final recipe = recipes.firstWhere((e) => e.id == item.itemId);
+          sum += recipe.getSummaryNutrition(foods);
+        }
+      } catch (StateError) {
+        print(StateError);
+      }
+    }
+    return sum;
   }
 
   @override

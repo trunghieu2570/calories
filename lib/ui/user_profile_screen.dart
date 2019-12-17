@@ -9,6 +9,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
+  AuthBloc _authBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _authBloc = BlocProvider.of<AuthBloc>(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
@@ -320,6 +328,27 @@ class ProfileScreenState extends State<ProfileScreen> {
                           )),
                       title: Text(
                         "Thông tin ứng dụng",
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
+                  Card(
+                    elevation: 0,
+                    borderOnForeground: true,
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                    child: ListTile(
+                      onTap: () => _authBloc.add(AppLoggedOut()),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 25),
+                      leading: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.amber,
+                          child: Icon(
+                            Icons.exit_to_app,
+                            color: Colors.white,
+                          )),
+                      title: Text(
+                        "Đăng xuất",
                         style: TextStyle(
                             color: Colors.black, fontWeight: FontWeight.w500),
                       ),

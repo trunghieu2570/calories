@@ -1,5 +1,17 @@
+import 'package:calories/blocs/daily_meals/daily_meals_bloc.dart';
+import 'package:calories/blocs/daily_meals/daily_meals_state.dart';
+import 'package:calories/blocs/food/food_bloc.dart';
+import 'package:calories/blocs/food/food_state.dart';
+import 'package:calories/blocs/goals/goals_bloc.dart';
+import 'package:calories/blocs/goals/goals_state.dart';
+import 'package:calories/blocs/recipe/recipe_bloc.dart';
+import 'package:calories/blocs/recipe/recipe_state.dart';
+import 'package:calories/models/models.dart';
 import 'package:calories/ui/widgets/donut_chart.dart';
+import 'package:calories/ui/widgets/meal_item_card_widget.dart';
+import 'package:calories/ui/widgets/meal_no_item_card_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../util.dart';
 
@@ -11,6 +23,18 @@ class DiaryScreen extends StatefulWidget {
 class DiaryScreenState extends State<DiaryScreen> {
   String _pageTitle = "Hôm nay";
   PageController _pageController;
+  FoodBloc _foodBloc;
+  RecipeBloc _recipeBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _recipeBloc = BlocProvider.of<RecipeBloc>(context);
+    _foodBloc = BlocProvider.of<FoodBloc>(context);
+    _pageController = new PageController(
+      initialPage: getIndexFromDate(DateTime.now()),
+    );
+  }
 
   void _onPageChanged(int index) {
     setState(() {
@@ -23,7 +47,7 @@ class DiaryScreenState extends State<DiaryScreen> {
       } else if (index == todayIndex + 1) {
         _pageTitle = "Ngày mai";
       } else {
-        _pageTitle = getDate(index);
+        _pageTitle = getDateString(index);
       }
       print(" Page title: $_pageTitle");
     });
@@ -61,38 +85,13 @@ class DiaryScreenState extends State<DiaryScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _pageController = new PageController(
-      initialPage: getIndexFromDate(DateTime.now()),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool headerSliverBuilder) {
+        headerSliverBuilder: (_, bool h) {
           return <Widget>[
-            SliverAppBar(
-              pinned: true,
-              floating: true,
-              snap: false,
-              //expandedHeight: 120,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: EdgeInsets.only(left: 15.0, bottom: 5),
-                title: FlatButton(
-                  padding: EdgeInsets.all(0),
-                  onPressed: () => _selectDate(context),
-                  child: Text(
-                    _pageTitle,
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontFamily: "OpenSans",
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
+            SliverToBoxAdapter(child: Container(height: 0.1,),),
+            /*SliverAppBar(
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.keyboard_arrow_left),
@@ -103,7 +102,180 @@ class DiaryScreenState extends State<DiaryScreen> {
                   onPressed: () => _nextPage(),
                 )
               ],
-            ),
+              title: FlatButton(
+                padding: EdgeInsets.all(0),
+                onPressed: () => _selectDate(context),
+                child: Text(
+                  _pageTitle,
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                      fontFamily: "OpenSans",
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              expandedHeight: 400,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.pin,
+                background: Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      SizedBox(
+                        height: AppBar().preferredSize.height,
+                      ),
+                      Expanded(
+                        child: DonutChart(),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          FlatButton(
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  "2630",
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontFamily: "OpenSans",
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "Calo đã nạp",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "OpenSans",
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () => {},
+                          ),
+                          FlatButton(
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  "2.5L",
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontFamily: "OpenSans",
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "Nước đã uống",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "OpenSans",
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () => {},
+                          ),
+                        ],
+                      ),
+                      Divider(
+                        height: 20,
+                        color: Colors.white,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  "CHẤT BÉO",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  "60g",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () => {},
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  "TINH BỘT",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  "210g",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () => {},
+                          ),
+                          FlatButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  "CHẤT ĐẠM",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  "60g",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () => {},
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),*/
           ];
         },
         body: PageView.custom(
@@ -111,7 +283,7 @@ class DiaryScreenState extends State<DiaryScreen> {
           onPageChanged: _onPageChanged,
           childrenDelegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
-              return pageViewItem(index);
+              return _buildPageView(index);
             },
           ),
         ),
@@ -124,312 +296,387 @@ class DiaryScreenState extends State<DiaryScreen> {
       ),
     );
   }
-}
 
-final sessions = ['Buổi sáng', 'Buổi trưa', 'Buổi chiều', 'Ăn vặt'];
-final items = ['Món ăn A', 'Món ăn B', 'Món ăn C', 'Đồ uống A'];
-
-Widget sessionItem(Color color, int titleID) => Center(
-      child: Card(
-        elevation: 0,
-        borderOnForeground: true,
-        /*shape: RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(10),
-          side: BorderSide(color: Colors.grey[400]),
-        ),*/
-        margin: EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(10),
-              alignment: Alignment.topLeft,
+  Widget _buildPageView(int index) => CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_left),
+                onPressed: () => _prevPage(),
+              ),
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_right),
+                onPressed: () => _nextPage(),
+              )
+            ],
+            title: FlatButton(
+              padding: EdgeInsets.all(0),
+              onPressed: () => _selectDate(context),
               child: Text(
-                sessions[titleID],
+                _pageTitle,
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    fontFamily: "OpenSans"),
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontFamily: "OpenSans",
+                    fontWeight: FontWeight.bold),
               ),
             ),
-            Divider(),
-            Column(children: items.map((item) => listItem(item)).toList()),
-          ],
-        ),
-      ),
-    );
-
-Widget listItem(String item) => ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.indigo,
-        child: Text(item[0]),
-      ),
-      title: Text(item),
-      subtitle: Text("250g"),
-    );
-
-Widget pageViewItem(int index) => CustomScrollView(
-      slivers: <Widget>[
-        SliverToBoxAdapter(
-          child: Column(
-            children: <Widget>[
-              Container(
-                height: 300,
+            expandedHeight: 350,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Container(
                 padding: EdgeInsets.all(20),
-                child: DonutChart(),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "2630",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: "OpenSans",
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "Calo đã nạp",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: "OpenSans",
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => {},
-                  ),
-                  FlatButton(
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "2.5L",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontFamily: "OpenSans",
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          "Nước đã uống",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: "OpenSans",
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => {},
-                  ),
-                ],
-              ),
-              Divider(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "CHẤT BÉO",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "60g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => {},
-                  ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "TINH BỘT",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "210g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => {},
-                  ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "CHẤT ĐẠM",
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                        Text(
-                          "60g",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    onPressed: () => {},
-                  ),
-                ],
-              ),
-              Card(
-                elevation: 0,
-                borderOnForeground: true,
-                shape: RoundedRectangleBorder(
-                  borderRadius: new BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey[400]),
-                ),
-                margin: EdgeInsets.all(20),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Mục tiêu hằng ngày",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "OpenSans"),
-                      ),
+                    SizedBox(
+                      height: AppBar().preferredSize.height,
                     ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.panorama_fish_eye,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tUống đủ 2 lít nước."),
-                          ],
-                        ),
-                      ),
+                    Expanded(
+                      child: DonutChart(value: 40,animate: true,),
                     ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tĂn đủ 2600 calo."),
-                            Text(
-                              "\t(Đã hoàn thành)",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.panorama_fish_eye,
-                              color: Colors.green,
-                              size: 12,
-                            ),
-                            Text("\tĂn dưới 60 gram chất béo"),
-                            Text(
-                              "\t(25g còn lại)",
-                              style: TextStyle(fontStyle: FontStyle.italic),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    ButtonTheme.bar(
-                      // make buttons use the appropriate styles for cards
-                      child: ButtonBar(
-                        children: <Widget>[
-                          FlatButton(
-                            child: const Text('Bỏ qua'),
-                            onPressed: () {
-                              /* ... */
-                            },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                "2630",
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontFamily: "OpenSans",
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "Calo đã nạp",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: "OpenSans",
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          FlatButton(
-                            child: const Text('Chỉnh sửa mục tiêu'),
-                            onPressed: () {
-                              /* ... */
-                            },
+                          onPressed: () => {},
+                        ),
+                        FlatButton(
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                "2.5L",
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontFamily: "OpenSans",
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "Nước đã uống",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: "OpenSans",
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                          onPressed: () => {},
+                        ),
+                      ],
+                    ),
+                    Divider(
+                      height: 20,
+                      color: Colors.white,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                "CHẤT BÉO",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "60g",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () => {},
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                "TINH BỘT",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "210g",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () => {},
+                        ),
+                        FlatButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                "CHẤT ĐẠM",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "60g",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onPressed: () => {},
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
-        SliverList(
-          ///Use SliverChildListDelegate and provide a list
-          ///of widgets if the count is limited
-          ///
-          ///Lazy building of list
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              /// To convert this infinite list to a list with "n" no of items,
-              /// uncomment the following line:
-              /// if (index > n) return null;
-              return sessionItem(Colors.blueGrey, index);
-            },
-            childCount: 4,
+          SliverToBoxAdapter(
+            child: Column(
+              children: <Widget>[
+                _buildGoalCard(DateTime(1900).add(Duration(days: index))),
+                BlocBuilder<DailyMealBloc, DailyMealState>(
+                  builder: (context, state) {
+                    final foodState = _foodBloc.state;
+                    final recipeState = _recipeBloc.state;
+                    if (state is DailyMealsLoaded &&
+                        foodState is FoodLoaded &&
+                        recipeState is RecipesLoaded) {
+                      final recipes = recipeState.recipes;
+                      final foods = foodState.foods;
+                      final dailyMeals = state.dailyMeals;
+                      final todayMeals = dailyMeals
+                          .where((e) => e.date == getDateString(index));
+                      return Column(
+                        children: <Widget>[
+                          _buildDiarySection(
+                            section: DailyMealSection.BREAKFAST,
+                            foods: foods,
+                            recipes: recipes,
+                            todayMeals: todayMeals,
+                          ),
+                          _buildDiarySection(
+                            section: DailyMealSection.LUNCH,
+                            foods: foods,
+                            recipes: recipes,
+                            todayMeals: todayMeals,
+                          ),
+                          _buildDiarySection(
+                            section: DailyMealSection.DINNER,
+                            foods: foods,
+                            recipes: recipes,
+                            todayMeals: todayMeals,
+                          ),
+                          _buildDiarySection(
+                            section: DailyMealSection.SNACK,
+                            foods: foods,
+                            recipes: recipes,
+                            todayMeals: todayMeals,
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Expanded(
+                        child: Center(child: Text("Cannot load diary")),
+                      );
+                    }
+                  },
+                ),
+                Container(height: 80),
+              ],
+            ),
+          ),
+        ],
+      );
 
-            /// Set childCount to limit no.of items
-            /// childCount: 100,
-          ),
-        ),
-      ],
-    );
+  Widget _buildDiarySection({
+    final String section,
+    final Iterable<DailyMeal> todayMeals,
+    final List<Food> foods,
+    final List<Recipe> recipes,
+  }) =>
+      Builder(
+        builder: (context) {
+          try {
+            final List<MealItem> items =
+                todayMeals.firstWhere((e) => e.section == section).items;
+            return Center(
+              child: MealItemCard(
+                  items: items, recipes: recipes, foods: foods, title: section),
+            );
+          } catch (StateError) {
+            return MealNoItemCard(title: section);
+          }
+        },
+      );
+
+  Widget _buildGoalCard(final DateTime date) =>
+      BlocBuilder<GoalBloc, GoalState>(builder: (context, state) {
+        if (state is GoalsLoaded) {
+          final goals = state.goals;
+          final beforeGoals = goals
+              .where((g) =>
+                  g.startDate.isBefore(date) ||
+                  g.startDate.isAtSameMomentAs(date))
+              .toList();
+          beforeGoals.sort();
+          try {
+            final goal = beforeGoals.last;
+            return Card(
+              elevation: 0,
+              borderOnForeground: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(10),
+                side: BorderSide(color: Colors.grey[400]),
+              ),
+              margin: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      "Mục tiêu hằng ngày ${goal.startDate}",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          fontFamily: "OpenSans"),
+                    ),
+                  ),
+                  InkWell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.panorama_fish_eye,
+                            color: Colors.green,
+                            size: 12,
+                          ),
+                          Text("\tUống đủ 2 lít nước."),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 12,
+                          ),
+                          Text("\tĂn đủ 2600 calo."),
+                          Text(
+                            "\t(Đã hoàn thành)",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.panorama_fish_eye,
+                            color: Colors.green,
+                            size: 12,
+                          ),
+                          Text("\tĂn dưới 60 gram chất béo"),
+                          Text(
+                            "\t(25g còn lại)",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ButtonTheme.bar(
+                    // make buttons use the appropriate styles for cards
+                    child: ButtonBar(
+                      children: <Widget>[
+                        FlatButton(
+                          child: const Text('Bỏ qua'),
+                          onPressed: () {
+                            /* ... */
+                          },
+                        ),
+                        FlatButton(
+                          child: const Text('Chỉnh sửa mục tiêu'),
+                          onPressed: () {
+                            /* ... */
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } catch (StateError) {
+            return Container();
+          }
+        } else {
+          return Container();
+        }
+      });
+}

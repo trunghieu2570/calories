@@ -14,7 +14,7 @@ class FavoriteFoodsBloc extends Bloc<FavoriteFoodsEvent, FavoriteFoodsState> {
 
   FavoriteFoodsBloc(
       {@required UserInfoRepository userInfoRepository,
-      @required AuthRepository authRepository})
+        @required AuthRepository authRepository})
       : assert(userInfoRepository != null),
         assert(authRepository != null),
         _userInfoRepository = userInfoRepository,
@@ -25,8 +25,8 @@ class FavoriteFoodsBloc extends Bloc<FavoriteFoodsEvent, FavoriteFoodsState> {
 
   @override
   Stream<FavoriteFoodsState> mapEventToState(
-    FavoriteFoodsEvent event,
-  ) async* {
+      FavoriteFoodsEvent event,
+      ) async* {
     if (event is LoadFavoriteFoods) {
       yield* _mapLoadFavoriteFoodsToState(event);
     } else if (event is AddFavoriteFood) {

@@ -1,10 +1,17 @@
 import 'package:calories/blocs/auth/bloc.dart';
+import 'package:calories/blocs/daily_meals/daily_meals_bloc.dart';
 import 'package:calories/blocs/favorite_foods/bloc.dart';
 import 'package:calories/blocs/favorite_meals/bloc.dart';
-import 'package:calories/blocs/favorite_recipes/bloc.dart';
-import 'package:calories/repositories/auth_repository.dart';
+import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
+import 'package:calories/blocs/food/food_bloc.dart';
+import 'package:calories/blocs/goals/goals_bloc.dart';
+import 'package:calories/blocs/home_load/bloc.dart';
+import 'package:calories/blocs/meal/bloc.dart';
+import 'package:calories/blocs/recipe/recipe_bloc.dart';
 import 'package:calories/ui/foods_screen.dart';
-import 'package:calories/ui/screens/food/create_food_screen.dart';
+import 'package:calories/ui/loading_screen.dart';
+import 'package:calories/ui/login_screen.dart';
+import 'package:calories/ui/screens/food/create_edit_food_screen.dart';
 import 'package:calories/ui/screens/food/food_detail_screen.dart';
 import 'package:calories/ui/screens/food/food_search_screen.dart';
 import 'package:calories/ui/screens/meal/meal_search_screen.dart';
@@ -15,6 +22,7 @@ import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'diary_screen.dart';
 import 'screens/meal/create_meal_screen.dart';
@@ -22,13 +30,6 @@ import 'screens/meal/meal_detail_screen.dart';
 import 'screens/recipe/create_recipe_screen.dart';
 
 class MyApp extends StatelessWidget {
-  final AuthRepository _userRepository;
-
-  MyApp({Key key, @required AuthRepository userRepository})
-      : assert(userRepository != null),
-        _userRepository = userRepository,
-        super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -46,17 +47,36 @@ class MyApp extends StatelessWidget {
               builder: (context, state) {
                 if (state is Uninitialized) {
                   return SplashScreen();
+                } else if (state is Unauthenticated) {
+                  return LoginScreen();
+                } else if (state is Authenticated) {
+                  return BlocProvider<HomeLoadBloc>(
+                    create: (context) => HomeLoadBloc(
+                      foodBloc: BlocProvider.of<FoodBloc>(context),
+                      goalBloc: BlocProvider.of<GoalBloc>(context),
+                      dailyMealBloc: BlocProvider.of<DailyMealBloc>(context),
+                      mealBloc: BlocProvider.of<MealBloc>(context),
+                      recipeBloc: BlocProvider.of<RecipeBloc>(context),
+                      favoriteFoodsBloc:
+                          BlocProvider.of<FavoriteFoodsBloc>(context),
+                      favoriteMealsBloc:
+                          BlocProvider.of<FavoriteMealsBloc>(context),
+                      favoriteRecipesBloc:
+                          BlocProvider.of<FavoriteRecipesBloc>(context),
+                    )..add(StartHomeLoad()),
+                    child: BlocBuilder<HomeLoadBloc, HomeLoadState>(
+                      builder: (context, state) {
+                        if (state is InitLoadState) {
+                          return LoadingScreen();
+                        } else if (state is HomeLoadedState) {
+                          return MyHomePage(title: "Hom nay");
+                        } else
+                          return SplashScreen();
+                      },
+                    ),
+                  );
                 }
-                if (state is Authenticated) {
-                  BlocProvider.of<FavoriteFoodsBloc>(context)
-                      .add(LoadFavoriteFoods());
-                  BlocProvider.of<FavoriteRecipesBloc>(context)
-                      .add(LoadFavoriteRecipes());
-                  BlocProvider.of<FavoriteMealsBloc>(context)
-                      .add(LoadFavoriteMeals());
-                  return MyHomePage(title: "Hom nay");
-                }
-                return Container();
+                return SplashScreen();
               },
             ),
         FoodSearchScreen.routeName: (context) => FoodSearchScreen(),
@@ -177,19 +197,19 @@ class MyHomePageState extends State<MyHomePage>
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.data_usage),
-            title: Text("Nhật ký"),
+            title: Text("Diary"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.local_dining),
-            title: Text("Đồ ăn"),
+            title: Text("Favorite"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.timeline),
-            title: Text("Biểu đồ"),
+            title: Text("Graph"),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
-            title: Text("Hồ sơ"),
+            title: Text("Profile"),
           ),
         ],
         onTap: _changeView,

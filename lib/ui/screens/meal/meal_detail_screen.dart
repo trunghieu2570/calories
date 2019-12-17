@@ -3,6 +3,8 @@ import 'package:calories/blocs/food/bloc.dart';
 import 'package:calories/blocs/recipe/recipe_bloc.dart';
 import 'package:calories/blocs/recipe/recipe_state.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/ui/widgets/meal_item_card_widget.dart';
+import 'package:calories/ui/widgets/nutrition_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -41,213 +43,117 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final MealDetailArgument args = ModalRoute
-        .of(context)
-        .settings
-        .arguments;
+    final MealDetailArgument args = ModalRoute.of(context).settings.arguments;
     _meal = args.meal;
-    //_mealAction = args.action;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        actions: <Widget>[
-          BlocBuilder<FavoriteMealsBloc, FavoriteMealsState>(
-              builder: (context, state) {
-            if (state is FavoriteMealsLoaded) {
-              final _isFavorite = state.mealIds.contains(_meal.id);
-              return IconButton(
-                icon: _isFavorite
-                    ? Icon(Icons.favorite)
-                    : Icon(Icons.favorite_border),
-                onPressed: () {
-                  if (_isFavorite) {
-                    Scaffold.of(context).removeCurrentSnackBar();
-                    _favoriteMealsBloc.add(DeleteFavoriteMeal(_meal.id));
-                    final snackBar = SnackBar(
-                      content: Text('Đã loại bỏ yêu thích'),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            expandedHeight: 250.0,
+            pinned: true,
+            automaticallyImplyLeading: true,
+            actions: <Widget>[
+              BlocBuilder<FavoriteMealsBloc, FavoriteMealsState>(
+                builder: (context, state) {
+                  if (state is FavoriteMealsLoaded) {
+                    final _isFavorite = state.mealIds.contains(_meal.id);
+                    return IconButton(
+                      icon: _isFavorite
+                          ? Icon(Icons.favorite)
+                          : Icon(Icons.favorite_border),
+                      onPressed: () {
+                        if (_isFavorite) {
+                          Scaffold.of(context).removeCurrentSnackBar();
+                          _favoriteMealsBloc.add(DeleteFavoriteMeal(_meal.id));
+                          final snackBar = SnackBar(
+                            content: Text('Đã loại bỏ yêu thích'),
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        } else {
+                          Scaffold.of(context).removeCurrentSnackBar();
+                          _favoriteMealsBloc.add(AddFavoriteMeal(_meal.id));
+                          final snackBar = SnackBar(
+                            content: Text('Đã thêm vào yêu thích'),
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        }
+                      },
                     );
-                    Scaffold.of(context).showSnackBar(snackBar);
-                  } else {
-                    Scaffold.of(context).removeCurrentSnackBar();
-                    _favoriteMealsBloc.add(AddFavoriteMeal(_meal.id));
-                    final snackBar = SnackBar(
-                      content: Text('Đã thêm vào yêu thích'),
-                    );
-                    Scaffold.of(context).showSnackBar(snackBar);
                   }
+                  return Container();
                 },
-              );
-            }
-            return Container();
-          }),
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () => {},
+              ),
+              IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () => {},
+              ),
+              IconButton(
+                icon: Icon(Icons.delete_outline),
+                onPressed: () => {},
+              ),
+            ],
+            title: Text("Meal details"),
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                  image: NetworkImage('https://picsum.photos/600/400'),
+                  fit: BoxFit.cover,
+                )),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            _meal.name,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          /*Text(
+                            _recipe.numberOfServings.toString() + " servings",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20),
+                          ),*/
+                        ],
+                      )),
+                ),
+              ),
+            ),
           ),
-          IconButton(
-            icon: Icon(Icons.delete_outline),
-            onPressed: () => {},
-          ),
-        ],
-        title: Text(
-          'Chi tiết bua an',
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      resizeToAvoidBottomInset: false,
-      body: SingleChildScrollView(
-        child: BlocBuilder<FoodBloc, FoodState>(
-          builder: (context, foodState) {
-            return BlocBuilder<RecipeBloc, RecipeState>(
-                builder: (context, recipeState) {
+          SliverToBoxAdapter(
+            child: BlocBuilder<FoodBloc, FoodState>(
+              builder: (context, foodState) {
+                return BlocBuilder<RecipeBloc, RecipeState>(
+                    builder: (context, recipeState) {
                   if (foodState is FoodLoaded && recipeState is RecipesLoaded) {
                     final foods = foodState.foods;
                     final recipes = recipeState.recipes;
                     return Column(
                       children: <Widget>[
-                        Card(
-                          elevation: 0,
-                          //color: Colors.orange,
-                          borderOnForeground: true,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 0.4),
-                            borderRadius: new BorderRadius.circular(10),
-                          ),
-                          margin: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.topLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      _meal.name,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 25,
-                                          //color: Colors.white,
-                                          fontFamily: "OpenSans"),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Card(
-                          elevation: 0,
-                          borderOnForeground: true,
-                          margin: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  'Thông tin dinh dưỡng',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      fontFamily: "OpenSans"),
-                                ),
-                              ),
-                              Divider(),
-                              ListTile(
-                                title: Text(
-                                  'Chất đạm',
-                                ),
-                                trailing: Text('40'),
-                              ),
-                              ListTile(
-                                title: Text(
-                                  'Chất béo',
-                                ),
-                                trailing: Text('20g'),
-                              ),
-                              ListTile(
-                                title: Text(
-                                  'Tinh bột',
-                                ),
-                                trailing: Text('250g'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Card(
-                          elevation: 0,
-                          borderOnForeground: true,
-                          margin: EdgeInsets.all(10),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                alignment: Alignment.topLeft,
-                                child: Text(
-                                  'Thành phần',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      fontFamily: "OpenSans"),
-                                ),
-                              ),
-                              Divider(),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: (_, int index) {
-                                  final item = _meal.items[index];
-                                  if (item.type == MealItemType.FOOD) {
-                                    try {
-                                      final food = foods.firstWhere(
-                                              (food) => food.id == item.itemId);
-                                      return ListTile(
-                                        title: Text(
-                                          food.name,
-                                        ),
-                                        subtitle: Text(
-                                          food.brand,
-                                        ),
-                                      );
-                                    } catch (StateError) {
-                                      return Container();
-                                    }
-                                  } else if (item.type == MealItemType.RECIPE) {
-                                    try {
-                                      final recipe = recipes
-                                          .firstWhere((e) =>
-                                      e.id == item.itemId);
-                                      return ListTile(
-                                        title: Text(
-                                          recipe.title,
-                                        ),
-                                        subtitle: Text(
-                                          recipe.numberOfServings.toString() +
-                                              " serving(s)",
-                                        ),
-                                      );
-                                    } catch (StateError) {
-                                      return Container();
-                                    }
-                                  }
-                                  return Container();
-                                },
-                                itemCount: _meal.items.length,
-                              )
-                            ],
-                          ),
-                        ),
+                        NutritionCard(
+                            nutritionInfo:
+                                _meal.getSummaryNutrition(foods, recipes)),
+                        MealItemCard(
+                            items: _meal.items, foods: foods, recipes: recipes),
                       ],
                     );
                   }
                   return Container();
                 });
-          },
-        ),
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _onAddButtonPressed,

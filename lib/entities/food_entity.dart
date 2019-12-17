@@ -6,37 +6,50 @@ import 'package:equatable/equatable.dart';
 class FoodEntity extends Equatable {
   final String id;
   final String name;
+  final String creatorId;
+  final bool share;
   final String brand;
   final String photoUrl;
   final ServingEntity servings;
   final NutritionInfoEntity nutritionInfo;
   final List<String> tags;
 
-  FoodEntity(this.id, this.name, this.brand, this.photoUrl, this.servings,
-      this.nutritionInfo, this.tags);
+  FoodEntity(this.id, this.name, this.creatorId, this.share, this.brand,
+      this.photoUrl, this.servings, this.nutritionInfo, this.tags);
 
   @override
-  List<Object> get props =>
-      [id, name, brand, photoUrl, servings, nutritionInfo, tags];
+  List<Object> get props => [
+        id,
+        name,
+        creatorId,
+        share,
+        brand,
+        photoUrl,
+        servings,
+        nutritionInfo,
+        tags
+      ];
 
   Map<String, Object> toJson() {
     return {
       'id': id,
       'name': name,
+      'creatorId': creatorId,
+      'share': share,
       'brand': brand,
       'photoUrl': photoUrl,
-      'servings': json.encode(servings),
-      'nutritionInfo': json.encode(nutritionInfo),
-      'tags': json.encode(tags),
+      'servings': servings.toJson(),
+      'nutritionInfo': nutritionInfo.toJson(),
+      'tags': tags,
     };
   }
 
   factory FoodEntity.fromJson(Map<String, Object> map) {
-    //var tags = map["tags"];
-    //List<String> tagsList = List<String>.from(tags);
     return FoodEntity(
       map["id"] as String,
       map["name"] as String,
+      map["creatorId"] as String,
+      map["share"] as bool,
       map["brand"] as String,
       map["photoUrl"] as String,
       json.decode(map["servings"] as String),
@@ -46,23 +59,26 @@ class FoodEntity extends Equatable {
   }
 
   factory FoodEntity.fromSnapshot(DocumentSnapshot snapshot) {
-    //List<String> tagsList = List<String>.from();
     return FoodEntity(
       snapshot.documentID,
       snapshot.data["name"],
+      snapshot.data["creatorId"],
+      snapshot.data["share"],
       snapshot.data["brand"],
       snapshot.data["photoUrl"],
       ServingEntity.fromJson(
           Map<String, Object>.from(snapshot.data["servings"])),
       NutritionInfoEntity.fromJson(
           Map<String, Object>.from(snapshot.data["nutritionInfo"])),
-      snapshot.data["tags"],
+      snapshot.data["tags"]?.cast<String>(),
     );
   }
 
   Map<String, Object> toDocument() {
     return {
       'name': name,
+      'creatorId': creatorId,
+      'share': share,
       'brand': brand,
       'photoUrl': photoUrl,
       'servings': servings.toDocument(),

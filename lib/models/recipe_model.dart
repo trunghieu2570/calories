@@ -1,4 +1,5 @@
 import 'package:calories/entities/entities.dart';
+import 'package:calories/models/food_model.dart';
 import 'package:equatable/equatable.dart';
 
 class Recipe extends Equatable {
@@ -62,6 +63,20 @@ class Recipe extends Equatable {
       tags: tags ?? this.tags,
       directions: directions ?? this.directions,
     );
+  }
+
+  NutritionInfo getSummaryNutrition(final List<Food> foods) {
+    if (ingredients == null) return NutritionInfo.empty();
+    var sum = NutritionInfo.empty();
+    for (final ingredient in ingredients) {
+      try {
+        final food = foods.firstWhere((e) => e.id == ingredient.foodId);
+        sum += food.nutritionInfo;
+      } catch (StateError) {
+        print(StateError);
+      }
+    }
+    return sum;
   }
 
   @override

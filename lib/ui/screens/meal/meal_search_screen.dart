@@ -23,61 +23,9 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   static final String routeName = "/mealSearch";
   bool _isEditing = false;
   MealSearchAction _action;
+  String _searchQuery;
 
-  List<Widget> _buildActions(bool isEditting) {
-    if (isEditting)
-      return [
-        Container(
-          margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
-          color: Colors.grey[100],
-          child: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => {},
-          ),
-        ),
-      ];
-    return [
-      IconButton(
-        icon: Icon(Icons.filter_list),
-        onPressed: () => _onFilterPress(context),
-      ),
-      IconButton(
-        icon: Icon(Icons.mic_none),
-        onPressed: () => {},
-      ),
-    ];
-  }
 
-  Widget _buildLeading(bool isEditing) {
-    if (isEditing)
-      return Container(
-        margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-        color: Colors.grey[100],
-        child: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: _cancelEditing,
-        ),
-      );
-    return Container(
-      margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-      child: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  void _onSearchBarTapped() {
-    setState(() {
-      _isEditing = true;
-    });
-  }
-
-  void _cancelEditing() {
-    setState(() {
-      _isEditing = false;
-    });
-  }
 
   void _onFilterPress(BuildContext pcontext) {
     showDialog(
@@ -119,79 +67,103 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
     );
   }
 
-  Widget _layoutStack() => CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            floating: true,
-            forceElevated: true,
-            centerTitle: true,
-            titleSpacing: 0.0,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                onTap: _onSearchBarTapped,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên bữa ăn bạn cần tìm',
-                ),
-              ),
-            ),
-            leading: _buildLeading(_isEditing),
-            actions: _buildActions(_isEditing),
-          ),
-          BlocBuilder<MealBloc, MealState>(builder: (context, state) {
-            if (state is MealsLoading) {
-              return SliverToBoxAdapter(
-                child: Text("Loading"),
-              );
-            } else if (state is MealsLoaded) {
-              final meals = state.meals;
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    final meal = meals[index];
-                    return Card(
-                      semanticContainer: true,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      child: Container(
-                        height: 75,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            /*Image(
-                              image: NetworkImage(
-                                  'https://placeimg.com/640/480/any'),
-                              fit: BoxFit.fill,
-                            ),*/
-                            Expanded(
-                              child: ListTile(
-                                title: Text(meal.name),
-                                onTap: () => _onMealTapped(meal),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  childCount: meals.length,
-                ),
-              );
-            }
-            return SliverToBoxAdapter(
-              child: Text("Cannot load meals"),
-            );
-          }),
-        ],
-      );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _layoutStack(),
+    return Container(
+      color: Theme.of(context).primaryColor,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            titleSpacing: 0.0,
+            iconTheme: IconThemeData(color: Colors.black),
+            backgroundColor: Colors.grey[100],
+            title: TextField(
+              autofocus: true,
+              style: TextStyle(fontSize: 18),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration.collapsed(
+                hintStyle: TextStyle(fontSize: 18),
+                hintText: 'Enter meal name',
+              ),
+            ),
+            actions: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.close,
+                  ),
+                  onPressed: () => {},
+                ),
+              ),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: <Widget>[
+
+              BlocBuilder<MealBloc, MealState>(builder: (context, state) {
+                if (state is MealsLoading) {
+                  return SliverToBoxAdapter(
+                    child: Text("Loading"),
+                  );
+                } else if (state is MealsLoaded) {
+                  final allMeals = state.meals;
+                  var meals;
+                  if (_searchQuery == null || _searchQuery == '')
+                    meals = allMeals;
+                  else {
+                    meals = allMeals
+                        .where((e) => e.name
+                        .toLowerCase()
+                        .contains(_searchQuery.toLowerCase()))
+                        .toList();
+                  }
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                        final meal = meals[index];
+                        return Card(
+                          semanticContainer: true,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: Container(
+                            height: 75,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                /*Image(
+                                  image: NetworkImage(
+                                      'https://placeimg.com/640/480/any'),
+                                  fit: BoxFit.fill,
+                                ),*/
+                                Expanded(
+                                  child: ListTile(
+                                    title: Text(meal.name),
+                                    onTap: () => _onMealTapped(meal),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: meals.length,
+                    ),
+                  );
+                }
+                return SliverToBoxAdapter(
+                  child: Text("Cannot load meals"),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

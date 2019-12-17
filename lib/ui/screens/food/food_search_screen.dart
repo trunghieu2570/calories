@@ -3,7 +3,9 @@ import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/screens/food/food_detail_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,62 +24,17 @@ class FoodSearchScreen extends StatefulWidget {
 
 class FoodSearchScreenState extends State<FoodSearchScreen> {
   static final String routeName = '/foodSearch';
-  bool _isEditing = false;
   FoodAction _action;
+  String _searchQuery;
 
-  List<Widget> _buildActions(bool isEditing) {
-    if (isEditing)
-      return [
-        Container(
-          margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
-          color: Colors.grey[100],
-          child: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => {},
-          ),
-        ),
-      ];
-    return [
-      IconButton(
-        icon: Icon(Icons.filter_list),
-        onPressed: () => _onFilterPress(context),
-      ),
-      IconButton(
-        icon: Icon(Icons.mic_none),
-        onPressed: () => {},
-      ),
-    ];
+  @override
+  void initState() {
+    super.initState();
   }
 
-  Widget _buildLeading(bool isEditing) {
-    if (isEditing)
-      return Container(
-        margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-        color: Colors.grey[100],
-        child: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: _cancelEditing,
-        ),
-      );
-    return Container(
-      margin: EdgeInsets.only(top: 8.0, bottom: 8.0, left: 8.0),
-      child: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-    );
-  }
-
-  void _onSearchBarTapped() {
-    setState(() {
-      _isEditing = true;
-    });
-  }
-
-  void _cancelEditing() {
-    setState(() {
-      _isEditing = false;
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   void _onFilterPress(BuildContext pcontext) {
@@ -120,74 +77,101 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
     );
   }
 
-  Widget _layoutStack() => CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            floating: true,
-            forceElevated: true,
-            centerTitle: true,
-            titleSpacing: 0.0,
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                onTap: _onSearchBarTapped,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.grey[100],
-                  hintText: 'Nhập tên thực phẩm bạn cần tìm',
-                ),
-              ),
-            ),
-            leading: _buildLeading(_isEditing),
-            actions: _buildActions(_isEditing),
-          ),
-          BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
-            if (state is FoodLoading) {
-              return SliverToBoxAdapter(
-                child: Text("Loading"),
-              );
-            } else if (state is FoodLoaded) {
-              final foods = state.foods;
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    final food = foods[index];
-                    return Card(
-                      elevation: 0,
-                      child: Container(
-                        child: ListTile(
-                          onTap: () => _onListTileTapped(foods[index]),
-                          title: Text(
-                            food.name,
-                          ),
-                          subtitle: Text(
-                            food.brand,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  childCount: foods.length,
-                ),
-              );
-            }
-            return SliverToBoxAdapter(
-              child: Text("Can't load foods list"),
-            );
-          }),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
-    final FoodSearchArgument args = ModalRoute.of(context).settings.arguments;
-    if (args != null) {
-      _action = args.action;
-    }
-    return Scaffold(
-      body: _layoutStack(),
+    return Container(
+      color: Theme.of(context).primaryColor,
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            titleSpacing: 0.0,
+            iconTheme: IconThemeData(color: Colors.black),
+            backgroundColor: Colors.grey[100],
+            title: TextField(
+              autofocus: true,
+              style: TextStyle(fontSize: 18),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration.collapsed(
+                hintStyle: TextStyle(fontSize: 18),
+                hintText: 'Enter food name',
+              ),
+            ),
+            actions: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.close,
+                  ),
+                  onPressed: () => {},
+                ),
+              ),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: <Widget>[
+              BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
+                if (state is FoodLoading) {
+                  return SliverToBoxAdapter(
+                    child: Text("Loading"),
+                  );
+                } else if (state is FoodLoaded) {
+                  final allFoods = state.foods;
+                  var foods;
+                  if (_searchQuery == null || _searchQuery == '')
+                    foods = allFoods;
+                  else {
+                    foods = allFoods
+                        .where((e) => e.name
+                            .toLowerCase()
+                            .contains(_searchQuery.toLowerCase()))
+                        .toList();
+                  }
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        final food = foods[index];
+                        return Card(
+                          semanticContainer: true,
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          child: Container(
+                            height: 75,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Image(
+                                  image: NetworkImage(
+                                      'https://placeimg.com/640/480/any'),
+                                  fit: BoxFit.fill,
+                                ),
+                                Expanded(
+                                  child: ListTile(
+                                    title: Text(food.name),
+                                    onTap: () => _onListTileTapped(food),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      childCount: foods.length,
+                    ),
+                  );
+                }
+                return SliverToBoxAdapter(
+                  child: Text("Cannot load foods"),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

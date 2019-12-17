@@ -1,5 +1,12 @@
 import 'dart:math';
+
 import 'package:flutter/painting.dart';
+
+String add2StringAsDouble(String a, String b) {
+  double na = double.parse(a != null ? a : 0.0);
+  double nb = double.parse(b != null ? b : 0.0);
+  return (na + nb).toString();
+}
 
 Offset rotateOffset({double angle, Size size}) {
   final double r =
@@ -13,7 +20,7 @@ Offset rotateOffset({double angle, Size size}) {
   return new Offset(translateX, translateY);
 }
 
-String getDate(int index) {
+String getDateString(int index) {
   var firstDate = DateTime(1900);
   var date = firstDate.add(new Duration(days: index));
   return "${date.day} Thg ${date.month} ${date.year}";

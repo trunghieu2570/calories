@@ -21,7 +21,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         _userInfoRepository = userInfoRepository;
 
   @override
-  AuthState get initialState => Unauthenticated();
+  AuthState get initialState => Uninitialized();
 
   @override
   Stream<AuthState> mapEventToState(
@@ -59,20 +59,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Stream<AuthState> _mapLoggedInToState() async* {
-    final firebaseUser = await _authRepository.getUser();
-    User user = await _userInfoRepository.getUserById(firebaseUser.uid);
-    if (user == null) {
-      user = User(
-          uid: firebaseUser.uid,
-          fullName: firebaseUser.displayName,
-          email: firebaseUser.email,
-          favoriteFoods: [],
-          favoriteMeals: [],
-          favoriteRecipes: [],
-          photoUrl: firebaseUser.photoUrl);
-      _userInfoRepository.addUser(user);
+    final isSignedIn = await _authRepository.isSignedIn();
+    if (isSignedIn) {
+      final firebaseUser = await _authRepository.getUser();
+      User user = await _userInfoRepository.getUserById(firebaseUser.uid);
+      if (user == null) {
+        user = User(
+            uid: firebaseUser.uid,
+            fullName: firebaseUser.displayName,
+            email: firebaseUser.email,
+            favoriteFoods: [],
+            favoriteMeals: [],
+            favoriteRecipes: [],
+            photoUrl: firebaseUser.photoUrl);
+        _userInfoRepository.addUser(user);
+      }
+      yield Authenticated(user);
+    } else {
+      yield Unauthenticated();
     }
-    yield Authenticated(user);
   }
 
   Stream<AuthState> _mapLoggedOutToState() async* {

@@ -1,9 +1,12 @@
 import 'package:calories/entities/entities.dart';
+import 'package:calories/util.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
 class Food extends Equatable {
   final String id;
+  final String creatorId;
+  final bool share;
   final String name;
   final String brand;
   final String photoUrl;
@@ -13,6 +16,8 @@ class Food extends Equatable {
 
   Food(this.name,
       {this.brand = '',
+      this.creatorId,
+      this.share,
       this.photoUrl,
       this.servings,
       this.nutritionInfo,
@@ -20,8 +25,17 @@ class Food extends Equatable {
       this.tags});
 
   @override
-  List<Object> get props =>
-      [id, name, brand, photoUrl, servings, nutritionInfo, tags];
+  List<Object> get props => [
+        id,
+        name,
+        creatorId,
+        share,
+        brand,
+        photoUrl,
+        servings,
+        nutritionInfo,
+        tags
+      ];
 
 /*  Map<String, Object> toJson() {
     return {
@@ -38,6 +52,8 @@ class Food extends Equatable {
   factory Food.fromEntity(FoodEntity entity) {
     return Food(
       entity.name,
+      creatorId: entity.creatorId,
+      share: entity.share,
       photoUrl: entity.photoUrl,
       brand: entity.brand,
       nutritionInfo: NutritionInfo.fromEntity(entity.nutritionInfo),
@@ -49,6 +65,8 @@ class Food extends Equatable {
 
   Food copyWith(
       {String name,
+      String creatorId,
+      bool share,
       String brand,
       String photoUrl,
       Serving servings,
@@ -57,6 +75,8 @@ class Food extends Equatable {
       List<String> tags}) {
     return Food(
       name ?? this.name,
+      creatorId: creatorId ?? this.creatorId,
+      share: share ?? this.share,
       brand: brand ?? this.brand,
       servings: servings ?? this.servings,
       tags: tags ?? this.tags,
@@ -67,13 +87,13 @@ class Food extends Equatable {
   }
 
   FoodEntity toEntity() {
-    return FoodEntity(id, name, brand, photoUrl, servings.toEntity(),
-        nutritionInfo.toEntity(), tags);
+    return FoodEntity(id, name, creatorId, share, brand, photoUrl,
+        servings.toEntity(), nutritionInfo.toEntity(), tags);
   }
 
   @override
   String toString() {
-    return "FoodEntity { foodEntity: ${toEntity().toJson()} }";
+    return "FoodEntity ${toEntity().toJson()}";
   }
 }
 
@@ -155,6 +175,40 @@ class NutritionInfo extends Equatable {
       sugars: entity.sugars,
       fiber: entity.fiber,
       cholesterol: entity.cholesterol,
+    );
+  }
+
+  NutritionInfo operator +(NutritionInfo other) {
+    try {
+      return NutritionInfo(
+        protein: add2StringAsDouble(this.protein, other.protein),
+        carbohydrates:
+            add2StringAsDouble(this.carbohydrates, other.carbohydrates),
+        fats: add2StringAsDouble(this.fats, other.fats),
+        fiber: add2StringAsDouble(this.fiber, other.fiber),
+        calories: add2StringAsDouble(this.calories, other.calories),
+        cholesterol: add2StringAsDouble(this.cholesterol, other.cholesterol),
+        sugars: add2StringAsDouble(this.sugars, other.sugars),
+        sodium: add2StringAsDouble(this.sodium, other.sodium),
+        saturatedFats:
+            add2StringAsDouble(this.saturatedFats, other.saturatedFats),
+      );
+    } catch (_) {
+      return NutritionInfo.empty();
+    }
+  }
+
+  factory NutritionInfo.empty() {
+    return NutritionInfo(
+      calories: "0",
+      protein: "0",
+      fats: "0",
+      carbohydrates: "0",
+      saturatedFats: "0",
+      sodium: "0",
+      sugars: "0",
+      fiber: "0",
+      cholesterol: "0",
     );
   }
 

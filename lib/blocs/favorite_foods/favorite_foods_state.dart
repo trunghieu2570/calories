@@ -38,4 +38,3 @@ class FavoriteFoodsLoaded extends FavoriteFoodsState {
 }
 
 class FavoriteFoodsNotLoad extends FavoriteFoodsState {}
-

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'screens/food/create_food_screen.dart';
+import 'screens/food/create_edit_food_screen.dart';
 import 'screens/food/food_detail_screen.dart';
 import 'screens/food/food_search_screen.dart';
 import 'screens/meal/create_meal_screen.dart';
@@ -33,7 +33,6 @@ class FoodsScreenState extends State<FoodsScreen>
   FoodBloc _foodBloc;
   RecipeBloc _recipeBloc;
   MealBloc _mealBloc;
-  MaterialColor _color = Colors.red;
 
   Future<void> _onPressedCreateFoodButton() async {
     return Navigator.pushNamed(context, CreateFoodScreen.routeName);
@@ -50,17 +49,6 @@ class FoodsScreenState extends State<FoodsScreen>
   void _onTabIndexChanged() {
     setState(() {
       _selectedTab = _tabController.index;
-      switch (_selectedTab) {
-        case 0:
-          _color = Colors.red;
-          break;
-        case 1:
-          _color = Colors.green;
-          break;
-        case 2:
-          _color = Colors.blue;
-          break;
-      }
     });
   }
 
@@ -89,21 +77,18 @@ class FoodsScreenState extends State<FoodsScreen>
   Widget build(BuildContext context) {
     final _floatingButtons = [
       FloatingActionButton.extended(
-        backgroundColor: Colors.red,
         onPressed: _onPressedCreateMealButton,
         tooltip: 'Tạo đồ bữa ăn mới',
         icon: Icon(Icons.add),
         label: Text("TẠO BỮA ĂN"),
       ),
       FloatingActionButton.extended(
-        backgroundColor: Colors.green,
         onPressed: _onPressedCreateRecipeButton,
         tooltip: 'Tạo công thức nấu ăn mới',
         icon: Icon(Icons.add),
         label: Text("TẠO CÔNG THỨC"),
       ),
       FloatingActionButton.extended(
-        backgroundColor: Colors.blue,
         onPressed: _onPressedCreateFoodButton,
         tooltip: 'Tạo thực phẩm mới',
         icon: Icon(Icons.add),
@@ -119,7 +104,6 @@ class FoodsScreenState extends State<FoodsScreen>
               floating: true,
               snap: true,
               forceElevated: true,
-              backgroundColor: _color,
               title: Text(
                 "Favorites",
                 style: TextStyle(
@@ -141,6 +125,9 @@ class FoodsScreenState extends State<FoodsScreen>
               bottom: TabBar(
                 //isScrollable: true,
                 controller: _tabController,
+                indicatorColor: Colors.white,
+                labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                indicatorWeight: 3,
                 tabs: <Widget>[
                   Tab(
                     text: 'Meals',
@@ -165,7 +152,7 @@ class FoodsScreenState extends State<FoodsScreen>
           ],
         ),
       ),
-      floatingActionButton: _floatingButtons.elementAt(_selectedTab),
+      floatingActionButton: AnimatedContainer(curve: Curves.fastOutSlowIn, duration: Duration(milliseconds: 100) ,child: _floatingButtons.elementAt(_selectedTab)),
     );
   }
 
@@ -244,33 +231,42 @@ class FoodsScreenState extends State<FoodsScreen>
             if (state is FavoriteFoodsLoaded && foodState is FoodLoaded) {
               final favoriteFoods = state.foodIds;
               final foods = foodState.foods;
+              if (favoriteFoods.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(child: Text("No favorite food")),
+                );
+              }
               return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                (_, int index) {
-                  final currentFavoriteFood = favoriteFoods[index];
-                  final favoriteFood = foods
-                      .where((food) => food.id == currentFavoriteFood)
-                      .first;
-                  return Card(
-                    semanticContainer: true,
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: Container(
-                      height: 70,
-                      child: ListTile(
-                        title: Text(favoriteFood.name),
-                        onTap: () => Navigator.pushNamed(
-                            context, FoodDetailScreen.routeName,
-                            arguments: FoodDetailArgument(food: favoriteFood)),
-                        subtitle: Text(favoriteFood.brand),
-                      ),
-                    ),
-                  );
-                },
-                childCount: favoriteFoods.length,
-              ));
+                delegate: SliverChildBuilderDelegate(
+                  (_, int index) {
+                    try {
+                      final favoriteFood = foods.firstWhere(
+                          (food) => food.id == favoriteFoods[index]);
+                      return Card(
+                        semanticContainer: true,
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Container(
+                          height: 70,
+                          child: ListTile(
+                            title: Text(favoriteFood.name),
+                            onTap: () => Navigator.pushNamed(
+                                context, FoodDetailScreen.routeName,
+                                arguments:
+                                    FoodDetailArgument(food: favoriteFood)),
+                            subtitle: Text(favoriteFood.brand),
+                          ),
+                        ),
+                      );
+                    } catch (_) {
+                      return Container();
+                    }
+                  },
+                  childCount: favoriteFoods.length,
+                ),
+              );
             }
-            return SliverToBoxAdapter(
-              child: Text("You have no favorite food"),
+            return SliverFillRemaining(
+              child: Center(child: Text("Cannot load favorite food")),
             );
           }),
         ],
@@ -357,13 +353,17 @@ class FoodsScreenState extends State<FoodsScreen>
             if (state is FavoriteMealsLoaded && mealState is MealsLoaded) {
               final favoriteMeals = state.mealIds;
               final meals = mealState.meals;
+              if (favoriteMeals.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(child: Text("No favorite meal")),
+                );
+              }
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (_, int index) {
                     try {
-                      final favoriteMeal = meals
-                          .where((r) => r.id == favoriteMeals[index])
-                          .first;
+                      final favoriteMeal =
+                          meals.firstWhere((r) => r.id == favoriteMeals[index]);
                       return Card(
                         semanticContainer: true,
                         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -380,7 +380,7 @@ class FoodsScreenState extends State<FoodsScreen>
                               Expanded(
                                 child: ListTile(
                                   onTap: () => Navigator.pushNamed(
-                                      context, RecipeDetailScreen.routeName,
+                                      context, MealDetailScreen.routeName,
                                       arguments: MealDetailArgument(
                                           meal: favoriteMeal)),
                                   title: Text(favoriteMeal.name),
@@ -391,7 +391,7 @@ class FoodsScreenState extends State<FoodsScreen>
                         ),
                         elevation: 1,
                       );
-                    } catch (StateError) {
+                    } catch (_) {
                       return Container();
                     }
                   },
@@ -399,8 +399,8 @@ class FoodsScreenState extends State<FoodsScreen>
                 ),
               );
             }
-            return SliverToBoxAdapter(
-              child: Text("No favorite"),
+            return SliverFillRemaining(
+              child: Center(child: Text("Cannot load favorite meal")),
             );
           }),
         ],
@@ -490,13 +490,17 @@ class FoodsScreenState extends State<FoodsScreen>
                 recipeState is RecipesLoaded) {
               final favoriteRecipes = state.recipeIds;
               final recipes = recipeState.recipes;
+              if (favoriteRecipes.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(child: Text("No favorite recipe")),
+                );
+              }
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (_, int index) {
                     try {
                       final favoriteRecipe = recipes
-                          .where((r) => r.id == favoriteRecipes[index])
-                          .first;
+                          .firstWhere((r) => r.id == favoriteRecipes[index]);
                       return Card(
                         semanticContainer: true,
                         clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -535,8 +539,8 @@ class FoodsScreenState extends State<FoodsScreen>
                 ),
               );
             }
-            return SliverToBoxAdapter(
-              child: Text("No favorite"),
+            return SliverFillRemaining(
+              child: Center(child: Text("Cannot load favorite recipe")),
             );
           }),
         ],
