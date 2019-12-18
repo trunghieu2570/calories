@@ -6,25 +6,45 @@ import 'package:equatable/equatable.dart';
 class RecipeEntity extends Equatable {
   final String id;
   final String title;
+  final String creatorId;
+  final bool share;
   final int numberOfServings;
   final String photoUrl;
   final List<IngredientEntity> ingredients;
   final List<String> directions;
   final List<String> tags;
 
-  RecipeEntity(this.id, this.title, this.numberOfServings, this.photoUrl,
-      this.ingredients, this.directions, this.tags);
+  RecipeEntity(
+      this.id,
+      this.title,
+      this.creatorId,
+      this.share,
+      this.numberOfServings,
+      this.photoUrl,
+      this.ingredients,
+      this.directions,
+      this.tags);
 
   @override
-  List<Object> get props =>
-      [id, title, numberOfServings, photoUrl, ingredients, tags];
+  List<Object> get props => [
+        id,
+        title,
+        creatorId,
+        share,
+        numberOfServings,
+        photoUrl,
+        ingredients,
+        tags
+      ];
 
   Map<String, Object> toJson() {
     return {
       'id': id,
       'title': title,
+      'creatorId': creatorId,
+      'share': share,
       'numberOfServings': numberOfServings,
-      'urlPhoto': photoUrl,
+      'photoUrl': photoUrl,
       'ingredients': json.encode(ingredients),
       'directions': json.encode(directions),
       'tags': json.encode(tags),
@@ -40,6 +60,8 @@ class RecipeEntity extends Equatable {
     return RecipeEntity(
       map["id"] as String,
       map["title"] as String,
+      map["creatorId"] as String,
+      map["share"] as bool,
       map["numberOfServings"] as int,
       map["photoUrl"] as String,
       ingredientsList,
@@ -58,6 +80,8 @@ class RecipeEntity extends Equatable {
     return RecipeEntity(
       snapshot.documentID,
       snapshot.data["title"],
+      snapshot.data["creatorId"],
+      snapshot.data["share"],
       snapshot.data["numberOfServings"],
       snapshot.data["photoUrl"],
       ingredientsList,
@@ -71,7 +95,9 @@ class RecipeEntity extends Equatable {
     return {
       'title': title,
       'numberOfServings': numberOfServings,
-      'urlPhoto': photoUrl,
+      'creatorId': creatorId,
+      'share': share,
+      'photoUrl': photoUrl,
       'ingredients': list,
       'directions': directions,
       'tags': tags,

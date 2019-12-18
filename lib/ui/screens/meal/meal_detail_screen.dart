@@ -92,15 +92,18 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 onPressed: () => {},
               ),
             ],
-            title: Text("Meal details"),
+            title: Text("Meal Details"),
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
               background: Container(
                 decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: NetworkImage('https://picsum.photos/600/400'),
-                  fit: BoxFit.cover,
-                )),
+                  image: DecorationImage(
+                    image: _meal.photoUrl != null
+                        ? NetworkImage(_meal.photoUrl)
+                        : NetworkImage('https://picsum.photos/600/400'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 child: Align(
                   alignment: Alignment.bottomLeft,
                   child: Padding(

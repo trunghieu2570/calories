@@ -127,10 +127,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               collapseMode: CollapseMode.pin,
               background: Container(
                 decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: NetworkImage('https://picsum.photos/600/400'),
-                  fit: BoxFit.cover,
-                )),
+                  image: DecorationImage(
+                    image: _recipe.photoUrl != null
+                        ? NetworkImage(_recipe.photoUrl)
+                        : NetworkImage('https://picsum.photos/600/400'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 child: Align(
                   alignment: Alignment.bottomLeft,
                   child: Padding(

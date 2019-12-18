@@ -5,6 +5,8 @@ import 'package:equatable/equatable.dart';
 class Recipe extends Equatable {
   final String id;
   final String title;
+  final String creatorId;
+  final bool share;
   final int numberOfServings;
   final String photoUrl;
   final List<Ingredient> ingredients;
@@ -12,11 +14,25 @@ class Recipe extends Equatable {
   final List<String> tags;
 
   Recipe(this.title, this.numberOfServings,
-      {this.id, this.photoUrl, this.ingredients, this.directions, this.tags});
+      {this.creatorId,
+      this.share,
+      this.id,
+      this.photoUrl,
+      this.ingredients,
+      this.directions,
+      this.tags});
 
   @override
-  List<Object> get props =>
-      [id, title, numberOfServings, photoUrl, ingredients, tags];
+  List<Object> get props => [
+        id,
+        title,
+        creatorId,
+        share,
+        numberOfServings,
+        photoUrl,
+        ingredients,
+        tags
+      ];
 
   RecipeEntity toEntity() {
     List<IngredientEntity> ingredientEntityList =
@@ -24,6 +40,8 @@ class Recipe extends Equatable {
     return RecipeEntity(
       id,
       title,
+      creatorId,
+      share,
       numberOfServings,
       photoUrl,
       ingredientEntityList,
@@ -38,6 +56,8 @@ class Recipe extends Equatable {
     return Recipe(
       entity.title,
       entity.numberOfServings,
+      creatorId: entity.creatorId,
+      share: entity.share,
       id: entity.id,
       photoUrl: entity.photoUrl,
       ingredients: ingredientList,
@@ -49,6 +69,8 @@ class Recipe extends Equatable {
   Recipe copyWith(
       {String title,
       int numberOfServings,
+      String creatorId,
+      bool share,
       String id,
       String photoUrl,
       List<Ingredient> ingredients,
@@ -57,6 +79,8 @@ class Recipe extends Equatable {
     return Recipe(
       title ?? this.title,
       numberOfServings ?? this.numberOfServings,
+      creatorId: creatorId ?? this.creatorId,
+      share: share ?? this.share,
       photoUrl: photoUrl ?? this.photoUrl,
       ingredients: ingredients ?? this.ingredients,
       id: id ?? this.id,

@@ -27,16 +27,6 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
   FoodAction _action;
   String _searchQuery;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   void _onFilterPress(BuildContext pcontext) {
     showDialog(
         context: pcontext,
@@ -79,6 +69,12 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context).settings.arguments as FoodSearchArgument;
+    if (args != null) {
+      _action = args.action ?? FoodAction.NO_ACTION;
+    }
+
     return Container(
       color: Theme.of(context).primaryColor,
       child: SafeArea(

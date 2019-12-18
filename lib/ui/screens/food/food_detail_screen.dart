@@ -125,12 +125,13 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
               collapseMode: CollapseMode.pin,
               background: Container(
                 decoration: BoxDecoration(
-                    image: DecorationImage(
-                  image: _food.photoUrl != null
-                      ? NetworkImage(_food.photoUrl)
-                      : NetworkImage('https://picsum.photos/600/400'),
-                  fit: BoxFit.cover,
-                )),
+                  image: DecorationImage(
+                    image: _food.photoUrl != null
+                        ? NetworkImage(_food.photoUrl)
+                        : NetworkImage('https://picsum.photos/600/400'),
+                    fit: BoxFit.cover,
+                  ),
+                ),
                 child: Align(
                   alignment: Alignment.bottomLeft,
                   child: Padding(

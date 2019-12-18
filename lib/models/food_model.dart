@@ -15,7 +15,7 @@ class Food extends Equatable {
   final List<String> tags;
 
   Food(this.name,
-      {this.brand = '',
+      {this.brand,
       this.creatorId,
       this.share,
       this.photoUrl,
