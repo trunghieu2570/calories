@@ -1,4 +1,5 @@
 import 'package:calories/blocs/daily_meals/daily_meals_bloc.dart';
+import 'package:calories/blocs/daily_meals/daily_meals_event.dart';
 import 'package:calories/blocs/daily_meals/daily_meals_state.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
@@ -14,7 +15,13 @@ import 'package:calories/ui/widgets/meal_no_item_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../pop_with_result.dart';
 import '../util.dart';
+import 'screens/food/food_detail_screen.dart';
+import 'screens/food/food_search_screen.dart';
+import 'screens/recipe/recipe_detail_screen.dart';
+import 'screens/recipe/recipe_search_screen.dart';
+import 'widgets/daily_meal_item_card_widget.dart';
 
 class DiaryScreen extends StatefulWidget {
   @override
@@ -26,12 +33,14 @@ class DiaryScreenState extends State<DiaryScreen> {
   PageController _pageController;
   FoodBloc _foodBloc;
   RecipeBloc _recipeBloc;
+  DailyMealBloc _dailyMealBloc;
 
   @override
   void initState() {
     super.initState();
     _recipeBloc = BlocProvider.of<RecipeBloc>(context);
     _foodBloc = BlocProvider.of<FoodBloc>(context);
+    _dailyMealBloc = BlocProvider.of<DailyMealBloc>(context);
     _pageController = new PageController(
       initialPage: getIndexFromDate(DateTime.now()),
     );
@@ -88,6 +97,7 @@ class DiaryScreenState extends State<DiaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       body: NestedScrollView(
         headerSliverBuilder: (_, bool h) {
           return <Widget>[
@@ -109,7 +119,8 @@ class DiaryScreenState extends State<DiaryScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => _showChooseSectionBottomSheet(
+            getDateFromIndex(_pageController.page.toInt())),
         tooltip: 'Thêm vào nhật ký',
         icon: Icon(Icons.add),
         label: Text("Add to diary".toUpperCase()),
@@ -310,7 +321,7 @@ class DiaryScreenState extends State<DiaryScreen> {
           SliverToBoxAdapter(
             child: Column(
               children: <Widget>[
-                _buildGoalCard(DateTime(1900).add(Duration(days: index))),
+                _buildGoalCard(getDateFromIndex(index)),
                 BlocBuilder<DailyMealBloc, DailyMealState>(
                   builder: (context, state) {
                     final foodState = _foodBloc.state;
@@ -322,28 +333,32 @@ class DiaryScreenState extends State<DiaryScreen> {
                       final foods = foodState.foods;
                       final dailyMeals = state.dailyMeals;
                       final todayMeals = dailyMeals
-                          .where((e) => e.date == getDateString(index));
+                          .where((e) => e.date == getDateFromIndex(index));
                       return Column(
                         children: <Widget>[
                           _buildDiarySection(
+                            date: getDateFromIndex(index),
                             section: DailyMealSection.BREAKFAST,
                             foods: foods,
                             recipes: recipes,
                             todayMeals: todayMeals,
                           ),
                           _buildDiarySection(
+                            date: getDateFromIndex(index),
                             section: DailyMealSection.LUNCH,
                             foods: foods,
                             recipes: recipes,
                             todayMeals: todayMeals,
                           ),
                           _buildDiarySection(
+                            date: getDateFromIndex(index),
                             section: DailyMealSection.DINNER,
                             foods: foods,
                             recipes: recipes,
                             todayMeals: todayMeals,
                           ),
                           _buildDiarySection(
+                            date: getDateFromIndex(index),
                             section: DailyMealSection.SNACK,
                             foods: foods,
                             recipes: recipes,
@@ -366,6 +381,7 @@ class DiaryScreenState extends State<DiaryScreen> {
       );
 
   Widget _buildDiarySection({
+    final DateTime date,
     final String section,
     final Iterable<DailyMeal> todayMeals,
     final List<Food> foods,
@@ -376,15 +392,55 @@ class DiaryScreenState extends State<DiaryScreen> {
           try {
             final List<MealItem> items =
                 todayMeals.firstWhere((e) => e.section == section).items;
+            /* if (items.length == 0) {
+              return MealNoItemCard(
+                title: section,
+                onTap: () => _showBottomSheet(todayMeals, date, section),
+              );
+            } */ 
             return Center(
-              child: MealItemCard(
-                  items: items, recipes: recipes, foods: foods, title: section),
+              child: DailyMealItemCard(
+                items: items,
+                recipes: recipes,
+                foods: foods,
+                title: section,
+                onRemoveButtonPressed: (i) => _showDeleteDialog().then((r) =>
+                    r ? _removeMealItem(todayMeals, date, section, i) : null),
+                onAddButtonPressed: () =>
+                    _showBottomSheet(todayMeals, date, section),
+              ),
             );
           } catch (err) {
-            return MealNoItemCard(title: section);
+            return MealNoItemCard(
+              title: section,
+              onTap: () => _showBottomSheet(todayMeals, date, section),
+            );
           }
         },
       );
+
+  Future<bool> _showDeleteDialog() async {
+    return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dContext) {
+          return AlertDialog(
+            title: Text('Confirm delete'),
+            content: Text('Do you want delete this item?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'.toUpperCase()),
+                onPressed: () => Navigator.pop(dContext, false),
+              ),
+              FlatButton(
+                child: Text('Delete'.toUpperCase()),
+                onPressed: () {
+                  Navigator.pop(dContext, true);
+                },
+              )
+            ],
+          );
+        });
+  }
 
   Widget _buildGoalCard(final DateTime date) =>
       BlocBuilder<GoalBloc, GoalState>(builder: (context, state) {
@@ -498,6 +554,144 @@ class DiaryScreenState extends State<DiaryScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showChooseSectionBottomSheet(DateTime date) async {
+    final state = _dailyMealBloc.state;
+    if (state is DailyMealsLoaded) {
+      final todayMeals = state.dailyMeals.where((e) => e.date == date);
+      showModalBottomSheet(
+        context: context,
+        builder: (context) => Container(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                title: Text("Breakfast"),
+                onTap: () => Navigator.pop(context, DailyMealSection.BREAKFAST),
+              ),
+              ListTile(
+                title: Text("Lunch"),
+                onTap: () => Navigator.pop(context, DailyMealSection.LUNCH),
+              ),
+              ListTile(
+                title: Text("Dinner"),
+                onTap: () => Navigator.pop(context, DailyMealSection.DINNER),
+              ),
+              ListTile(
+                title: Text("Snack"),
+                onTap: () => Navigator.pop(context, DailyMealSection.SNACK),
+              ),
+            ],
+          ),
+        ),
+      ).then((item) =>
+          item != null ? _showBottomSheet(todayMeals, date, item) : null);
+    }
+  }
+
+  Future<void> _showBottomSheet(
+      Iterable<DailyMeal> todayMeals, DateTime date, String section) async {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              title: Text("Add food"),
+              onTap: () => _onAddFoodTapped(todayMeals, date, section),
+            ),
+            ListTile(
+              title: Text("Add recipe"),
+              onTap: () => _onAddRecipeTapped(todayMeals, date, section),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onAddFoodTapped(
+      Iterable<DailyMeal> todayMeals, DateTime date, String section) async {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, FoodSearchScreen.routeName,
+            arguments: FoodSearchArgument(action: FoodAction.ADD_TO_DIARY))
+        .then((result) {
+      if (result is PopWithResults) {
+        if (result.toPage == "/") {
+          final item = MealItem(
+            result.results['foodId'] as String,
+            MealItemType.FOOD,
+            result.results['quantity'] as String,
+          );
+          _addMealItem(todayMeals, date, section, item);
+        }
+      }
+    });
+  }
+
+  Future<void> _onAddRecipeTapped(
+      Iterable<DailyMeal> todayMeals, DateTime date, String section) async {
+    Navigator.pop(context);
+    Navigator.pushNamed(context, RecipeSearchScreen.routeName,
+            arguments: RecipeSearchArgument(action: RecipeAction.ADD_TO_DIARY))
+        .then((result) {
+      if (result is PopWithResults) {
+        if (result.toPage == "/") {
+          final item = MealItem(
+            result.results["recipeId"] as String,
+            MealItemType.RECIPE,
+            result.results["quantity"] as String,
+          );
+          _addMealItem(todayMeals, date, section, item);
+        }
+      }
+    });
+  }
+
+  void _addMealItem(Iterable<DailyMeal> todayMeals, DateTime date,
+      String section, MealItem item) {
+    DailyMeal oldMeal;
+    try {
+      oldMeal =
+          todayMeals.firstWhere((t) => t.section == section && t.date == date);
+    } catch (err) {
+      print(err);
+    }
+    if (oldMeal == null) {
+      DailyMeal newMeal =
+          DailyMeal(section: section, date: date, items: [item]);
+      _dailyMealBloc.add(AddDailyMeal(newMeal));
+    } else {
+      final newMealItems = oldMeal.items;
+      newMealItems.add(item);
+      DailyMeal newMeal =
+          oldMeal.copyWith(section: section, date: date, items: newMealItems);
+      _dailyMealBloc.add(UpdateDailyMeal(newMeal));
+    }
+  }
+
+  void _removeMealItem(Iterable<DailyMeal> todayMeals, DateTime date,
+      String section, String itemId) {
+    DailyMeal oldMeal;
+    try {
+      oldMeal =
+          todayMeals.firstWhere((t) => t.section == section && t.date == date);
+      final newMealItems = oldMeal.items;
+      newMealItems.removeWhere((t) => t.itemId == itemId);
+      if (newMealItems.length == 0) {
+        setState(() {
+          _dailyMealBloc.add(DeleteDailyMeal(oldMeal));
+        });
+      } else {
+        DailyMeal newMeal =
+            oldMeal.copyWith(section: section, date: date, items: newMealItems);
+        setState(() {
+          _dailyMealBloc.add(UpdateDailyMeal(newMeal));
+        });
+      }
+    } catch (err) {
+      print(err);
+    }
   }
 
   static final Map<String, GoalAction> _goalActions = {

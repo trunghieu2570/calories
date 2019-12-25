@@ -375,6 +375,15 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
                 }));
         break;
       case FoodAction.ADD_TO_DIARY:
+        Navigator.pop(
+            context,
+            PopWithResults(
+                fromPage: FoodDetailScreen.routeName,
+                toPage: "/",
+                results: {
+                  'foodId': '${_food.id}',
+                  'quantity': '${_quantityController.text}'
+                }));
         break;
       case FoodAction.NO_ACTION:
         break;

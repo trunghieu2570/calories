@@ -19,7 +19,7 @@ class FirebaseDailyMealRepository extends DailyMealsRepository {
   Future<void> deleteDailyMeal(String uid, DailyMeal dailyMeal) async {
     return usersCollection
         .document(uid)
-        .collection("dialyMeals")
+        .collection("dailyMeals")
         .document(dailyMeal.id)
         .delete();
   }
@@ -39,7 +39,7 @@ class FirebaseDailyMealRepository extends DailyMealsRepository {
   Future<void> updateDailyMeal(String uid, DailyMeal dailyMeal) {
     return usersCollection
         .document(uid)
-        .collection("dialyMeals")
+        .collection("dailyMeals")
         .document(dailyMeal.id)
         .updateData(dailyMeal.toEntity().toDocument());
   }

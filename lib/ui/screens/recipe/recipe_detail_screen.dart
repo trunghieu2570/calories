@@ -389,7 +389,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 }));
         break;
       case RecipeAction.ADD_TO_DIARY:
-        // TODO: Handle this case.
+        Navigator.pop(
+            context,
+            PopWithResults(
+                fromPage: RecipeDetailScreen.routeName,
+                toPage: "/",
+                results: {
+                  'recipeId': '${_recipe.id}',
+                  'quantity': '${_quantityController.text}'
+                }));
         break;
       case RecipeAction.NO_ACTION:
         // TODO: Handle this case.

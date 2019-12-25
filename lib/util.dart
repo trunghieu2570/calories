@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/painting.dart';
 import 'package:intl/intl.dart';
 
+DateFormat _dateFormat = DateFormat("MMM dd, yyyy");
+
 String add2StringAsDouble(String a, String b) {
   double na = double.parse(a != null ? a : 0.0);
   double nb = double.parse(b != null ? b : 0.0);
@@ -24,8 +26,17 @@ Offset rotateOffset({double angle, Size size}) {
 String getDateString(int index) {
   var firstDate = DateTime(1900);
   var date = firstDate.add(new Duration(days: index));
-  DateFormat dateFormat = DateFormat("MMM dd, yyyy");
-  return dateFormat.format(date);
+
+  return _dateFormat.format(date);
+}
+
+DateTime getDateFromIndex(int index) {
+  try {
+    return _dateFormat.parse(getDateString(index));
+  } catch (err) {
+    print(err);
+    return null;
+  }
 }
 
 int getIndexFromDate(DateTime date) {

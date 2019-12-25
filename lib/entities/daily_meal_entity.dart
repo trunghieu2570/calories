@@ -8,7 +8,7 @@ import 'meal_entity.dart';
 class DailyMealEntity extends Equatable {
   final String id;
   final String section;
-  final String date;
+  final DateTime date;
   final List<MealItemEntity> items;
 
   DailyMealEntity(this.id, this.section, this.date, this.items);
@@ -33,7 +33,7 @@ class DailyMealEntity extends Equatable {
     return DailyMealEntity(
       map['id'] as String,
       map['section'] as String,
-      map['date'] as String,
+      (map['date'] as Timestamp).toDate(),
       items,
     );
   }
@@ -46,7 +46,7 @@ class DailyMealEntity extends Equatable {
     return DailyMealEntity(
       snapshot.documentID,
       snapshot.data['section'],
-      snapshot.data['date'],
+      (snapshot.data['date'] as Timestamp).toDate(),
       items,
     );
   }

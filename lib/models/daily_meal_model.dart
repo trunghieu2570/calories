@@ -16,7 +16,7 @@ class DailyMealSection {
 class DailyMeal extends Equatable {
   final String id;
   final String section;
-  final String date;
+  final DateTime date;
   final List<MealItem> items;
 
   DailyMeal({@required this.section, @required this.date, this.id, this.items})
@@ -41,7 +41,7 @@ class DailyMeal extends Equatable {
   }
 
   DailyMeal copyWith(
-      {String id, String section, String date, List<MealItem> items}) {
+      {String id, String section, DateTime date, List<MealItem> items}) {
     return DailyMeal(
       id: id ?? this.id,
       section: section ?? this.section,

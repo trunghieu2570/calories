@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 class MealNoItemCard extends StatelessWidget {
   final String title;
+  final Function() onTap;
 
-  MealNoItemCard({
-    Key key,
-    this.title = 'Meal items',
-  }) : super(key: key);
+  MealNoItemCard({Key key, this.title = 'Meal items', this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +29,7 @@ class MealNoItemCard extends StatelessWidget {
           ),
           Divider(),
           ListTile(
+            onTap: onTap,
             title: Center(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
