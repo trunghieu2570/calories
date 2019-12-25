@@ -7,6 +7,7 @@ import 'package:calories/blocs/goals/goals_state.dart';
 import 'package:calories/blocs/recipe/recipe_bloc.dart';
 import 'package:calories/blocs/recipe/recipe_state.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/ui/screens/goal/edit_goal_screen.dart';
 import 'package:calories/ui/widgets/donut_chart.dart';
 import 'package:calories/ui/widgets/meal_item_card_widget.dart';
 import 'package:calories/ui/widgets/meal_no_item_card_widget.dart';
@@ -21,7 +22,7 @@ class DiaryScreen extends StatefulWidget {
 }
 
 class DiaryScreenState extends State<DiaryScreen> {
-  String _pageTitle = "Hôm nay";
+  String _pageTitle = "Today";
   PageController _pageController;
   FoodBloc _foodBloc;
   RecipeBloc _recipeBloc;
@@ -41,11 +42,11 @@ class DiaryScreenState extends State<DiaryScreen> {
       var todayIndex = getIndexFromDate(DateTime.now());
       print("page $todayIndex changed to $index");
       if (index == todayIndex) {
-        _pageTitle = "Hôm nay";
+        _pageTitle = "Today";
       } else if (index == todayIndex - 1) {
-        _pageTitle = "Hôm qua";
+        _pageTitle = "Yesterday";
       } else if (index == todayIndex + 1) {
-        _pageTitle = "Ngày mai";
+        _pageTitle = "Tomorrow";
       } else {
         _pageTitle = getDateString(index);
       }
@@ -90,192 +91,11 @@ class DiaryScreenState extends State<DiaryScreen> {
       body: NestedScrollView(
         headerSliverBuilder: (_, bool h) {
           return <Widget>[
-            SliverToBoxAdapter(child: Container(height: 0.1,),),
-            /*SliverAppBar(
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.keyboard_arrow_left),
-                  onPressed: () => _prevPage(),
-                ),
-                IconButton(
-                  icon: Icon(Icons.keyboard_arrow_right),
-                  onPressed: () => _nextPage(),
-                )
-              ],
-              title: FlatButton(
-                padding: EdgeInsets.all(0),
-                onPressed: () => _selectDate(context),
-                child: Text(
-                  _pageTitle,
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontFamily: "OpenSans",
-                      fontWeight: FontWeight.bold),
-                ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: 0.1,
               ),
-              expandedHeight: 400,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.pin,
-                background: Container(
-                  padding: EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      SizedBox(
-                        height: AppBar().preferredSize.height,
-                      ),
-                      Expanded(
-                        child: DonutChart(),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          FlatButton(
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  "2630",
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: "OpenSans",
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Calo đã nạp",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "OpenSans",
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onPressed: () => {},
-                          ),
-                          FlatButton(
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  "2.5L",
-                                  style: TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: "OpenSans",
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  "Nước đã uống",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "OpenSans",
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onPressed: () => {},
-                          ),
-                        ],
-                      ),
-                      Divider(
-                        height: 20,
-                        color: Colors.white,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          FlatButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  "CHẤT BÉO",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "60g",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onPressed: () => {},
-                          ),
-                          FlatButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  "TINH BỘT",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "210g",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onPressed: () => {},
-                          ),
-                          FlatButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  "CHẤT ĐẠM",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "60g",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            onPressed: () => {},
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),*/
+            ),
           ];
         },
         body: PageView.custom(
@@ -292,7 +112,7 @@ class DiaryScreenState extends State<DiaryScreen> {
         onPressed: () {},
         tooltip: 'Thêm vào nhật ký',
         icon: Icon(Icons.add),
-        label: Text("THÊM"),
+        label: Text("Add to diary".toUpperCase()),
       ),
     );
   }
@@ -335,7 +155,10 @@ class DiaryScreenState extends State<DiaryScreen> {
                       height: AppBar().preferredSize.height,
                     ),
                     Expanded(
-                      child: DonutChart(value: 40,animate: true,),
+                      child: DonutChart(
+                        value: 40,
+                        animate: true,
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -407,7 +230,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                "CHẤT BÉO",
+                                "FATS",
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.white,
@@ -433,7 +256,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                "TINH BỘT",
+                                "CARB",
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.white,
@@ -459,7 +282,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                "CHẤT ĐẠM",
+                                "PROTEIN",
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.white,
@@ -557,7 +380,7 @@ class DiaryScreenState extends State<DiaryScreen> {
               child: MealItemCard(
                   items: items, recipes: recipes, foods: foods, title: section),
             );
-          } catch (StateError) {
+          } catch (err) {
             return MealNoItemCard(title: section);
           }
         },
@@ -575,6 +398,7 @@ class DiaryScreenState extends State<DiaryScreen> {
           beforeGoals.sort();
           try {
             final goal = beforeGoals.last;
+            final goalItems = goal.items;
             return Card(
               elevation: 0,
               borderOnForeground: true,
@@ -590,81 +414,36 @@ class DiaryScreenState extends State<DiaryScreen> {
                     padding: EdgeInsets.all(10),
                     alignment: Alignment.topLeft,
                     child: Text(
-                      "Mục tiêu hằng ngày ${goal.startDate}",
+                      "Your Goal",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                           fontFamily: "OpenSans"),
                     ),
                   ),
-                  InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.panorama_fish_eye,
-                            color: Colors.green,
-                            size: 12,
-                          ),
-                          Text("\tUống đủ 2 lít nước."),
-                        ],
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 12,
-                          ),
-                          Text("\tĂn đủ 2600 calo."),
-                          Text(
-                            "\t(Đã hoàn thành)",
-                            style: TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            Icons.panorama_fish_eye,
-                            color: Colors.green,
-                            size: 12,
-                          ),
-                          Text("\tĂn dưới 60 gram chất béo"),
-                          Text(
-                            "\t(25g còn lại)",
-                            style: TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                        ],
-                      ),
-                    ),
+                  ListView.builder(
+                    padding: EdgeInsets.all(0),
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: goalItems.length,
+                    itemBuilder: (_, int index) {
+                      return _buildGoalListItem(goalItems[index]);
+                    },
                   ),
                   ButtonTheme.bar(
                     // make buttons use the appropriate styles for cards
                     child: ButtonBar(
                       children: <Widget>[
                         FlatButton(
-                          child: const Text('Bỏ qua'),
-                          onPressed: () {
-                            /* ... */
-                          },
-                        ),
-                        FlatButton(
-                          child: const Text('Chỉnh sửa mục tiêu'),
-                          onPressed: () {
-                            /* ... */
-                          },
+                          child: const Text('Edit your goal'),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditGoalScreen(
+                                startDate: date,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -672,11 +451,66 @@ class DiaryScreenState extends State<DiaryScreen> {
                 ],
               ),
             );
-          } catch (StateError) {
+          } catch (err) {
             return Container();
           }
         } else {
           return Container();
         }
       });
+
+  Widget _buildGoalListItem(GoalItem item) {
+    final action = _goalActions[item.type];
+    return InkWell(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(
+                  Icons.panorama_fish_eye,
+                  color: Colors.green,
+                  size: 12,
+                ),
+              ],
+            ),
+            Flexible(
+              child: Builder(builder: (context) {
+                if (item.min != null && item.max != null)
+                  return Text(
+                    "\t${action.action} from ${item.min} to ${item.max} ${action.unit} ${item.type}.",
+                  );
+                if (item.min != null && item.max == null)
+                  return Text(
+                      "\t${action.action} more than ${item.min} ${action.unit} ${item.type}.");
+                else if (item.min == null && item.max != null)
+                  return Text(
+                      "\t${action.action} less than ${item.min} ${action.unit} ${item.type}.");
+                else
+                  return Container();
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static final Map<String, GoalAction> _goalActions = {
+    GoalItemType.CALORIES: GoalAction('Eat', 'kcal'),
+    GoalItemType.WATER: GoalAction('Drink', 'litter'),
+    GoalItemType.PROTEIN: GoalAction('Eat', 'mg'),
+    GoalItemType.LIPID: GoalAction('Eat', 'mg'),
+    GoalItemType.CARBOHYDRATE: GoalAction('Eat', 'mg')
+  };
+}
+
+class GoalAction {
+  final String action;
+  final String unit;
+  const GoalAction(this.action, this.unit);
 }

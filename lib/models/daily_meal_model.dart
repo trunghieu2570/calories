@@ -70,8 +70,8 @@ class DailyMeal extends Equatable {
           final recipe = recipes.firstWhere((e) => e.id == item.itemId);
           sum += recipe.getSummaryNutrition(foods);
         }
-      } catch (StateError) {
-        print(StateError);
+      } catch (err) {
+        print(err);
       }
     }
     return sum;

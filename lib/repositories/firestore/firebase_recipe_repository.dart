@@ -7,8 +7,9 @@ class FirebaseRecipeRepository extends RecipeRepository {
   final recipeCollection = Firestore.instance.collection("recipes");
 
   @override
-  Future<void> addNewRecipe(Recipe recipe) {
-    return recipeCollection.add(recipe.toEntity().toDocument());
+  Future<String> addNewRecipe(Recipe recipe) async {
+    final doc = await recipeCollection.add(recipe.toEntity().toDocument());
+    return doc.documentID;
   }
 
   @override

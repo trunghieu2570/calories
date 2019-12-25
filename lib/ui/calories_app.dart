@@ -20,11 +20,10 @@ import 'package:calories/ui/screens/recipe/recipe_search_screen.dart';
 import 'package:calories/ui/splash_screen.dart';
 import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'diary_screen.dart';
+import 'screens/goal/edit_goal_screen.dart';
 import 'screens/meal/create_meal_screen.dart';
 import 'screens/meal/meal_detail_screen.dart';
 import 'screens/recipe/create_recipe_screen.dart';
@@ -88,6 +87,7 @@ class MyApp extends StatelessWidget {
         MealSearchScreen.routeName: (context) => MealSearchScreen(),
         MealDetailScreen.routeName: (context) => MealDetailScreen(),
         CreateMealScreen.routeName: (context) => CreateMealScreen(),
+        EditGoalScreen.routeName: (context) => EditGoalScreen(),
       },
     );
   }
@@ -108,19 +108,19 @@ class MyHomePageState extends State<MyHomePage>
   List<Widget> _views;
   List<Widget> _floatingButtons;
 
-  SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
+/*   SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.grey[50],
     systemNavigationBarIconBrightness: Brightness.dark,
     systemNavigationBarDividerColor: Colors.black54,
-  );
+  ); */
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _reset();
+    // _reset();
     _selectedView = 0;
   }
 
@@ -129,11 +129,11 @@ class MyHomePageState extends State<MyHomePage>
     super.didChangeDependencies();
   }
 
-  void _reset() {
+/*   void _reset() {
     setState(() {
       SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
     });
-  }
+  } */
 
   void _changeView(int index) {
     setState(() {
@@ -141,7 +141,7 @@ class MyHomePageState extends State<MyHomePage>
     });
   }
 
-  @override
+/*   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
@@ -157,16 +157,12 @@ class MyHomePageState extends State<MyHomePage>
         // TODO: Handle this case.
         break;
     }
-  }
+  } */
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  void _incrementCounter() {
-    setState(() {});
   }
 
   @override

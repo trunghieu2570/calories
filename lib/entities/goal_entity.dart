@@ -12,7 +12,7 @@ class GoalEntity extends Equatable {
   GoalEntity(this.id, this.name, this.startDate, this.items);
 
   @override
-  List<Object> get props => [id,name,startDate,items];
+  List<Object> get props => [id, name, startDate, items];
 
   Map<String, Object> toJson() {
     return {

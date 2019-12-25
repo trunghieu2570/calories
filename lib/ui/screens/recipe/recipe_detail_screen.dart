@@ -1,13 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:calories/blocs/auth/bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_bloc.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_event.dart';
 import 'package:calories/blocs/favorite_recipes/favorite_recipes_state.dart';
 import 'package:calories/blocs/food/bloc.dart';
+import 'package:calories/blocs/recipe/bloc.dart';
+import 'package:calories/blocs/recipe/recipe_event.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/screens/meal/create_meal_screen.dart';
+import 'package:calories/ui/screens/recipe/create_recipe_screen.dart';
 import 'package:calories/ui/widgets/directions_card_widget.dart';
 import 'package:calories/ui/widgets/ingredient_card_widget.dart';
 import 'package:calories/ui/widgets/nutrition_card_widget.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -38,8 +44,10 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   Recipe _recipe;
 
   FavoriteRecipesBloc _favoriteRecipesBloc;
-  RecipeAction _recipeAction;
+  RecipeAction _action;
   TextEditingController _quantityController;
+  AuthBloc _authBloc;
+  String _uid;
 
   @override
   void initState() {
@@ -48,7 +56,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _dropDownMenuItems = getDropDownMenuItems();
     _currentCity = _dropDownMenuItems[0].value;
     _favoriteRecipesBloc = BlocProvider.of<FavoriteRecipesBloc>(context);
+    _authBloc = BlocProvider.of<AuthBloc>(context);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    final authState = _authBloc.state;
+    if (authState is Authenticated) {
+      _uid = authState.user.uid;
+    } else
+      _uid = null;
   }
 
   List<DropdownMenuItem<String>> getDropDownMenuItems() {
@@ -73,7 +87,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   Widget build(BuildContext context) {
     final RecipeDetailArgument args = ModalRoute.of(context).settings.arguments;
     _recipe = args.recipe;
-    _recipeAction = args.action;
+    _action = args.action;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: CustomScrollView(
@@ -113,24 +127,56 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                 }
                 return Container();
               }),
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () => {},
-              ),
-              IconButton(
-                icon: Icon(Icons.delete_outline),
-                onPressed: () => {},
-              ),
+              _recipe.creatorId == _uid
+                  ? IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CreateRecipeScreen(recipe: _recipe),
+                        ),
+                      ).then(
+                        (editedRecipe) {
+                          if (editedRecipe != null)
+                            Navigator.pushReplacementNamed(
+                              context,
+                              RecipeDetailScreen.routeName,
+                              arguments: RecipeDetailArgument(
+                                  action: _action, recipe: editedRecipe),
+                            );
+                        },
+                      ),
+                    )
+                  : Container(),
+              _recipe.creatorId == _uid
+                  ? IconButton(
+                      icon: Icon(Icons.delete_outline),
+                      onPressed: () => _showDeleteDialog().then(
+                        (isAccept) async {
+                          if (isAccept) {
+                            await _delete();
+                            Navigator.pop(context);
+                            Flushbar(
+                              animationDuration: Duration(milliseconds: 500),
+                              duration: Duration(seconds: 2),
+                              message: 'Deleted successfully',
+                            )..show(context);
+                          }
+                        },
+                      ),
+                    )
+                  : Container(),
             ],
-            title: Text("Recipe details"),
+            title: Text("Recipe Details"),
             flexibleSpace: FlexibleSpaceBar(
               collapseMode: CollapseMode.pin,
               background: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: _recipe.photoUrl != null
-                        ? NetworkImage(_recipe.photoUrl)
-                        : NetworkImage('https://picsum.photos/600/400'),
+                        ? CachedNetworkImageProvider(_recipe.photoUrl)
+                        : CachedNetworkImageProvider(
+                            'https://picsum.photos/600/400'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -164,30 +210,36 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             ),
           ),
           SliverToBoxAdapter(
-            child: BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
-              if (state is FoodLoaded) {
-                final foods = state.foods;
-                return Column(
-                  children: <Widget>[
-                    NutritionCard(
-                        nutritionInfo: _recipe.getSummaryNutrition(foods)),
-                    IngredientCard(
-                        ingredients: _recipe.ingredients, foods: foods),
-                    DirectionsCard(directions: _recipe.directions),
-                  ],
-                );
-              }
-              return Text("No connection");
-            }),
-          ),
+              child: Column(
+            children: <Widget>[
+              _buildAlert(_isDeleted()),
+              BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
+                if (state is FoodLoaded) {
+                  final foods = state.foods;
+                  return Column(
+                    children: <Widget>[
+                      NutritionCard(
+                          nutritionInfo: _recipe.getSummaryNutrition(foods)),
+                      IngredientCard(
+                          ingredients: _recipe.ingredients, foods: foods),
+                      DirectionsCard(directions: _recipe.directions),
+                    ],
+                  );
+                }
+                return Text("No connection");
+              }),
+            ],
+          )),
         ],
       ),
 
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _onAddButtonPressed,
-        label: Text('Thêm vào'),
-        icon: Icon(Icons.add),
-      ),
+      floatingActionButton: !_isDeleted()
+          ? FloatingActionButton.extended(
+              onPressed: _onAddButtonPressed,
+              label: Text('Add'.toUpperCase()),
+              icon: Icon(Icons.add),
+            )
+          : null,
       bottomNavigationBar: Container(
         decoration: new BoxDecoration(color: Theme.of(context).cardColor),
         child: Column(
@@ -256,8 +308,75 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
+  Widget _buildAlert(bool show) => Builder(
+        builder: (context) {
+          if (show) {
+            return Container(
+              color: Colors.yellow,
+              padding: EdgeInsets.only(left: 10),
+              height: 40,
+              child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(Icons.info_outline, color: Colors.black),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          "This recipe has been deleted by owner.",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  )),
+            );
+          } else {
+            return Container();
+          }
+        },
+      );
+
+  bool _isDeleted() {
+    return (_recipe.creatorId == '') && (_recipe.share == false);
+  }
+
+  Future<bool> _showDeleteDialog() async {
+    return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dContext) {
+          return AlertDialog(
+            title: Text('Confirm delete'),
+            content: Text('Please confirm your delete action.'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'.toUpperCase()),
+                onPressed: () => Navigator.pop(dContext, false),
+              ),
+              FlatButton(
+                child: Text('Delete'.toUpperCase()),
+                onPressed: () {
+                  Navigator.pop(dContext, true);
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  Future<void> _delete() async {
+    BlocProvider.of<FavoriteRecipesBloc>(context)
+        .add(DeleteFavoriteRecipe(_recipe.id));
+    Recipe newMeal = _recipe.copyWith(creatorId: '', share: false);
+    BlocProvider.of<RecipeBloc>(context).add(UpdateRecipe(newMeal));
+  }
+
   Future<void> _onAddButtonPressed() async {
-    switch (_recipeAction) {
+    switch (_action) {
       case RecipeAction.ADD_TO_MEAL:
         Navigator.pop(
             context,

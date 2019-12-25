@@ -96,8 +96,8 @@ class Recipe extends Equatable {
       try {
         final food = foods.firstWhere((e) => e.id == ingredient.foodId);
         sum += food.nutritionInfo;
-      } catch (StateError) {
-        print(StateError);
+      } catch (err) {
+        print(err);
       }
     }
     return sum;

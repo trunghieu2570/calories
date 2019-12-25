@@ -4,6 +4,7 @@ import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_event.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/ui/screens/food/food_search_screen.dart';
+import 'package:calories/ui/widgets/loading_stack_widget.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +26,7 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
   final File photo;
   FoodBloc _foodBloc;
   final _formKey = GlobalKey<FormState>();
+
   static const double _padding = 5;
 
   _NutritionInfoScreenState(this.food, this.photo);
@@ -38,6 +40,7 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
   String _fiber;
   String _cholesterol;
   String _sugars;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -57,6 +60,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
     }
   }
 
+  void _setLoadingState(bool state) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
   Future<String> _uploadImage(File image) async {
     StorageReference ref = FirebaseStorage.instance
         .ref()
@@ -69,6 +78,7 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
   void _onSave() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      _setLoadingState(true);
       String photoUrl;
       if (photo != null) photoUrl = await _uploadImage(photo);
       NutritionInfo nutritionInfo = NutritionInfo(
@@ -85,18 +95,25 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
           food.copyWith(nutritionInfo: nutritionInfo, photoUrl: photoUrl);
       if (newFood.id != null) {
         _foodBloc.add(UpdateFood(newFood));
-        Navigator.popUntil(
-            context, ModalRoute.withName(FoodSearchScreen.routeName));
+        Navigator.pop(
+            context, newFood);
       } else {
         _foodBloc.add(AddFood(newFood));
         Navigator.popUntil(context, ModalRoute.withName("/"));
       }
+      _setLoadingState(false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return LoadingStack(
+      body: _buildBody(),
+      state: _isLoading,
+    );
+  }
+
+  Widget _buildBody() => Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
         title: Text("Enter nutrition infomation"),
@@ -292,5 +309,4 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
         ),
       ),
     );
-  }
 }

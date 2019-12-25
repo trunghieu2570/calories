@@ -12,16 +12,24 @@ class MealItemType {
 class Meal extends Equatable {
   final String id;
   final String name;
+  final String creatorId;
+  final bool share;
   final String photoUrl;
   final List<MealItem> items;
   final List<String> tags;
 
-  Meal(this.name, {this.id, this.photoUrl, this.items, this.tags});
+  Meal(this.name,
+      {this.id,
+      this.creatorId,
+      this.share,
+      this.photoUrl,
+      this.items,
+      this.tags});
 
   MealEntity toEntity() {
     final List<MealItemEntity> entityItems =
         items.map((e) => e.toEntity()).toList();
-    return MealEntity(id, name, photoUrl, entityItems, tags);
+    return MealEntity(id, name, creatorId, share, photoUrl, entityItems, tags);
   }
 
   factory Meal.fromEntity(MealEntity entity) {
@@ -30,6 +38,8 @@ class Meal extends Equatable {
     return Meal(
       entity.name,
       id: entity.id,
+      creatorId: entity.creatorId,
+      share: entity.share,
       photoUrl: entity.photoUrl,
       items: mItems,
       tags: entity.tags,
@@ -38,13 +48,17 @@ class Meal extends Equatable {
 
   Meal copyWith(
       {String id,
-      String photoUrl,
       String name,
+      String creatorId,
+      bool share,
+      String photoUrl,
       List<String> tags,
       List<MealItem> items}) {
     return Meal(
       name ?? this.name,
       id: id ?? this.id,
+      creatorId: creatorId ?? this.creatorId,
+      share: share ?? this.share,
       tags: tags ?? this.tags,
       photoUrl: photoUrl ?? this.photoUrl,
       items: items ?? this.items,
@@ -71,15 +85,15 @@ class Meal extends Equatable {
           final recipe = recipes.firstWhere((e) => e.id == item.itemId);
           sum += recipe.getSummaryNutrition(foods);
         }
-      } catch (StateError) {
-        print(StateError);
+      } catch (err) {
+        print(err);
       }
     }
     return sum;
   }
 
   @override
-  List<Object> get props => [id, name, photoUrl, name, tags];
+  List<Object> get props => [id, name, creatorId, share, photoUrl, name, tags];
 }
 
 class MealItem extends Equatable {

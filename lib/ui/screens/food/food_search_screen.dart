@@ -3,6 +3,7 @@ import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/screens/food/food_detail_screen.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -94,7 +95,7 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
               },
               decoration: InputDecoration.collapsed(
                 hintStyle: TextStyle(fontSize: 18),
-                hintText: 'Enter food name',
+                hintText: 'What food do you need?',
               ),
             ),
             actions: <Widget>[
@@ -114,46 +115,35 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
               BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
                 if (state is FoodLoading) {
                   return SliverToBoxAdapter(
-                    child: Text("Loading"),
+                    child: Center(child: Text("Loading")),
                   );
                 } else if (state is FoodLoaded) {
                   final allFoods = state.foods;
-                  var foods;
+                  List<Food> foods;
                   if (_searchQuery == null || _searchQuery == '')
                     foods = allFoods;
                   else {
                     foods = allFoods
-                        .where((e) => e.name
-                            .toLowerCase()
-                            .contains(_searchQuery.toLowerCase()))
+                        .where((e) => removeDiacritics(e.name.toLowerCase())
+                            .contains(
+                                removeDiacritics(_searchQuery.toLowerCase())))
                         .toList();
                   }
+                  foods.sort((f1, f2) => removeDiacritics(f1.name.toLowerCase())
+                      .compareTo(removeDiacritics(f2.name.toLowerCase())));
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         final food = foods[index];
-                        return Card(
-                          semanticContainer: true,
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: Container(
-                            height: 75,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Image(
-                                  image: NetworkImage(
-                                      'https://placeimg.com/640/480/any'),
-                                  fit: BoxFit.fill,
-                                ),
-                                Expanded(
-                                  child: ListTile(
-                                    title: Text(food.name),
-                                    onTap: () => _onListTileTapped(food),
-                                  ),
-                                ),
-                              ],
+                        return Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(food.name),
+                              subtitle: Text(food.brand ?? ''),
+                              onTap: () => _onListTileTapped(food),
                             ),
-                          ),
+                            Divider(height: 1),
+                          ],
                         );
                       },
                       childCount: foods.length,
@@ -161,7 +151,7 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
                   );
                 }
                 return SliverToBoxAdapter(
-                  child: Text("Cannot load foods"),
+                  child: Center(child: Text("Cannot load foods")),
                 );
               }),
             ],

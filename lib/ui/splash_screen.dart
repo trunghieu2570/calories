@@ -1,4 +1,3 @@
-import 'package:calories/blocs/login/bloc.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -7,8 +6,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
-  LoginBloc _loginBloc;
-
   @override
   void initState() {
     super.initState();

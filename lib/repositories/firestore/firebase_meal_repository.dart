@@ -7,8 +7,9 @@ class FirebaseMealRepository extends MealRepository {
   final _mealCollection = Firestore.instance.collection("meals");
 
   @override
-  Future<void> addNewMeal(Meal meal) {
-    return _mealCollection.add(meal.toEntity().toDocument());
+  Future<String> addNewMeal(Meal meal) async {
+    final doc = await _mealCollection.add(meal.toEntity().toDocument());
+    return doc.documentID;
   }
 
   @override
@@ -18,11 +19,15 @@ class FirebaseMealRepository extends MealRepository {
 
   @override
   Stream<List<Meal>> getMeals() {
-    return _mealCollection.snapshots().map((snapshot) => snapshot.documents.map((e) => Meal.fromEntity(MealEntity.fromSnapshot(e))).toList());
+    return _mealCollection.snapshots().map((snapshot) => snapshot.documents
+        .map((e) => Meal.fromEntity(MealEntity.fromSnapshot(e)))
+        .toList());
   }
 
   @override
   Future<void> updateMeal(Meal meal) {
-    return _mealCollection.document(meal.id).updateData(meal.toEntity().toDocument());
+    return _mealCollection
+        .document(meal.id)
+        .updateData(meal.toEntity().toDocument());
   }
 }

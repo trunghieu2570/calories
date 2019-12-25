@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:calories/models/models.dart';
 import 'package:calories/repositories/repositories.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -9,15 +10,19 @@ import './bloc.dart';
 class MealBloc extends Bloc<MealEvent, MealState> {
   final MealRepository _mealRepository;
   final UserInfoRepository _userInfoRepository;
+  final AuthRepository _authRepository;
   StreamSubscription _streamSubscription;
 
   MealBloc(
       {@required UserInfoRepository userInfoRepository,
-      @required MealRepository mealRepository})
+      @required MealRepository mealRepository,
+      @required AuthRepository authRepository})
       : assert(mealRepository != null),
         assert(userInfoRepository != null),
+        assert(authRepository != null),
         _userInfoRepository = userInfoRepository,
-        _mealRepository = mealRepository;
+        _mealRepository = mealRepository,
+        _authRepository = authRepository;
 
   @override
   MealState get initialState => MealsLoading();
@@ -46,7 +51,13 @@ class MealBloc extends Bloc<MealEvent, MealState> {
   }
 
   Stream<MealState> _mapAddMealToState(AddMeal event) async* {
-    _mealRepository.addNewMeal(event.meal);
+    String mealId = await _mealRepository.addNewMeal(event.meal);
+    final user = await _authRepository.getUser();
+    User userInfo = await _userInfoRepository.getUserById(user.uid);
+    List<String> favoriteMeals = userInfo.favoriteMeals;
+    favoriteMeals.add(mealId);
+    _userInfoRepository
+        .updateUser(userInfo.copyWith(favoriteMeals: favoriteMeals));
   }
 
   Stream<MealState> _mapDeleteMealToState(DeleteMeal event) async* {

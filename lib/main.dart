@@ -45,10 +45,16 @@ void main() {
         create: (context) => LoginBloc(userRepository: _authRepository),
       ),
       BlocProvider<FoodBloc>(
-        create: (context) => FoodBloc(foodRepository: _foodRepository),
+        create: (context) => FoodBloc(
+            foodRepository: _foodRepository,
+            authRepository: _authRepository,
+            userInfoRepository: _userRepository),
       ),
       BlocProvider<RecipeBloc>(
-        create: (context) => RecipeBloc(recipeRepository: _recipeRepository),
+        create: (context) => RecipeBloc(
+            recipeRepository: _recipeRepository,
+            authRepository: _authRepository,
+            userInfoRepository: _userRepository),
       ),
       BlocProvider<FavoriteFoodsBloc>(
         create: (context) => FavoriteFoodsBloc(
@@ -63,7 +69,8 @@ void main() {
       BlocProvider<MealBloc>(
         create: (context) => MealBloc(
             userInfoRepository: _userRepository,
-            mealRepository: _mealRepository),
+            mealRepository: _mealRepository,
+            authRepository: _authRepository),
       ),
       BlocProvider<FavoriteMealsBloc>(
         create: (context) => FavoriteMealsBloc(
@@ -81,7 +88,6 @@ void main() {
           goalsRepository: _goalRepository,
         ),
       ),
-
     ],
     child: MyApp(),
   ));

@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:calories/blocs/auth/bloc.dart';
+import 'package:calories/blocs/favorite_meals/bloc.dart';
 import 'package:calories/blocs/food/food_bloc.dart';
 import 'package:calories/blocs/food/food_state.dart';
 import 'package:calories/blocs/meal/bloc.dart';
@@ -9,6 +12,8 @@ import 'package:calories/models/models.dart';
 import 'package:calories/ui/screens/food/food_detail_screen.dart';
 import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
 import 'package:calories/ui/screens/recipe/recipe_search_screen.dart';
+import 'package:calories/ui/widgets/loading_stack_widget.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,24 +23,35 @@ import '../../../pop_with_result.dart';
 import '../food/food_search_screen.dart';
 
 class CreateMealScreen extends StatefulWidget {
+  final Meal meal;
   static final String routeName = '/createMeal';
+
+  CreateMealScreen({this.meal});
 
   @override
   State<StatefulWidget> createState() {
-    return CreateMealScreenState();
+    return _CreateMealScreenState(meal);
   }
 }
 
-class CreateMealScreenState extends State<CreateMealScreen> {
+class _CreateMealScreenState extends State<CreateMealScreen> {
   static final String routeName = '/createMeal';
+  final Meal oldMeal;
+  final _formKey = GlobalKey<FormState>();
   String _name;
   File _photo;
   String _photoUrl;
+  bool _share = true;
+  String _uid;
   List<MealItem> _items;
-  final _formKey = GlobalKey<FormState>();
   FoodBloc _foodBloc;
   RecipeBloc _recipeBloc;
+  AuthBloc _authBloc;
+  FavoriteMealsBloc _favoriteMealsBloc;
   MealBloc _mealBloc;
+  bool _isLoading = false;
+
+  _CreateMealScreenState(this.oldMeal);
 
   @override
   void initState() {
@@ -44,14 +60,52 @@ class CreateMealScreenState extends State<CreateMealScreen> {
     _foodBloc = BlocProvider.of<FoodBloc>(context);
     _recipeBloc = BlocProvider.of<RecipeBloc>(context);
     _mealBloc = BlocProvider.of<MealBloc>(context);
+    _authBloc = BlocProvider.of<AuthBloc>(context);
+    _favoriteMealsBloc = BlocProvider.of<FavoriteMealsBloc>(context);
+    if (oldMeal != null) {
+      _uid = oldMeal.creatorId;
+      _share = oldMeal.share ?? true;
+      _name = oldMeal.name;
+      _photoUrl = oldMeal.photoUrl;
+      _items = oldMeal.items;
+    }
   }
 
-  void _onSave() {
+  void _setLoadingState(bool state) {
+    setState(() {
+      _isLoading = state;
+    });
+  }
+
+  void _onSave() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      Meal meal = Meal(_name, items: _items, tags: [], photoUrl: null);
-      _mealBloc.add(AddMeal(meal));
-      Navigator.popUntil(context, ModalRoute.withName("/"));
+      _setLoadingState(true);
+      final authState = _authBloc.state;
+      if (authState is Authenticated) {
+        String photoUrl;
+        if (_photo != null) photoUrl = await _uploadImage(_photo);
+        if (oldMeal != null) {
+          //edit
+          Meal newMeal = oldMeal.copyWith(
+              items: _items, photoUrl: photoUrl, name: _name, share: _share);
+          _mealBloc.add(UpdateMeal(newMeal));
+          Navigator.pop(context, newMeal);
+        } else {
+          //create new
+          _uid = authState.user.uid;
+          print(photoUrl);
+          Meal newMeal = Meal(_name,
+              creatorId: _uid,
+              share: _share,
+              items: _items,
+              tags: [],
+              photoUrl: photoUrl);
+          _mealBloc.add(AddMeal(newMeal));
+          Navigator.popUntil(context, ModalRoute.withName("/"));
+        }
+      }
+      _setLoadingState(false);
     }
   }
 
@@ -62,17 +116,33 @@ class CreateMealScreenState extends State<CreateMealScreen> {
     });
   }
 
+  ///Upload image
+  Future<String> _uploadImage(File image) async {
+    StorageReference ref = FirebaseStorage.instance
+        .ref()
+        .child(image.hashCode.toString())
+        .child("image.jpg");
+    StorageUploadTask uploadTask = ref.putFile(image);
+    return await (await uploadTask.onComplete).ref.getDownloadURL();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return LoadingStack(
+      body: _buildBody(),
+      state: _isLoading,
+    );
+  }
+
+  Widget _buildBody() => Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           automaticallyImplyLeading: true,
-          title: Text("Create Meal"),
+          title: Text(oldMeal != null ? 'Edit Meal' : 'Create Meal'),
           actions: <Widget>[
             FlatButton(
               textColor: Colors.white,
-              onPressed: _onSave,
+              onPressed: () => _onSave(),
               child: Text('Save'.toUpperCase()),
             )
           ],
@@ -104,7 +174,8 @@ class CreateMealScreenState extends State<CreateMealScreen> {
                                   ? BoxDecoration(
                                       image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          image: NetworkImage(_photoUrl)),
+                                          image: CachedNetworkImageProvider(
+                                              _photoUrl)),
                                     )
                                   : null),
                         ),
@@ -113,6 +184,7 @@ class CreateMealScreenState extends State<CreateMealScreen> {
                     Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: TextFormField(
+                        initialValue: _name,
                         decoration: InputDecoration(
                           fillColor: Colors.white,
                           filled: true,
@@ -226,7 +298,7 @@ class CreateMealScreenState extends State<CreateMealScreen> {
                                               },
                                             ),
                                           );
-                                        } catch (StateError) {
+                                        } catch (err) {
                                           return Container();
                                         }
                                       } else if (item.type ==
@@ -244,8 +316,19 @@ class CreateMealScreenState extends State<CreateMealScreen> {
                                                       .toString() +
                                                   " serving(s)",
                                             ),
+                                            trailing: IconButton(
+                                              icon: Icon(
+                                                Icons.close,
+                                                color: Colors.grey[700],
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _items.removeAt(index);
+                                                });
+                                              },
+                                            ),
                                           );
-                                        } catch (StateError) {
+                                        } catch (err) {
                                           return Container();
                                         }
                                       }
@@ -261,13 +344,24 @@ class CreateMealScreenState extends State<CreateMealScreen> {
                         return Container();
                       },
                     ),
+                    ListTile(
+                      title: Text('Share to community'),
+                      trailing: Switch(
+                        onChanged: (v) {
+                          setState(() {
+                            _share = v;
+                          });
+                        },
+                        value: _share,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
-        ));
-  }
+        ),
+      );
 
   Future<void> _onAddButtonPressed() async {
     _showDialog(context);

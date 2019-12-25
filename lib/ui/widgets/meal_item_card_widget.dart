@@ -57,7 +57,7 @@ class MealItemCard extends StatelessWidget {
                       food.brand,
                     ),
                   );
-                } catch (StateError) {
+                } catch (err) {
                   return Container();
                 }
               } else if (item.type == MealItemType.RECIPE) {
@@ -71,7 +71,7 @@ class MealItemCard extends StatelessWidget {
                       recipe.numberOfServings.toString() + " serving(s)",
                     ),
                   );
-                } catch (StateError) {
+                } catch (err) {
                   return Container();
                 }
               }

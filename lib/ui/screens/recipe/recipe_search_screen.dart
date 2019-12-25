@@ -3,6 +3,7 @@ import 'package:calories/blocs/recipe/recipe_state.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -89,7 +90,7 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
               },
               decoration: InputDecoration.collapsed(
                 hintStyle: TextStyle(fontSize: 18),
-                hintText: 'Enter recipe name',
+                hintText: 'What recipe do you need?',
               ),
             ),
             actions: <Widget>[
@@ -109,49 +110,38 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
               BlocBuilder<RecipeBloc, RecipeState>(builder: (context, state) {
                 if (state is RecipesLoading) {
                   return SliverToBoxAdapter(
-                    child: Text("Loading"),
+                    child: Center(child: Text("Loading")),
                   );
                 } else if (state is RecipesLoaded) {
                   final allRecipes = state.recipes;
-                  var recipes;
+                  List<Recipe> recipes;
                   if (_searchQuery == null || _searchQuery == '')
                     recipes = allRecipes;
                   else {
                     recipes = allRecipes
-                        .where((e) => e.title
-                            .toLowerCase()
-                            .contains(_searchQuery.toLowerCase()))
+                        .where((e) => removeDiacritics(e.title.toLowerCase())
+                            .contains(
+                                removeDiacritics(_searchQuery.toLowerCase())))
                         .toList();
                   }
+                  recipes.sort((r1, r2) =>
+                      removeDiacritics(r1.title.toLowerCase())
+                          .compareTo(removeDiacritics(r2.title.toLowerCase())));
                   return SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         final recipe = recipes[index];
-                        return Card(
-                          semanticContainer: true,
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          child: Container(
-                            height: 75,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                /*Image(
-                                  image: NetworkImage(
-                                      'https://placeimg.com/640/480/any'),
-                                  fit: BoxFit.fill,
-                                ),*/
-                                Expanded(
-                                  child: ListTile(
-                                    title: Text(recipe.title),
-                                    subtitle: Text(
-                                        recipe.numberOfServings.toString() +
-                                            " serving(s)"),
-                                    onTap: () => _onRecipeTapped(recipe),
-                                  ),
-                                ),
-                              ],
+                        return Column(
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(recipe.title),
+                              subtitle: Text(
+                                  recipe.numberOfServings.toString() +
+                                      " serving(s)"),
+                              onTap: () => _onRecipeTapped(recipe),
                             ),
-                          ),
+                            Divider(height: 1),
+                          ],
                         );
                       },
                       childCount: recipes.length,
@@ -159,7 +149,7 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
                   );
                 }
                 return SliverToBoxAdapter(
-                  child: Text("Cannot load recipes"),
+                  child: Center(child: Text("Cannot load recipes")),
                 );
               }),
             ],

@@ -1,4 +1,5 @@
 import 'package:calories/blocs/auth/bloc.dart';
+import 'package:calories/ui/screens/goal/edit_goal_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -221,7 +222,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                     borderOnForeground: true,
                     margin: EdgeInsets.symmetric(vertical: 2),
                     child: ListTile(
-                      onTap: () => {},
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => EditGoalScreen())),
                       contentPadding: EdgeInsets.symmetric(horizontal: 25),
                       leading: CircleAvatar(
                         backgroundColor: Colors.green,

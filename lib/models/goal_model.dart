@@ -36,7 +36,7 @@ class Goal extends Equatable implements Comparable<Goal> {
   }
 
   Goal copyWith(
-      {String id, String name, String startDate, List<GoalItem> items}) {
+      {String id, String name, DateTime startDate, List<GoalItem> items}) {
     return Goal(
       id: id ?? this.id,
       name: name ?? this.name,
