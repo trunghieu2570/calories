@@ -5,6 +5,7 @@ import 'package:calories/blocs/food/bloc.dart';
 import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/blocs/recipe/bloc.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
 import 'package:calories/ui/screens/meal/create_meal_screen.dart';
 import 'package:calories/ui/widgets/meal_item_card_widget.dart';
 import 'package:calories/ui/widgets/nutrition_card_widget.dart';
@@ -14,9 +15,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flushbar/flushbar.dart';
 
-enum MealAction {
-  ADD_TO_DIARY,
-}
+enum MealAction { ADD_TO_DIARY, NO_ACTION }
 
 class MealDetailArgument {
   final Meal meal;
@@ -285,16 +284,19 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   }
 
   Future<void> _onAddButtonPressed() async {
-    /*if (_foodAction == FoodAction.ADD_TO_RECIPE) {
-      Navigator.pop(
-          context,
-          PopWithResults(
-              fromPage: FoodDetailScreen.routeName,
-              toPage: CreateRecipeScreen.routeName,
-              results: {
-                'foodId': '${_food.id}',
-                'quantity': '${_quantityController.text}'
-              }));
-    }*/
+    switch (_action) {
+      case MealAction.ADD_TO_DIARY:
+        Navigator.pop(
+            context,
+            PopWithResults(
+              fromPage: MealDetailScreen.routeName,
+              toPage: "/",
+              results: {'items': _meal.items},
+            ));
+        break;
+      case MealAction.NO_ACTION:
+        // TODO: Handle this case.
+        break;
+    }
   }
 }

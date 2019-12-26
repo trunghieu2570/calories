@@ -56,9 +56,9 @@ class DailyMeal extends Equatable {
   }
 
   NutritionInfo getSummaryNutrition(
-      final List<Food> foods,
-      final List<Recipe> recipes,
-      ) {
+    final List<Food> foods,
+    final List<Recipe> recipes,
+  ) {
     if (items == null) return NutritionInfo.empty();
     var sum = NutritionInfo.empty();
     for (final item in items) {
@@ -72,6 +72,16 @@ class DailyMeal extends Equatable {
         }
       } catch (err) {
         print(err);
+      }
+    }
+    return sum;
+  }
+
+  double getWater() {
+    double sum = 0;
+    for (final item in items) {
+      if (item.type == MealItemType.WATER) {
+        sum += double.parse(item.quantity != null ? item.quantity : 0.0);
       }
     }
     return sum;

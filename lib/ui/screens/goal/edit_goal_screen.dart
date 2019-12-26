@@ -98,6 +98,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
             oldGoal.copyWith(items: items, name: _name, startDate: _startDate);
         _goalBloc.add(UpdateGoal(newGoal));
       }
+      Navigator.pop(context);
     }
   }
 
@@ -139,7 +140,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                     },
                   ),
                 ),
-                Padding(
+                /* Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: ListTile(
                     title: Text('Begin on tomorrow'),
@@ -152,7 +153,7 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                       value: _beginOnTomorow,
                     ),
                   ),
-                ),
+                ), */
                 _buildItemCard(
                     item: _goalItems[GoalItemType.CALORIES],
                     name: 'Calories',

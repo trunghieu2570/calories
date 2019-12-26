@@ -1,17 +1,16 @@
 import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/models/models.dart';
+import 'package:calories/pop_with_result.dart';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'meal_detail_screen.dart';
 
-enum MealSearchAction { SEARCH_FOR_DIARY }
-
 class MealSearchArgument {
-  final MealSearchAction mealSearchAction;
+  final MealAction action;
 
-  MealSearchArgument({this.mealSearchAction});
+  MealSearchArgument({this.action});
 }
 
 class MealSearchScreen extends StatefulWidget {
@@ -22,7 +21,7 @@ class MealSearchScreen extends StatefulWidget {
 
 class _MealSearchScreenState extends State<MealSearchScreen> {
   static final String routeName = "/mealSearch";
-  MealSearchAction _action;
+  MealAction _action;
   String _searchQuery;
 
   void _onFilterPress(BuildContext pcontext) {
@@ -67,6 +66,10 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final MealSearchArgument args = ModalRoute.of(context).settings.arguments;
+    if (args != null) {
+      _action = args.action;
+    }
     return Container(
       color: Theme.of(context).primaryColor,
       child: SafeArea(
@@ -152,7 +155,26 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   }
 
   Future<void> _onMealTapped(Meal meal) async {
-    Navigator.pushNamed(context, MealDetailScreen.routeName,
-        arguments: MealDetailArgument(meal: meal));
+    if (_action == null || _action == MealAction.NO_ACTION) {
+      Navigator.pushNamed(context, MealDetailScreen.routeName,
+          arguments: MealDetailArgument(meal: meal));
+    } else {
+      Navigator.pushNamed(
+        context,
+        MealDetailScreen.routeName,
+        arguments: MealDetailArgument(
+          meal: meal,
+          action: _action,
+        ),
+      ).then((r) {
+        if (r is PopWithResults) {
+          if (r.toPage == routeName) {
+            return;
+          } else {
+            Navigator.pop(context, r);
+          }
+        }
+      });
+    }
   }
 }

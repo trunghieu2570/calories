@@ -1,4 +1,6 @@
 import 'package:calories/models/models.dart';
+import 'package:calories/ui/screens/food/food_detail_screen.dart';
+import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class DailyMealItemCard extends StatelessWidget {
@@ -7,7 +9,7 @@ class DailyMealItemCard extends StatelessWidget {
   final List<MealItem> items;
   final String title;
   final Function() onAddButtonPressed;
-  final Function(String id) onRemoveButtonPressed;
+  final Function(MealItem id) onRemoveButtonPressed;
   final GlobalKey _menuKey = GlobalKey();
 
   DailyMealItemCard(
@@ -61,7 +63,10 @@ class DailyMealItemCard extends StatelessWidget {
                   final food =
                       foods.firstWhere((food) => food.id == item.itemId);
                   return ListTile(
-                    onLongPress: () => onRemoveButtonPressed(item.itemId),
+                    onLongPress: () => onRemoveButtonPressed(item),
+                    onTap: () => Navigator.pushNamed(
+                        context, FoodDetailScreen.routeName,
+                        arguments: FoodDetailArgument(food: food)),
                     title: Text(food.name),
                     subtitle: Text(food.brand),
                   );
@@ -72,15 +77,25 @@ class DailyMealItemCard extends StatelessWidget {
                 try {
                   final recipe = recipes.firstWhere((e) => e.id == item.itemId);
                   return ListTile(
-                    onLongPress: () => onRemoveButtonPressed(item.itemId),
+                    onLongPress: () => onRemoveButtonPressed(item),
                     title: Text(recipe.title),
                     subtitle: Text(
                         recipe.numberOfServings.toString() + " serving(s)"),
+                    onTap: () => Navigator.pushNamed(
+                        context, RecipeDetailScreen.routeName,
+                        arguments: RecipeDetailArgument(recipe: recipe)),
                   );
                 } catch (err) {
                   return Container();
                 }
+              } else if (item.type == MealItemType.WATER) {
+                return ListTile(
+                  onLongPress: () => onRemoveButtonPressed(item),
+                  title: Text('A Glass of Water'),
+                  subtitle: Text('${item.quantity}ml'),
+                );
               }
+
               return Container();
             },
             itemCount: items.length,

@@ -7,6 +7,7 @@ import 'recipe_model.dart';
 class MealItemType {
   static const String FOOD = 'food';
   static const String RECIPE = 'recipe';
+  static const String WATER = 'water';
 }
 
 class Meal extends Equatable {

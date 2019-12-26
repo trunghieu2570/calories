@@ -33,6 +33,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       yield* _mapLoggedInToState();
     } else if (event is AppLoggedOut) {
       yield* _mapLoggedOutToState();
+    } else if (event is UpdateUserInfo) {
+      yield* _mapUpdateUserToState(event);
     }
   }
 
@@ -78,6 +80,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } else {
       yield Unauthenticated();
     }
+  }
+
+  Stream<AuthState> _mapUpdateUserToState(UpdateUserInfo event) async* {
+    _userInfoRepository.updateUser(event.user);
+    yield Authenticated(event.user);
   }
 
   Stream<AuthState> _mapLoggedOutToState() async* {

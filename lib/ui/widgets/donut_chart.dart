@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class DonutChartPainter extends CustomPainter {
-  double value;
+  double _value;
+  double _maxValue;
 
-  DonutChartPainter({this.value});
+  DonutChartPainter(this._value, this._maxValue);
 
   final circlePaint = new Paint()
     ..style = PaintingStyle.stroke
@@ -22,7 +23,7 @@ class DonutChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Offset center = new Offset(size.width / 2, size.height / 2);
     double radius = min(size.width / 2, size.height / 2);
-    double sweep1 = 2 * pi * (value / 100);
+    double sweep1 = 2 * pi * (_value / _maxValue);
     //Draw circle
     canvas.drawOval(Rect.fromCircle(center: center, radius: radius),
         circlePaint..color = Colors.white.withAlpha(50));
@@ -38,66 +39,89 @@ class DonutChartPainter extends CustomPainter {
 }
 
 class DonutChart extends StatefulWidget {
-  final double value;
-  final bool animate;
+  final double maxValue;
+  final double showValue;
 
-  DonutChart({Key key, this.value, this.animate}) : super(key: key);
+  DonutChart({Key key, this.maxValue, this.showValue}) : super(key: key);
 
+  //@override
+  //_DonutChartState createState() => _DonutChartState(maxValue, showValue);
   @override
-  _DonutChartState createState() => _DonutChartState(value, animate);
+  DonutChartState createState() => DonutChartState();
 }
 
-class _DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
+class DonutChartState extends State<DonutChart> with TickerProviderStateMixin {
   double _value = 0.0;
-  final double value;
-  bool _animate;
   AnimationController valueAnimationController;
-
-  _DonutChartState(this.value, this._animate);
+  var ani;
 
   @override
   void initState() {
-    super.initState();
     valueAnimationController = new AnimationController(
       vsync: this,
       duration: new Duration(milliseconds: 1000),
-    )..addListener(() {
-        setState(() {
-          _value = lerpDouble(0, value, valueAnimationController.value);
-        });
+    );
+
+    ani = Tween(begin: 0, end: widget.showValue).animate(CurvedAnimation(
+        curve: Curves.easeInOutCirc, parent: valueAnimationController));
+    valueAnimationController.addListener(() {
+      setState(() {
+        _value = ani.value.toDouble();
       });
+    });
+    super.initState();
+    playAnimation();
   }
 
-  Future<void> playAnimation() {
-    return valueAnimationController.forward();
+  void playAnimation() {
+    valueAnimationController.forward(from: 0.0);
+  }
+
+  @override
+  void didUpdateWidget(DonutChart oldWidget) {
+    if (widget.showValue != oldWidget.showValue)
+      ani = Tween(begin: 0, end: widget.showValue).animate(CurvedAnimation(
+          curve: Curves.easeInOutCirc, parent: valueAnimationController));
+    super.didUpdateWidget(oldWidget);
+    playAnimation();
+    //initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_animate) {
-      playAnimation();
-      _animate = false;
-    }
     return Container(
       child: CustomPaint(
-          painter: DonutChartPainter(value: _value),
-          child: Center(
-            child: new Text(
-              _value.round().toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.white,
+        painter: DonutChartPainter(_value, widget.maxValue),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                (widget.maxValue - _value).abs().round().toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          )),
+              Text(
+                widget.showValue < widget.maxValue ? 'remain' : 'over',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   @override
   void dispose() {
     valueAnimationController.dispose();
-    print("desfdjsgdjf");
     super.dispose();
   }
 }

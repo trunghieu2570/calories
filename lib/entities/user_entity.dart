@@ -8,7 +8,7 @@ class UserEntity extends Equatable {
   final String fullName;
   final String photoUrl;
   final String email;
-  final String birthday;
+  final DateTime birthday;
   final int height;
   final int weight;
   final int gender;
@@ -50,7 +50,7 @@ class UserEntity extends Equatable {
         map["fullName"] as String,
         map["photoUrl"] as String,
         map["email"] as String,
-        map["birthday"] as String,
+        (map["birthday"] as Timestamp).toDate(),
         map["height"] as int,
         map["weight"] as int,
         map["gender"] as int,
@@ -81,7 +81,7 @@ class UserEntity extends Equatable {
         snapshot.data["fullName"],
         snapshot.data["photoUrl"],
         snapshot.data["email"],
-        snapshot.data["birthday"],
+        (snapshot.data["birthday"] as Timestamp).toDate(),
         snapshot.data["height"],
         snapshot.data["weight"],
         snapshot.data["gender"],

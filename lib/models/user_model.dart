@@ -7,7 +7,7 @@ class User extends Equatable {
   final String fullName;
   final String photoUrl;
   final String email;
-  final String birthday;
+  final DateTime birthday;
   final int height;
   final int weight;
   final int gender;
@@ -83,7 +83,7 @@ class User extends Equatable {
       String fullName,
       String email,
       String photoUrl,
-      String birthday,
+      DateTime birthday,
       int weight,
       int height,
       int gender,
