@@ -281,8 +281,6 @@ class GoalCardItem {
     if (!_enable) {
       _enableMax = false;
       _enableMin = false;
-    } else {
-      _enableMin = true;
     }
   }
 

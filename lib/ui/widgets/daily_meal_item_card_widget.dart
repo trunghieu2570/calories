@@ -1,12 +1,14 @@
 import 'package:calories/models/models.dart';
 import 'package:calories/ui/screens/food/food_detail_screen.dart';
 import 'package:calories/ui/screens/recipe/recipe_detail_screen.dart';
+import 'package:calories/util.dart';
 import 'package:flutter/material.dart';
 
 class DailyMealItemCard extends StatelessWidget {
   final List<Recipe> recipes;
   final List<Food> foods;
   final List<MealItem> items;
+  final String sumCalories;
   final String title;
   final Function() onAddButtonPressed;
   final Function(MealItem id) onRemoveButtonPressed;
@@ -14,8 +16,9 @@ class DailyMealItemCard extends StatelessWidget {
 
   DailyMealItemCard(
       {Key key,
-      this.title = 'Meal items',
+      this.title = 'Items',
       this.onAddButtonPressed,
+      this.sumCalories,
       this.onRemoveButtonPressed,
       @required this.items,
       @required this.recipes,
@@ -36,12 +39,25 @@ class DailyMealItemCard extends StatelessWidget {
         children: <Widget>[
           ListTile(
             contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-            title: Text(
-              title,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  fontFamily: "OpenSans"),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontFamily: "OpenSans"),
+                ),
+                SizedBox(width: 10),
+                Text(
+                  '•  $sumCalories kcal',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: "OpenSans"),
+                ),
+              ],
             ),
             trailing: IconButton(
               icon: Icon(
@@ -58,6 +74,11 @@ class DailyMealItemCard extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (_, int index) {
               final item = items[index];
+              var quantity = 0;
+              if (item.quantity != null) {
+                quantity = num.tryParse(item.quantity);
+                if (quantity == null) quantity = 0;
+              }
               if (item.type == MealItemType.FOOD) {
                 try {
                   final food =
@@ -68,7 +89,16 @@ class DailyMealItemCard extends StatelessWidget {
                         context, FoodDetailScreen.routeName,
                         arguments: FoodDetailArgument(food: food)),
                     title: Text(food.name),
-                    subtitle: Text(food.brand),
+                    subtitle: Text(
+                      '${item.quantity} • ${multiStringAndNum(food.servings.quantity, quantity)} ${food.servings.unit}',
+                    ),
+                    trailing: Text(
+                      '${multiStringAndNum(food.nutritionInfo.calories, quantity)} kcal',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500),
+                    ),
                   );
                 } catch (err) {
                   return Container();
@@ -80,7 +110,15 @@ class DailyMealItemCard extends StatelessWidget {
                     onLongPress: () => onRemoveButtonPressed(item),
                     title: Text(recipe.title),
                     subtitle: Text(
-                        recipe.numberOfServings.toString() + " serving(s)"),
+                      '$quantity servings',
+                    ),
+                    trailing: Text(
+                      '${multiStringAndNum(recipe.getSummaryNutrition(foods).calories, quantity)} kcal',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500),
+                    ),
                     onTap: () => Navigator.pushNamed(
                         context, RecipeDetailScreen.routeName,
                         arguments: RecipeDetailArgument(recipe: recipe)),
@@ -92,7 +130,7 @@ class DailyMealItemCard extends StatelessWidget {
                 return ListTile(
                   onLongPress: () => onRemoveButtonPressed(item),
                   title: Text('A Glass of Water'),
-                  subtitle: Text('${item.quantity}ml'),
+                  subtitle: Text('${item.quantity} ml'),
                 );
               }
 

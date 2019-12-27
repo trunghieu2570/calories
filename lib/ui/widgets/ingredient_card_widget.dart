@@ -1,11 +1,17 @@
 import 'package:calories/models/models.dart';
+import 'package:calories/util.dart';
 import 'package:flutter/material.dart';
 
 class IngredientCard extends StatelessWidget {
   final List<Food> foods;
   final List<Ingredient> ingredients;
+  final num quantity;
 
-  IngredientCard({Key key, @required this.ingredients, @required this.foods})
+  IngredientCard(
+      {Key key,
+      @required this.ingredients,
+      @required this.foods,
+      this.quantity = 1})
       : assert(ingredients != null),
         assert(foods != null),
         super(key: key);
@@ -39,11 +45,17 @@ class IngredientCard extends StatelessWidget {
               final ingredient = ingredients[index];
               final food =
                   foods.where((food) => food.id == ingredient.foodId).first;
+              var weight = 0.0;
+              if (food.servings.quantity != null) {
+                weight = double.tryParse(food.servings.quantity);
+                if (weight == null) weight = 0.0;
+              }
               return ListTile(
                 title: Text(
-                  food.name,
+                  '${multiStringAndNum(ingredient.quantity, quantity)} ${food.name}',
                 ),
-                subtitle: Text(ingredient.quantity + " " + food.servings.unit),
+                subtitle: Text(
+                    '${multiStringAndNum(food.servings.quantity, quantity)} ${food.servings.unit}'),
               );
             },
             itemCount: ingredients.length,

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum FoodAction {
   ADD_TO_MEAL,
@@ -47,8 +48,6 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
   void initState() {
     super.initState();
     _quantityController = TextEditingController(text: '1');
-    _dropDownMenuItems = getDropDownMenuItems();
-    _currentCity = _dropDownMenuItems[0].value;
     _favoriteFoodsBloc = BlocProvider.of<FavoriteFoodsBloc>(context);
     _authBloc = BlocProvider.of<AuthBloc>(context);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
@@ -58,24 +57,6 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
     } else
       _uid = null;
   }
-
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String city in _cities) {
-      items.add(new DropdownMenuItem(value: city, child: new Text(city)));
-    }
-    return items;
-  }
-
-  List _cities = [
-    "Cluj-Napoca",
-    "Bucuresti",
-    "Timisoara",
-    "Brasov",
-    "Constanta"
-  ];
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentCity;
 
   Widget _buildAlert(bool show) => Builder(
         builder: (context) {
@@ -115,8 +96,21 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
     final FoodDetailArgument args = ModalRoute.of(context).settings.arguments;
     _food = args.food;
     _action = args.action;
+    var weight = 0.0;
+    var quantity = 0.0;
+    if (_food.servings.quantity != null) {
+      weight = double.tryParse(_food.servings.quantity);
+      if (weight == null) weight = 0.0;
+    }
+    if (_quantityController.text != null) {
+      quantity = double.tryParse(_quantityController.text);
+      if (quantity == null) {
+        quantity = 0.0;
+      }
+    }
+
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.grey[200],
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -234,10 +228,88 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
             child: Column(
               children: <Widget>[
                 _buildAlert(_isDeleted()),
+                Container(
+                  margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                  decoration:
+                      new BoxDecoration(color: Theme.of(context).cardColor),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Divider(
+                        height: 1,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                              child: Icon(
+                                FontAwesomeIcons.calculator,
+                                color: Colors.grey[600],
+                              ),
+                              padding: EdgeInsets.all(10)),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Container(
+                                  child: TextFormField(
+                                    controller: _quantityController,
+                                    maxLines: 1,
+                                    textAlign: TextAlign.center,
+                                    onChanged: (value) {
+                                      setState(() {});
+                                    },
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: true),
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.keyboard_arrow_up),
+                                        onPressed: () {
+                                          setState(() {
+                                            var num = double.tryParse(
+                                                _quantityController.text);
+                                            if (num == null) num = 0.0;
+                                            num = num.round().toDouble() + 1;
+                                            _quantityController.text =
+                                                num.round().toString();
+                                          });
+                                        },
+                                      ),
+                                      prefixIcon: IconButton(
+                                        icon: Icon(Icons.keyboard_arrow_down),
+                                        onPressed: () {
+                                          setState(() {
+                                            var num = double.tryParse(
+                                                _quantityController.text);
+                                            if (num == null) num = 0.0;
+                                            num = num.round().toDouble() - 1;
+                                            if (num < 0) num = 0;
+                                            _quantityController.text =
+                                                num.round().toString();
+                                          });
+                                        },
+                                      ),
+                                      hintText: 'QT',
+                                    ),
+                                  ),
+                                  width: 150,
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
                 NutritionCard(
-                  nutritionInfo: _food.nutritionInfo,
-                  headerTrailing:
-                      _food.servings.quantity + ' ' + _food.servings.unit,
+                  nutritionInfo: _quantityController.text != null
+                      ? _food.nutritionInfo * quantity
+                      : NutritionInfo.empty(),
+                  headerTrailing: '${quantity * weight} ${_food.servings.unit}',
                 ),
               ],
             ),
@@ -246,72 +318,8 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _onAddButtonPressed,
-        label: Text('Thêm vào'),
+        label: Text('Add'.toUpperCase()),
         icon: Icon(Icons.add),
-      ),
-      bottomNavigationBar: Container(
-        decoration: new BoxDecoration(color: Theme.of(context).cardColor),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Divider(
-              height: 1,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  // width: 30,
-                  child: IconButton(
-                    icon: Icon(Icons.keyboard_arrow_up),
-                    padding: EdgeInsets.all(0.0),
-                    //padding: EdgeInsets.symmetric(horizontal: 1),
-                    onPressed: () => {},
-                  ),
-                  //padding: EdgeInsets.symmetric(horizontal: 2.0),
-                ),
-                Container(
-                  //padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  width: 60,
-                  child: new TextField(
-                    controller: _quantityController,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      //filled: true,
-                      //fillColor: Colors.grey[100],
-                      hintText: 'SL',
-                    ),
-                  ),
-                ),
-                Container(
-                  //width: 30,
-                  child: IconButton(
-                    padding: EdgeInsets.all(0.0),
-                    icon: Icon(Icons.keyboard_arrow_down),
-                    onPressed: () => {},
-                  ),
-                  //padding: EdgeInsets.symmetric(horizontal: 8.0),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: DropdownButton(
-                      isExpanded: true,
-                      hint: Text('Select'),
-                      value: _currentCity,
-                      items: _dropDownMenuItems,
-                      onChanged: (str) => setState(() {
-                        _currentCity = str;
-                      }),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

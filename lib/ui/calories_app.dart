@@ -170,7 +170,7 @@ class MyHomePageState extends State<MyHomePage>
     _views = [
       new DiaryScreen(),
       new FoodsScreen(),
-      Text("Hello World 3"),
+      //Text("Hello World 3"),
       new ProfileScreen(),
     ];
     return Scaffold(
@@ -199,10 +199,10 @@ class MyHomePageState extends State<MyHomePage>
             icon: Icon(Icons.local_dining),
             title: Text("Favorite"),
           ),
-          BottomNavigationBarItem(
+          /*BottomNavigationBarItem(
             icon: Icon(Icons.timeline),
             title: Text("Graph"),
-          ),
+          ),*/
           BottomNavigationBarItem(
             icon: Icon(Icons.perm_identity),
             title: Text("Profile"),

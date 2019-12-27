@@ -414,19 +414,14 @@ class DiaryScreenState extends State<DiaryScreen> {
       Builder(
         builder: (context) {
           try {
-            final List<MealItem> items =
-                todayMeals.firstWhere((e) => e.section == section).items;
-            /* if (items.length == 0) {
-              return MealNoItemCard(
-                title: section,
-                onTap: () => _showBottomSheet(todayMeals, date, section),
-              );
-            } */
+            final meal = todayMeals.firstWhere((e) => e.section == section);
+            final List<MealItem> items = meal.items;
             return Center(
               child: DailyMealItemCard(
                 items: items,
                 recipes: recipes,
                 foods: foods,
+                sumCalories: meal.getSummaryNutrition(foods, recipes).calories,
                 title: section,
                 onRemoveButtonPressed: (i) => _showDeleteDialog().then((r) =>
                     r ? _removeMealItem(todayMeals, date, section, i) : null),
@@ -716,7 +711,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                               "\t${action.action} more than ${item.min} ${action.unit} ${item.type}. ");
                         else if (item.min == null && item.max != null)
                           return Text(
-                              "\t${action.action} less than ${item.min} ${action.unit} ${item.type}. ");
+                              "\t${action.action} less than ${item.max} ${action.unit} ${item.type}. ");
                         else
                           return Container();
                       },
@@ -948,5 +943,6 @@ enum _GoalState { DOING, FINISHED, FAILED, NONE }
 class GoalAction {
   final String action;
   final String unit;
+
   const GoalAction(this.action, this.unit);
 }

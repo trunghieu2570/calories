@@ -78,13 +78,16 @@ class Meal extends Equatable {
     if (items == null) return NutritionInfo.empty();
     var sum = NutritionInfo.empty();
     for (final item in items) {
+      var q = 0;
+      q = num.tryParse(item.quantity);
+      if (q == null) q = 0;
       try {
         if (item.type == MealItemType.FOOD) {
           final food = foods.firstWhere((e) => e.id == item.itemId);
-          sum += food.nutritionInfo;
+          sum += (food.nutritionInfo * q);
         } else if (item.type == MealItemType.RECIPE) {
           final recipe = recipes.firstWhere((e) => e.id == item.itemId);
-          sum += recipe.getSummaryNutrition(foods);
+          sum += (recipe.getSummaryNutrition(foods) * q);
         }
       } catch (err) {
         print(err);

@@ -93,9 +93,12 @@ class Recipe extends Equatable {
     if (ingredients == null) return NutritionInfo.empty();
     var sum = NutritionInfo.empty();
     for (final ingredient in ingredients) {
+      var q = 0;
+      q = num.tryParse(ingredient.quantity);
+      if(q == null) q = 0;
       try {
         final food = foods.firstWhere((e) => e.id == ingredient.foodId);
-        sum += food.nutritionInfo;
+        sum += (food.nutritionInfo * q);
       } catch (err) {
         print(err);
       }

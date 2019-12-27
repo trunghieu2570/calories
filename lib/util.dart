@@ -6,9 +6,26 @@ import 'package:intl/intl.dart';
 DateFormat _dateFormat = DateFormat("MMM dd, yyyy");
 
 String add2StringAsDouble(String a, String b) {
-  double na = double.parse(a != null ? a : 0.0);
-  double nb = double.parse(b != null ? b : 0.0);
+  num na = num.parse(a != null ? a : 0.0);
+  num nb = num.parse(b != null ? b : 0.0);
+  if (na is double) {
+    return (na * nb).toStringAsFixed(1);
+  }
+  if (nb is double) {
+    return (na * nb).toStringAsFixed(1);
+  }
   return (na + nb).toString();
+}
+
+String multiStringAndNum(String a, num n) {
+  num na = num.parse(a != null ? a : 0);
+  if (na is double) {
+    return (na * n).toStringAsFixed(1);
+  }
+  if (n is double) {
+    return (na * n).toStringAsFixed(1);
+  }
+  return (na * n).toString();
 }
 
 Offset rotateOffset({double angle, Size size}) {

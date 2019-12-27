@@ -54,7 +54,7 @@ class User extends Equatable {
       photoUrl: entity.photoUrl,
       birthday: entity.birthday,
       height: entity.height,
-      weight: entity.height,
+      weight: entity.weight,
       gender: entity.gender,
       favoriteFoods: entity.favoriteFoods,
       favoriteRecipes: entity.favoriteRecipes,

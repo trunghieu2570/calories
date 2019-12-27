@@ -77,17 +77,17 @@ class UserEntity extends Equatable {
 
   factory UserEntity.fromSnapshot(DocumentSnapshot snapshot) {
     return UserEntity(
-        snapshot.documentID,
-        snapshot.data["fullName"],
-        snapshot.data["photoUrl"],
-        snapshot.data["email"],
-        (snapshot.data["birthday"] as Timestamp).toDate(),
-        snapshot.data["height"],
-        snapshot.data["weight"],
-        snapshot.data["gender"],
-        snapshot.data["favoriteFoods"] == null
-            ? null
-            : List<String>.from(snapshot.data["favoriteFoods"]),
+      snapshot.documentID,
+      snapshot.data["fullName"],
+      snapshot.data["photoUrl"],
+      snapshot.data["email"],
+      (snapshot.data["birthday"] as Timestamp).toDate(),
+      snapshot.data["height"],
+      snapshot.data["weight"],
+      snapshot.data["gender"],
+      snapshot.data["favoriteFoods"] == null
+          ? null
+          : List<String>.from(snapshot.data["favoriteFoods"]),
       snapshot.data["favoriteRecipes"] == null
           ? null
           : List<String>.from(snapshot.data["favoriteRecipes"]),

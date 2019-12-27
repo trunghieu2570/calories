@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 enum RecipeAction {
   ADD_TO_MEAL,
@@ -53,8 +54,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   void initState() {
     super.initState();
     _quantityController = TextEditingController(text: '1');
-    _dropDownMenuItems = getDropDownMenuItems();
-    _currentCity = _dropDownMenuItems[0].value;
     _favoriteRecipesBloc = BlocProvider.of<FavoriteRecipesBloc>(context);
     _authBloc = BlocProvider.of<AuthBloc>(context);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
@@ -65,30 +64,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       _uid = null;
   }
 
-  List<DropdownMenuItem<String>> getDropDownMenuItems() {
-    List<DropdownMenuItem<String>> items = new List();
-    for (String city in _cities) {
-      items.add(new DropdownMenuItem(value: city, child: new Text(city)));
-    }
-    return items;
-  }
-
-  List _cities = [
-    "Cluj-Napoca",
-    "Bucuresti",
-    "Timisoara",
-    "Brasov",
-    "Constanta"
-  ];
-  List<DropdownMenuItem<String>> _dropDownMenuItems;
-  String _currentCity;
-
   @override
   Widget build(BuildContext context) {
     final RecipeDetailArgument args = ModalRoute.of(context).settings.arguments;
     _recipe = args.recipe;
     _action = args.action;
+    num quantity = 0;
+    if (_quantityController.text != null) {
+      quantity = num.tryParse(_quantityController.text);
+      if (quantity == null) {
+        quantity = 0;
+      }
+    }
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       resizeToAvoidBottomInset: false,
       body: CustomScrollView(
         slivers: <Widget>[
@@ -213,15 +202,92 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Column(
             children: <Widget>[
               _buildAlert(_isDeleted()),
+              Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                decoration:
+                new BoxDecoration(color: Theme.of(context).cardColor),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Divider(
+                      height: 1,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                            child: Icon(
+                              FontAwesomeIcons.calculator,
+                              color: Colors.grey[600],
+                            ),
+                            padding: EdgeInsets.all(10)),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.max,
+                            children: <Widget>[
+                              Container(
+                                child: TextFormField(
+                                  controller: _quantityController,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  onChanged: (value) {
+                                    setState(() {});
+                                  },
+                                  keyboardType:
+                                  TextInputType.numberWithOptions(
+                                      decimal: true),
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    suffixIcon: IconButton(
+                                      icon: Icon(Icons.keyboard_arrow_up),
+                                      onPressed: () {
+                                        setState(() {
+                                          var val = double.tryParse(
+                                              _quantityController.text);
+                                          if (val == null) val = 0.0;
+                                          val = val.round().toDouble() + 1;
+                                          _quantityController.text =
+                                              val.round().toString();
+                                        });
+                                      },
+                                    ),
+                                    prefixIcon: IconButton(
+                                      icon: Icon(Icons.keyboard_arrow_down),
+                                      onPressed: () {
+                                        setState(() {
+                                          var num = double.tryParse(
+                                              _quantityController.text);
+                                          if (num == null) num = 0.0;
+                                          num = num.round().toDouble() - 1;
+                                          if (num < 0) num = 0;
+                                          _quantityController.text =
+                                              num.round().toString();
+                                        });
+                                      },
+                                    ),
+                                    hintText: 'QT',
+                                  ),
+                                ),
+                                width: 150,
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               BlocBuilder<FoodBloc, FoodState>(builder: (context, state) {
                 if (state is FoodLoaded) {
                   final foods = state.foods;
                   return Column(
                     children: <Widget>[
                       NutritionCard(
-                          nutritionInfo: _recipe.getSummaryNutrition(foods)),
+                          nutritionInfo: _recipe.getSummaryNutrition(foods) * quantity),
                       IngredientCard(
-                          ingredients: _recipe.ingredients, foods: foods),
+                          ingredients: _recipe.ingredients, foods: foods, quantity: quantity,),
                       DirectionsCard(directions: _recipe.directions),
                     ],
                   );
@@ -232,7 +298,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           )),
         ],
       ),
-
       floatingActionButton: !_isDeleted()
           ? FloatingActionButton.extended(
               onPressed: _onAddButtonPressed,
@@ -240,71 +305,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               icon: Icon(Icons.add),
             )
           : null,
-      bottomNavigationBar: Container(
-        decoration: new BoxDecoration(color: Theme.of(context).cardColor),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Divider(
-              height: 1,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  // width: 30,
-                  child: IconButton(
-                    icon: Icon(Icons.keyboard_arrow_up),
-                    padding: EdgeInsets.all(0.0),
-                    //padding: EdgeInsets.symmetric(horizontal: 1),
-                    onPressed: () => {},
-                  ),
-                  //padding: EdgeInsets.symmetric(horizontal: 2.0),
-                ),
-                Container(
-                  //padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  width: 60,
-                  child: new TextField(
-                    controller: _quantityController,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      //filled: true,
-                      //fillColor: Colors.grey[100],
-                      hintText: 'SL',
-                    ),
-                  ),
-                ),
-                Container(
-                  //width: 30,
-                  child: IconButton(
-                    padding: EdgeInsets.all(0.0),
-                    icon: Icon(Icons.keyboard_arrow_down),
-                    onPressed: () => {},
-                  ),
-                  //padding: EdgeInsets.symmetric(horizontal: 8.0),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: DropdownButton(
-                      isExpanded: true,
-                      hint: Text('Select'),
-                      value: _currentCity,
-                      items: _dropDownMenuItems,
-                      onChanged: (str) => setState(() {
-                        _currentCity = str;
-                      }),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      //floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 

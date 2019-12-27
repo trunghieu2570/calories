@@ -1,4 +1,5 @@
 import 'package:calories/models/models.dart';
+import 'package:calories/util.dart';
 import 'package:flutter/material.dart';
 
 class MealItemCard extends StatelessWidget {
@@ -45,7 +46,13 @@ class MealItemCard extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (_, int index) {
               final item = items[index];
+              var quantity = 0;
+              if (item.quantity != null) {
+                quantity = num.tryParse(item.quantity);
+                if (quantity == null) quantity = 0;
+              }
               if (item.type == MealItemType.FOOD) {
+
                 try {
                   final food =
                       foods.firstWhere((food) => food.id == item.itemId);
@@ -54,7 +61,14 @@ class MealItemCard extends StatelessWidget {
                       food.name,
                     ),
                     subtitle: Text(
-                      food.brand,
+                      '${item.quantity} • ${multiStringAndNum(food.servings.quantity, quantity)} ${food.servings.unit}',
+                    ),
+                    trailing: Text(
+                      '${multiStringAndNum(food.nutritionInfo.calories, quantity)} kcal',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500),
                     ),
                   );
                 } catch (err) {
@@ -68,7 +82,14 @@ class MealItemCard extends StatelessWidget {
                       recipe.title,
                     ),
                     subtitle: Text(
-                      recipe.numberOfServings.toString() + " serving(s)",
+                      '$quantity servings',
+                    ),
+                    trailing: Text(
+                      '${multiStringAndNum(recipe.getSummaryNutrition(foods).calories, quantity)} kcal',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w500),
                     ),
                   );
                 } catch (err) {

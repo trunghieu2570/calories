@@ -119,11 +119,11 @@ class FoodsScreenState extends State<FoodsScreen>
                     icon: Icon(Icons.search),
                     tooltip: "Tìm kiếm",
                     onPressed: () => onSearchIconPressed(context)),
-                IconButton(
+                /*IconButton(
                   icon: Icon(Icons.mic_none),
                   tooltip: "Tìm kiếm bằng giọng nói",
                   onPressed: () => {},
-                ),
+                ),*/
               ],
               bottom: TabBar(
                 //isScrollable: true,
@@ -175,10 +175,10 @@ class FoodsScreenState extends State<FoodsScreen>
                       fontSize: 16,
                       fontFamily: 'OpenSans'),
                 ),
-                trailing: Icon(
+                /* trailing: Icon(
                   Icons.filter_list,
                   color: Colors.black,
-                ),
+                ), */
               ),
             ]),
           ),
@@ -236,10 +236,10 @@ class FoodsScreenState extends State<FoodsScreen>
                       fontSize: 16,
                       fontFamily: 'OpenSans'),
                 ),
-                trailing: Icon(
+                /* trailing: Icon(
                   Icons.filter_list,
                   color: Colors.black,
-                ),
+                ), */
               ),
             ]),
           ),
@@ -298,10 +298,10 @@ class FoodsScreenState extends State<FoodsScreen>
                       fontSize: 16,
                       fontFamily: 'OpenSans'),
                 ),
-                trailing: Icon(
+                /* trailing: Icon(
                   Icons.filter_list,
                   color: Colors.black,
-                ),
+                ), */
               ),
             ]),
           ),
@@ -356,6 +356,7 @@ class FoodsScreenState extends State<FoodsScreen>
       String photoUrl,
       Function() onTap}) {
     return Card(
+      margin: EdgeInsets.only(top: 2, right: 2, left: 2),
       semanticContainer: true,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Container(

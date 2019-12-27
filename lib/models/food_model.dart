@@ -198,6 +198,24 @@ class NutritionInfo extends Equatable {
     }
   }
 
+  NutritionInfo operator *(num other) {
+    try {
+      return NutritionInfo(
+        protein: multiStringAndNum(this.protein, other),
+        carbohydrates: multiStringAndNum(this.carbohydrates, other),
+        fats: multiStringAndNum(this.fats, other),
+        fiber: multiStringAndNum(this.fiber, other),
+        calories: multiStringAndNum(this.calories, other),
+        cholesterol: multiStringAndNum(this.cholesterol, other),
+        sugars: multiStringAndNum(this.sugars, other),
+        sodium: multiStringAndNum(this.sodium, other),
+        saturatedFats: multiStringAndNum(this.saturatedFats, other),
+      );
+    } catch (_) {
+      return NutritionInfo.empty();
+    }
+  }
+
   factory NutritionInfo.empty() {
     return NutritionInfo(
       calories: "0",

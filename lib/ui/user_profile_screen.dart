@@ -52,16 +52,11 @@ class ProfileScreenState extends State<ProfileScreen> {
                     ),
                     actions: <Widget>[
                       IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => EditProfileScreen())).then((f) {
-                          setState(() {
-                            user = f;
-                          });
-                        }),
-                      ),
+                          icon: Icon(Icons.edit),
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => EditProfileScreen()))),
                       IconButton(
                         icon: Icon(Icons.settings),
                         onPressed: () => {},
@@ -190,7 +185,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "kilogram",
+                                  "kilograms",
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w100,
@@ -214,7 +209,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                                 Text(
-                                  "30",
+                                  user.birthday != null
+                                      ? _calculateAge(user.birthday).toString()
+                                      : '0',
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
@@ -266,12 +263,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                             backgroundColor: Colors.green,
                             radius: 18,
                             child: Icon(
-                              Icons.offline_pin,
+                              Icons.check_circle,
                               color: Colors.white,
                             ),
                           ),
                           title: Text(
-                            "Setup Goal",
+                            "Setup Goals",
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500),
@@ -287,21 +284,21 @@ class ProfileScreenState extends State<ProfileScreen> {
                           contentPadding: EdgeInsets.symmetric(horizontal: 25),
                           leading: CircleAvatar(
                             radius: 18,
-                            backgroundColor: Colors.orange,
+                            backgroundColor: Colors.red,
                             child: Icon(
                               Icons.notifications_active,
                               color: Colors.white,
                             ),
                           ),
                           title: Text(
-                            "Remind",
+                            "Reminders",
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500),
                           ),
                         ),
                       ),
-                      Card(
+                      /*Card(
                         elevation: 0,
                         borderOnForeground: true,
                         margin: EdgeInsets.symmetric(vertical: 2),
@@ -323,7 +320,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.w500),
                           ),
                         ),
-                      ),
+                      ),*/
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 25, vertical: 5),
@@ -416,5 +413,10 @@ class ProfileScreenState extends State<ProfileScreen> {
       }
       return Text("No user information");
     });
+  }
+
+  int _calculateAge(DateTime birthday) {
+    final now = DateTime.now();
+    return now.year - birthday.year;
   }
 }

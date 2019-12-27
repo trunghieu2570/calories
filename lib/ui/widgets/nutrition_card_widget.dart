@@ -41,7 +41,7 @@ class NutritionCard extends StatelessWidget {
             title: Text(
               'Calories',
             ),
-            trailing: Text(nutritionInfo.protein + " kcal"),
+            trailing: Text(nutritionInfo.calories + " kcal"),
           ),
           ListTile(
             title: Text(

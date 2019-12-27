@@ -189,12 +189,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 contentPadding: EdgeInsets.all(15),
                                 labelText: "Birthday",
                               ),
+                              onSaved: (date) {
+                                _birthday = date;
+                              },
                               onShowPicker: (_, currentDate) async {
                                 return await showDatePicker(
                                     context: context,
                                     firstDate: DateTime(1900),
                                     initialDate: currentDate ?? DateTime.now(),
-                                    lastDate: DateTime(2100));
+                                    lastDate: DateTime.now());
                               },
                             ),
                           ),
