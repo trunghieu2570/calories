@@ -270,7 +270,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                                             ),
                                           ),
                                           Text(
-                                            "${nutrition.fats}mg",
+                                            "${nutrition.fats}g",
                                             style: TextStyle(
                                               fontSize: 20,
                                               color: Colors.white,
@@ -297,7 +297,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                                             ),
                                           ),
                                           Text(
-                                            "${nutrition.carbohydrates}mg",
+                                            "${nutrition.carbohydrates}g",
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -324,7 +324,7 @@ class DiaryScreenState extends State<DiaryScreen> {
                                             ),
                                           ),
                                           Text(
-                                            "${nutrition.protein}mg",
+                                            "${nutrition.protein}g",
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
@@ -882,6 +882,7 @@ class DiaryScreenState extends State<DiaryScreen> {
   void _addMultipleMealItems(Iterable<DailyMeal> todayMeals, DateTime date,
       String section, Iterable<MealItem> items) {
     if (items == null) return;
+    if (items.isEmpty) return;
     DailyMeal oldMeal;
     try {
       oldMeal =
@@ -932,9 +933,9 @@ class DiaryScreenState extends State<DiaryScreen> {
   static final Map<String, GoalAction> _goalActions = {
     GoalItemType.CALORIES: GoalAction('Eat', 'kcal'),
     GoalItemType.WATER: GoalAction('Drink', 'ml'),
-    GoalItemType.PROTEIN: GoalAction('Eat', 'mg'),
-    GoalItemType.LIPID: GoalAction('Eat', 'mg'),
-    GoalItemType.CARBOHYDRATE: GoalAction('Eat', 'mg')
+    GoalItemType.PROTEIN: GoalAction('Eat', 'g'),
+    GoalItemType.LIPID: GoalAction('Eat', 'g'),
+    GoalItemType.CARBOHYDRATE: GoalAction('Eat', 'g')
   };
 }
 

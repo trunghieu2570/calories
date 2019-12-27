@@ -2,9 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calories/blocs/auth/bloc.dart';
 import 'package:calories/ui/edit_profile_screen.dart';
 import 'package:calories/ui/screens/goal/edit_goal_screen.dart';
+import 'package:calories/ui/screens/reminder/setup_reminders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -280,7 +282,10 @@ class ProfileScreenState extends State<ProfileScreen> {
                         borderOnForeground: true,
                         margin: EdgeInsets.symmetric(vertical: 2),
                         child: ListTile(
-                          onTap: () => {},
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => SetRemindersScreen())),
                           contentPadding: EdgeInsets.symmetric(horizontal: 25),
                           leading: CircleAvatar(
                             radius: 18,
@@ -336,18 +341,23 @@ class ProfileScreenState extends State<ProfileScreen> {
                         borderOnForeground: true,
                         margin: EdgeInsets.symmetric(vertical: 2),
                         child: ListTile(
-                          onTap: () => {},
+                          onTap: () async {
+                            const url = 'https://github.com/trunghieu2570/calories/issues/new';
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            }
+                          },
                           contentPadding: EdgeInsets.symmetric(horizontal: 25),
                           leading: CircleAvatar(
                             radius: 18,
                             backgroundColor: Colors.purple,
                             child: Icon(
-                              Icons.settings,
+                              Icons.bug_report,
                               color: Colors.white,
                             ),
                           ),
                           title: Text(
-                            "Settings",
+                            "Bug Report",
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500),
@@ -359,7 +369,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                         borderOnForeground: true,
                         margin: EdgeInsets.symmetric(vertical: 2),
                         child: ListTile(
-                          onTap: () => {},
+                          onTap: () => _showInfoDialog(),
                           contentPadding: EdgeInsets.symmetric(horizontal: 25),
                           leading: CircleAvatar(
                               radius: 18,
@@ -418,5 +428,34 @@ class ProfileScreenState extends State<ProfileScreen> {
   int _calculateAge(DateTime birthday) {
     final now = DateTime.now();
     return now.year - birthday.year;
+  }
+
+  Future<bool> _showInfoDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dContext) {
+        return AlertDialog(
+          title: Text('About this app'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Version: 1.0.0'),
+              Text('Developer: Tran Trung Hieu'),
+              Text('Email: trunghieu2570@gmail.com'),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'.toUpperCase()),
+              onPressed: () {
+                Navigator.pop(dContext, true);
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 }

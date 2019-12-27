@@ -27,16 +27,23 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
   static final String routeName = '/foodSearch';
   FoodAction _action;
   String _searchQuery;
+  TextEditingController _controller;
 
-  void _onFilterPress(BuildContext pcontext) {
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    super.initState();
+  }
+
+  /*void _onFilterPress(BuildContext pcontext) {
     showDialog(
         context: pcontext,
         builder: (BuildContext context) {
           return _filterDialog();
         });
-  }
+  }*/
 
-  Widget _filterDialog() {
+/*  Widget _filterDialog() {
     return AlertDialog(
       contentPadding: EdgeInsets.all(15),
       titleTextStyle: TextStyle(
@@ -66,7 +73,7 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
         )
       ],
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +93,7 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
             iconTheme: IconThemeData(color: Colors.black),
             backgroundColor: Colors.grey[100],
             title: TextField(
+              controller: _controller,
               autofocus: true,
               style: TextStyle(fontSize: 18),
               onChanged: (value) {
@@ -102,11 +110,15 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
               Container(
                 margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
                 child: IconButton(
-                  icon: Icon(
-                    Icons.close,
-                  ),
-                  onPressed: () => {},
-                ),
+                    icon: Icon(
+                      Icons.close,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _controller.clear();
+                        _searchQuery = _controller.text;
+                      });
+                    }),
               ),
             ],
           ),
@@ -118,7 +130,7 @@ class FoodSearchScreenState extends State<FoodSearchScreen> {
                     child: Center(child: Text("Loading")),
                   );
                 } else if (state is FoodLoaded) {
-                  final allFoods = state.foods;
+                  final allFoods = state.foods.where((m) => m.share == true).toList();
                   List<Food> foods;
                   if (_searchQuery == null || _searchQuery == '')
                     foods = allFoods;

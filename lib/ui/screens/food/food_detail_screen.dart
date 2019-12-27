@@ -58,7 +58,8 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
       _uid = null;
   }
 
-  Widget _buildAlert(bool show) => Builder(
+  Widget _buildAlert(bool show) =>
+      Builder(
         builder: (context) {
           if (show) {
             return Container(
@@ -93,7 +94,10 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final FoodDetailArgument args = ModalRoute.of(context).settings.arguments;
+    final FoodDetailArgument args = ModalRoute
+        .of(context)
+        .settings
+        .arguments;
     _food = args.food;
     _action = args.action;
     var weight = 0.0;
@@ -120,66 +124,69 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
             actions: <Widget>[
               BlocBuilder<FavoriteFoodsBloc, FavoriteFoodsState>(
                   builder: (context, state) {
-                if (state is FavoriteFoodsLoaded) {
-                  final _isFavorite = state.foodIds.contains(_food.id);
-                  return IconButton(
-                    icon: _isFavorite
-                        ? Icon(Icons.favorite)
-                        : Icon(Icons.favorite_border),
-                    onPressed: () {
-                      if (_isFavorite) {
-                        Scaffold.of(context).removeCurrentSnackBar();
-                        _favoriteFoodsBloc.add(DeleteFavoriteFood(_food.id));
-                        final snackBar =
-                            SnackBar(content: Text('Đã loại bỏ yêu thích'));
-                        Scaffold.of(context).showSnackBar(snackBar);
-                      } else {
-                        Scaffold.of(context).removeCurrentSnackBar();
-                        _favoriteFoodsBloc.add(AddFavoriteFood(_food.id));
+                    if (state is FavoriteFoodsLoaded) {
+                      final _isFavorite = state.foodIds.contains(_food.id);
+                      return IconButton(
+                        icon: _isFavorite
+                            ? Icon(Icons.favorite)
+                            : Icon(Icons.favorite_border),
+                        onPressed: () {
+                          if (_isFavorite) {
+                            Scaffold.of(context).removeCurrentSnackBar();
+                            _favoriteFoodsBloc.add(DeleteFavoriteFood(
+                                _food.id));
+                            final snackBar =
+                            SnackBar(content: Text('Remove favorite'));
+                            Scaffold.of(context).showSnackBar(snackBar);
+                          } else {
+                            Scaffold.of(context).removeCurrentSnackBar();
+                            _favoriteFoodsBloc.add(AddFavoriteFood(_food.id));
 
-                        final snackBar =
-                            SnackBar(content: Text('Đã thêm vào yêu thích'));
-                        Scaffold.of(context).showSnackBar(snackBar);
-                      }
-                    },
-                  );
-                }
+                            final snackBar =
+                            SnackBar(content: Text('Add favorite'));
+                            Scaffold.of(context).showSnackBar(snackBar);
+                          }
+                        },
+                      );
+                    }
 
-                return Container();
-              }),
+                    return Container();
+                  }),
               _food.creatorId == _uid
                   ? IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CreateFoodScreen(food: _food),
-                          )).then((editedFood) {
-                        if (editedFood != null) {
-                          Navigator.pushReplacementNamed(
-                              context, FoodDetailScreen.routeName,
-                              arguments: FoodDetailArgument(
-                                  action: _action, food: editedFood));
-                        }
-                      }),
-                    )
+                icon: Icon(Icons.edit),
+                onPressed: () =>
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CreateFoodScreen(food: _food),
+                        )).then((editedFood) {
+                      if (editedFood != null) {
+                        Navigator.pushReplacementNamed(
+                            context, FoodDetailScreen.routeName,
+                            arguments: FoodDetailArgument(
+                                action: _action, food: editedFood));
+                      }
+                    }),
+              )
                   : Container(),
               _food.creatorId == _uid
                   ? IconButton(
-                      icon: Icon(Icons.delete_outline),
-                      onPressed: () =>
-                          _showDeleteDialog().then((isAccept) async {
-                        if (isAccept) {
-                          await _delete();
-                          Navigator.pop(context);
-                          Flushbar(
-                            animationDuration: Duration(milliseconds: 500),
-                            duration: Duration(seconds: 2),
-                            message: 'Deleted successfully',
-                          )..show(context);
-                        }
-                      }),
-                    )
+                icon: Icon(Icons.delete_outline),
+                onPressed: () =>
+                    _showDeleteDialog().then((isAccept) async {
+                      if (isAccept) {
+                        await _delete();
+                        Navigator.pop(context);
+                        Flushbar(
+                          animationDuration: Duration(milliseconds: 500),
+                          duration: Duration(seconds: 2),
+                          message: 'Deleted successfully',
+                        )
+                          ..show(context);
+                      }
+                    }),
+              )
                   : Container(),
             ],
             title: Text("Food details"),
@@ -191,7 +198,7 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
                     image: _food.photoUrl != null
                         ? CachedNetworkImageProvider(_food.photoUrl)
                         : CachedNetworkImageProvider(
-                            'https://picsum.photos/600/400'),
+                        'https://picsum.photos/600/400'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -231,7 +238,9 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
                 Container(
                   margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
                   decoration:
-                      new BoxDecoration(color: Theme.of(context).cardColor),
+                  new BoxDecoration(color: Theme
+                      .of(context)
+                      .cardColor),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -261,8 +270,8 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
                                       setState(() {});
                                     },
                                     keyboardType:
-                                        TextInputType.numberWithOptions(
-                                            decimal: true),
+                                    TextInputType.numberWithOptions(
+                                        decimal: true),
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
                                       suffixIcon: IconButton(
@@ -316,11 +325,12 @@ class FoodDetailScreenState extends State<FoodDetailScreen> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: (!_isDeleted() && _action != null)
+          ? FloatingActionButton.extended(
         onPressed: _onAddButtonPressed,
         label: Text('Add'.toUpperCase()),
         icon: Icon(Icons.add),
-      ),
+      ): null,
     );
   }
 

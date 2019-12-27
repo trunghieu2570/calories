@@ -15,6 +15,7 @@ class MealSearchArgument {
 
 class MealSearchScreen extends StatefulWidget {
   static final String routeName = "/mealSearch";
+
   @override
   _MealSearchScreenState createState() => _MealSearchScreenState();
 }
@@ -23,8 +24,15 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
   static final String routeName = "/mealSearch";
   MealAction _action;
   String _searchQuery;
+  TextEditingController _controller;
 
-  void _onFilterPress(BuildContext pcontext) {
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    super.initState();
+  }
+
+/*  void _onFilterPress(BuildContext pcontext) {
     showDialog(
         context: pcontext,
         builder: (BuildContext context) {
@@ -62,7 +70,7 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
         )
       ],
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +88,7 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
             iconTheme: IconThemeData(color: Colors.black),
             backgroundColor: Colors.grey[100],
             title: TextField(
+              controller: _controller,
               autofocus: true,
               style: TextStyle(fontSize: 18),
               onChanged: (value) {
@@ -99,7 +108,12 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                   icon: Icon(
                     Icons.close,
                   ),
-                  onPressed: () => {},
+                  onPressed: () {
+                    setState(() {
+                      _controller.clear();
+                      _searchQuery = _controller.text;
+                    });
+                  }
                 ),
               ),
             ],
@@ -112,7 +126,7 @@ class _MealSearchScreenState extends State<MealSearchScreen> {
                     child: Center(child: Text("Loading")),
                   );
                 } else if (state is MealsLoaded) {
-                  final allMeals = state.meals;
+                  final allMeals = state.meals.where((m) => m.share == true).toList();
                   List<Meal> meals;
                   if (_searchQuery == null || _searchQuery == '')
                     meals = allMeals;

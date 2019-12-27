@@ -8,6 +8,7 @@ import 'package:calories/blocs/goals/goals_bloc.dart';
 import 'package:calories/blocs/home_load/bloc.dart';
 import 'package:calories/blocs/meal/bloc.dart';
 import 'package:calories/blocs/recipe/recipe_bloc.dart';
+import 'package:calories/ui/edit_profile_screen.dart';
 import 'package:calories/ui/foods_screen.dart';
 import 'package:calories/ui/loading_screen.dart';
 import 'package:calories/ui/login_screen.dart';
@@ -21,6 +22,7 @@ import 'package:calories/ui/splash_screen.dart';
 import 'package:calories/ui/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'diary_screen.dart';
 import 'screens/goal/edit_goal_screen.dart';
@@ -29,6 +31,7 @@ import 'screens/meal/meal_detail_screen.dart';
 import 'screens/recipe/create_recipe_screen.dart';
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -91,6 +94,7 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+
 }
 
 class MyHomePage extends StatefulWidget {
@@ -107,26 +111,32 @@ class MyHomePageState extends State<MyHomePage>
   int _selectedView = 0;
   List<Widget> _views;
   List<Widget> _floatingButtons;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-/*   SystemUiOverlayStyle systemUiOverlayStyle = new SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.grey[50],
-    systemNavigationBarIconBrightness: Brightness.dark,
-    systemNavigationBarDividerColor: Colors.black54,
-  ); */
-
+  Future _updateProfile() async {
+    final authState = BlocProvider.of<AuthBloc>(context).state;
+    if(authState is Authenticated) {
+      final user = authState.user;
+      if(user.weight == null || user.height == null || user.birthday == null || user.gender == null) {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => EditProfileScreen()));
+      }
+    }
+  }
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // _reset();
     _selectedView = 0;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateProfile();
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
   }
 
 /*   void _reset() {
@@ -159,6 +169,7 @@ class MyHomePageState extends State<MyHomePage>
     }
   } */
 
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -173,6 +184,8 @@ class MyHomePageState extends State<MyHomePage>
       //Text("Hello World 3"),
       new ProfileScreen(),
     ];
+
+
     return Scaffold(
       body: Builder(
         builder: (BuildContext context) {

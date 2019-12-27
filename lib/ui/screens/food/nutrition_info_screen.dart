@@ -134,7 +134,7 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
               SliverList(
                 delegate: SliverChildListDelegate([
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _calories,
                       keyboardType: TextInputType.number,
@@ -153,12 +153,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _fats,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'mg',
+                        suffixText: 'g',
                         fillColor: Colors.white,
                         filled: true,
                         contentPadding: EdgeInsets.all(15),
@@ -172,12 +172,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _saturatedFats,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'mg',
+                        suffixText: 'g',
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: EdgeInsets.all(15),
@@ -191,12 +191,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _carbohydrates,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'mg',
+                        suffixText: 'g',
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: EdgeInsets.all(15),
@@ -209,25 +209,27 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                       },
                     ),
                   ),
-                  Container(height: _padding),
-                  TextFormField(
-                    initialValue: _protein,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      suffixText: 'mg',
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: EdgeInsets.all(15),
-                      labelText: "Protein",
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    child: TextFormField(
+                      initialValue: _protein,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        suffixText: 'g',
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.all(15),
+                        labelText: "Protein",
+                      ),
+                      onSaved: (value) => _protein = value,
+                      validator: (value) {
+                        if (value.isEmpty) return "Not be empty";
+                        return null;
+                      },
                     ),
-                    onSaved: (value) => _protein = value,
-                    validator: (value) {
-                      if (value.isEmpty) return "Not be empty";
-                      return null;
-                    },
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _sodium,
                       keyboardType: TextInputType.number,
@@ -246,12 +248,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _sugars,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'mg',
+                        suffixText: 'g',
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: EdgeInsets.all(15),
@@ -265,12 +267,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _fiber,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'mg',
+                        suffixText: 'g',
                         filled: true,
                         fillColor: Colors.white,
                         labelText: "Fiber",
@@ -284,12 +286,12 @@ class _NutritionInfoScreenState extends State<NutritionInfoScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                     child: TextFormField(
                       initialValue: _cholesterol,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        suffixText: 'ml',
+                        suffixText: 'mg',
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: EdgeInsets.all(15),

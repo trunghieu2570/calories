@@ -50,14 +50,13 @@ class FoodsScreenState extends State<FoodsScreen>
 
   void _onTabIndexChanged() {
     setState(() {
-      _selectedTab = _tabController.index;
+      _selectedTab = (_tabController.animation.value).round();
     });
   }
 
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(_onTabIndexChanged);
+    _tabController = TabController(length: 3, vsync: this)..animation..addListener(_onTabIndexChanged);
     _foodBloc = BlocProvider.of<FoodBloc>(context);
     _recipeBloc = BlocProvider.of<RecipeBloc>(context);
     _mealBloc = BlocProvider.of<MealBloc>(context);
@@ -156,10 +155,7 @@ class FoodsScreenState extends State<FoodsScreen>
           ],
         ),
       ),
-      floatingActionButton: AnimatedContainer(
-          curve: Curves.fastOutSlowIn,
-          duration: Duration(milliseconds: 100),
-          child: _floatingButtons.elementAt(_selectedTab)),
+      floatingActionButton: _floatingButtons.elementAt(_selectedTab),
     );
   }
 

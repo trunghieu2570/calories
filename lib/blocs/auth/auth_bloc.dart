@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:calories/models/models.dart';
 import 'package:calories/repositories/auth_repository.dart';
 import 'package:calories/repositories/repositories.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 import './bloc.dart';
@@ -89,6 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Stream<AuthState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
+    await _authRepository.disconnect();
     await _authRepository.signOut();
   }
 }

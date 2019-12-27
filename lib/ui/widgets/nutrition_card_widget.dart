@@ -47,31 +47,31 @@ class NutritionCard extends StatelessWidget {
             title: Text(
               'Protein',
             ),
-            trailing: Text(nutritionInfo.protein + " mg"),
+            trailing: Text(nutritionInfo.protein + " g"),
           ),
           ListTile(
             title: Text(
               'Lipit',
             ),
-            trailing: Text(nutritionInfo.fats + " mg"),
+            trailing: Text(nutritionInfo.fats + " g"),
           ),
           ListTile(
             title: Text(
               'Saturated Fats',
             ),
-            trailing: Text(nutritionInfo.saturatedFats + " mg"),
+            trailing: Text(nutritionInfo.saturatedFats + " g"),
           ),
           ListTile(
             title: Text(
               'Carbohydrates',
             ),
-            trailing: Text(nutritionInfo.carbohydrates + " mg"),
+            trailing: Text(nutritionInfo.carbohydrates + " g"),
           ),
           ListTile(
             title: Text(
               'Sugars',
             ),
-            trailing: Text(nutritionInfo.sugars + " mg"),
+            trailing: Text(nutritionInfo.sugars + " g"),
           ),
           ListTile(
             title: Text(
@@ -83,13 +83,13 @@ class NutritionCard extends StatelessWidget {
             title: Text(
               'Fibers',
             ),
-            trailing: Text(nutritionInfo.fiber + " mg"),
+            trailing: Text(nutritionInfo.fiber + " g"),
           ),
           ListTile(
             title: Text(
               'Cholesterol',
             ),
-            trailing: Text(nutritionInfo.saturatedFats + " ml"),
+            trailing: Text(nutritionInfo.saturatedFats + " mg"),
           ),
         ],
       ),

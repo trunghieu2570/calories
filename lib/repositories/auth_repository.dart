@@ -22,6 +22,10 @@ class AuthRepository {
     await _auth.signOut();
   }
 
+  Future<void> disconnect() async {
+    await _googleSignIn.disconnect();
+  }
+
   Future<bool> isSignedIn() async {
     final currentUser = await _auth.currentUser();
     return currentUser != null;

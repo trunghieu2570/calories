@@ -165,15 +165,15 @@ class _EditGoalScreenState extends State<EditGoalScreen> {
                 _buildItemCard(
                     item: _goalItems[GoalItemType.CARBOHYDRATE],
                     name: 'Carbohydrate',
-                    unit: 'mg'),
+                    unit: 'g'),
                 _buildItemCard(
                     item: _goalItems[GoalItemType.PROTEIN],
                     name: 'Protein',
-                    unit: 'mg'),
+                    unit: 'g'),
                 _buildItemCard(
                     item: _goalItems[GoalItemType.LIPID],
                     name: 'Fats',
-                    unit: 'mg'),
+                    unit: 'g'),
               ]),
             )
           ],

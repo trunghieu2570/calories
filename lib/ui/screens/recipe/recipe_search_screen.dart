@@ -24,8 +24,15 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
   static final String routeName = "/recipeSearch";
   RecipeAction _action;
   String _searchQuery;
+  TextEditingController _controller;
 
-  void _onFilterPress(BuildContext pcontext) {
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    super.initState();
+  }
+
+  /*void _onFilterPress(BuildContext pcontext) {
     showDialog(
         context: pcontext,
         builder: (BuildContext context) {
@@ -63,7 +70,7 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
         )
       ],
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +88,7 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
             iconTheme: IconThemeData(color: Colors.black),
             backgroundColor: Colors.grey[100],
             title: TextField(
+              controller: _controller,
               autofocus: true,
               style: TextStyle(fontSize: 18),
               onChanged: (value) {
@@ -97,11 +105,15 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
               Container(
                 margin: EdgeInsets.only(top: 8.0, bottom: 8.0, right: 8.0),
                 child: IconButton(
-                  icon: Icon(
-                    Icons.close,
-                  ),
-                  onPressed: () => {},
-                ),
+                    icon: Icon(
+                      Icons.close,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _controller.clear();
+                        _searchQuery = _controller.text;
+                      });
+                    }),
               ),
             ],
           ),
@@ -113,7 +125,7 @@ class RecipeSearchScreenState extends State<RecipeSearchScreen> {
                     child: Center(child: Text("Loading")),
                   );
                 } else if (state is RecipesLoaded) {
-                  final allRecipes = state.recipes;
+                  final allRecipes = state.recipes.where((m) => m.share == true).toList();
                   List<Recipe> recipes;
                   if (_searchQuery == null || _searchQuery == '')
                     recipes = allRecipes;

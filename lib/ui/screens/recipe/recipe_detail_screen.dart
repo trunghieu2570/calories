@@ -298,7 +298,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           )),
         ],
       ),
-      floatingActionButton: !_isDeleted()
+      floatingActionButton: (!_isDeleted() && _action != null)
           ? FloatingActionButton.extended(
               onPressed: _onAddButtonPressed,
               label: Text('Add'.toUpperCase()),

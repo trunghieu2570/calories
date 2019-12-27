@@ -109,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           automaticallyImplyLeading: true,
-          title: Text('Edit your profile'),
+          title: Text('Update your profile'),
           actions: <Widget>[
             FlatButton(
               textColor: Colors.white,
